@@ -12,4 +12,4 @@ const d = post.data;
 const pick = pickCover({ id: post.id, tag: d.tag, layout: d.layout, palette: d.palette, kicker: d.kicker });
 ---
 
-<Cover {...pick} title={d.title} date={d.date} label={d.label} image={d.image} imageAlt={d.image_alt} size={size} />
+<Cover {...pick} title={d.title} summary={d.summary} date={d.date} label={d.label} image={d.image} imageAlt={d.image_alt} size={size} />

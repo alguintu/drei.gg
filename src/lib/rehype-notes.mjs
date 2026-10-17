@@ -83,10 +83,33 @@ function blockOf(pre) {
   return BLOCKS.has(lang) ? { lang, node: code || pre } : null;
 }
 
+// A paragraph holding just an image whose title names a frame becomes a framed
+// figure: ![alt](./shot.png "offset | caption"). Frames: offset, teal, bracket,
+// rounded, quarter, tape.
+const FRAMES = new Set(['offset', 'teal', 'bracket', 'rounded', 'quarter', 'tape']);
+
+function framed(p) {
+  const kids = (p.children || []).filter((c) => !(c.type === 'text' && !c.value.trim()));
+  if (kids.length !== 1 || kids[0].tagName !== 'img') return null;
+  const img = kids[0];
+  const [frame, ...rest] = String(img.properties?.title || '').split('|');
+  const name = frame.trim().toLowerCase();
+  if (!FRAMES.has(name)) return null;
+  const caption = rest.join('|').trim();
+  delete img.properties.title;
+  const classes = ['frm', `frm-${name === 'teal' ? 'offset frm-teal' : name}`].join(' ').split(' ');
+  const capChildren = name === 'tape' ? [el('span', null, [txt(caption || img.properties.alt || '')])] : [txt(caption)];
+  return el('figure', classes, [el('span', ['frm-in'], [img]), ...(caption || name === 'tape' ? [el('figcaption', null, capChildren)] : [])]);
+}
+
 export default function rehypeNotes() {
   const walk = (node) => {
     if (!node.children) return;
     node.children = node.children.map((child) => {
+      if (child.type === 'element' && child.tagName === 'p') {
+        const fig = framed(child);
+        if (fig) return fig;
+      }
       if (child.type === 'element' && child.tagName === 'pre') {
         const found = blockOf(child);
         if (found) {

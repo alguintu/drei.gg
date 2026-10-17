@@ -3,6 +3,8 @@ title: How posts get written here
 date: 2026-10-17
 tag: build
 summary: Every post is a patch note.
+image: ./log.jpg
+image_alt: A post on the log, with patch notes
 ---
 
 Each post is a patch note. Say what changed, what broke, and what we think about it. No SEO titles. No "we're thrilled to announce."

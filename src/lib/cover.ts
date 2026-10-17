@@ -1,23 +1,25 @@
-// Poster-style post covers. Every post gets one; front matter can pick the
-// layout and palette, otherwise both are picked from the post's slug so
-// neighbouring posts rarely look alike.
+// Post covers. Every layout is built around an image slot, after the
+// social-post templates Drei collected: white or colored ground, one main
+// color (marker yellow or Aeris teal), black type, and red only as a small mark.
+// Front matter can pick the layout and palette; otherwise the slug picks them.
 
 export const LAYOUTS = [
-  'stamp',
-  'vertical',
-  'echo',
-  'split',
-  'bignum',
-  'brush',
-  'spaced',
-  'tape',
-  'xmark',
-  'hashtag',
-  'quote',
-  'hatch',
+  'giveaway',
+  'streetwear',
+  'everyday',
+  'offset',
+  'overlay',
+  'bracket',
+  'tiles',
+  'caption',
+  'quarter',
+  'spread',
+  'lshape',
+  'mono',
 ] as const;
 
-export const PALETTES = ['ink', 'ribbon', 'marker', 'aeris', 'paper'] as const;
+// marker: yellow on white. aeris: teal on white. ink: yellow on near-black.
+export const PALETTES = ['marker', 'aeris', 'ink'] as const;
 
 export type Layout = (typeof LAYOUTS)[number];
 export type Palette = (typeof PALETTES)[number];
@@ -38,23 +40,11 @@ function hash(text: string) {
   return h >>> 0;
 }
 
-export function pickCover(opts: {
-  id: string;
-  tag: string;
-  layout?: Layout;
-  palette?: Palette;
-  kicker?: string;
-}) {
+export function pickCover(opts: { id: string; tag: string; layout?: Layout; palette?: Palette; kicker?: string }) {
   const h = hash(opts.id);
   return {
     layout: opts.layout ?? LAYOUTS[h % LAYOUTS.length],
     palette: opts.palette ?? PALETTES[(h >>> 8) % PALETTES.length],
     kicker: (opts.kicker ?? KICKERS[opts.tag] ?? opts.tag).toUpperCase(),
   };
-}
-
-// A short number for the bignum layout: the version's last part, or the day.
-export function bigNumber(label: string | undefined, date: Date) {
-  const digits = label?.match(/\d+(?!.*\d)/)?.[0];
-  return (digits ?? String(date.getUTCDate())).padStart(2, '0');
 }

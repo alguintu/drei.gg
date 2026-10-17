@@ -1,0 +1,28 @@
+---
+// The image slot every cover is built around. Without an image it shows a
+// quiet hatched panel with the kicker, so a post never looks broken.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  image?: ImageMetadata;
+  alt?: string;
+  class?: string;
+  bw?: boolean;
+  position?: string;
+  fallback: string;
+}
+const { image, alt = '', class: cls = '', bw = false, position, fallback } = Astro.props;
+---
+
+{
+  image ? (
+    <div class:list={['ph', cls, { bw }]}>
+      <Image src={image} alt={alt} widths={[480, 960, 1440]} sizes="(max-width: 860px) 100vw, 760px" style={position ? `object-position: ${position}` : undefined} />
+    </div>
+  ) : (
+    <div class:list={['ph', 'empty', cls]} aria-hidden="true">
+      <span>{fallback}</span>
+    </div>
+  )
+}

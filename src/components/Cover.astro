@@ -1,14 +1,16 @@
 ---
-import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import Photo from './cover/Photo.astro';
+import Stamp from './cover/Stamp.astro';
 import Brush from './Brush.astro';
-import { bigNumber, type Layout, type Palette } from '../lib/cover';
+import type { Layout, Palette } from '../lib/cover';
 
 interface Props {
   layout: Layout;
   palette: Palette;
   kicker: string;
   title: string;
+  summary?: string;
   date: Date;
   label?: string;
   image?: ImageMetadata;
@@ -16,176 +18,201 @@ interface Props {
   size?: 'full' | 'card';
 }
 
-const { layout, palette, kicker, title, date, label, image, imageAlt = '', size = 'full' } = Astro.props;
-const num = bigNumber(label, date);
-const letters = [...kicker.replace(/\s+/g, '')];
-const row = Array(kicker.length > 6 ? 2 : 4).fill(kicker).join(' ');
+const { layout, palette, kicker, title, summary, date, label, image, imageAlt = '', size = 'full' } = Astro.props;
 const stamp = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
+const foot = `drei.gg/log · ${stamp}${label ? ` · ${label}` : ''}`;
+const blurb = summary ?? title;
+const letters = [...kicker.replace(/\s+/g, '')].slice(0, 8);
+const photo = { image, alt: imageAlt, fallback: kicker };
 ---
 
-<figure class={`cv cv-${layout} pal-${palette} cv-${size}`} aria-label={`${kicker}: ${title}`}>
+<figure class={`cv cv-${layout} pal-${palette} cv-${size}`} aria-label={title}>
   {
-    layout === 'stamp' && (
-      <div class="frame">
-        <span class="corner tl" />
-        <span class="corner br" />
-        <p class="k">{kicker}</p>
-        <p class="t">{title}</p>
-        <span class="dots" aria-hidden="true">
-          •••
-        </span>
-      </div>
-    )
-  }
-
-  {
-    layout === 'vertical' && (
+    layout === 'giveaway' && (
       <>
-        <p class="k">{kicker}</p>
-        <span class="bar" />
-        <div class="ph">{image ? <Image src={image} alt={imageAlt} widths={[480, 960]} sizes="60vw" /> : <span class="grid" />}</div>
+        <span class="main-blk" />
+        <Photo {...photo} class="p" />
+        <p class="vk">{kicker}</p>
+        <Stamp class="st" />
         <p class="t">{title}</p>
-        <p class="m">{stamp}</p>
+        <p class="foot">{foot}</p>
+        <span class="dotgrid" />
+        <span class="tick" />
       </>
     )
   }
 
   {
-    layout === 'echo' && (
+    layout === 'streetwear' && (
       <>
-        <span class="slab" />
-        <div class="rows" aria-hidden="true">
-          <span>{row}</span>
-          <span class="o">{row}</span>
-          <span class="sh">{row}</span>
+        <p class="t">{title}</p>
+        <Stamp class="st" />
+        <span class="tint" />
+        <Photo {...photo} class="p" />
+        <span class="hatch" />
+        <span class="dotgrid" />
+        <span class="tick" />
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'everyday' && (
+      <>
+        <span class="main-blk" />
+        <span class="tri" />
+        <Photo {...photo} class="p" />
+        <p class="t">{title}</p>
+        <p class="foot">{blurb === title ? foot : blurb}</p>
+        <span class="dotgrid" />
+        <span class="tick" />
+      </>
+    )
+  }
+
+  {
+    layout === 'offset' && (
+      <>
+        <span class="hatch" />
+        <span class="dotgrid" />
+        <span class="main-blk" />
+        <Photo {...photo} class="p" />
+        <span class="tick" />
+        <p class="t">{title}</p>
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'overlay' && (
+      <>
+        <Photo {...photo} class="p" />
+        <div class="panel">
+          <p class="k">{kicker}</p>
+          <p class="t">{title}</p>
+          <p class="foot">{foot}</p>
         </div>
-        <p class="t">{title}</p>
+        <Stamp class="st" />
+        <span class="dotgrid" />
       </>
     )
   }
 
   {
-    layout === 'split' && (
+    layout === 'bracket' && (
       <>
-        <span class="half" />
-        {['l', 'r'].map((side) => (
-          <div class={`stack ${side}`} aria-hidden={side === 'r' ? 'true' : undefined}>
-            <span>{row}</span>
-            <span class="o">{row}</span>
-            <span>{row}</span>
-          </div>
-        ))}
-        <p class="t">{title}</p>
+        <div class="sq">
+          <span class="corner tl" />
+          <span class="corner br" />
+          <span class="qm" aria-hidden="true">
+            “
+          </span>
+          <p class="t">{title}</p>
+          <p class="foot">{foot}</p>
+        </div>
+        <Photo {...photo} class="p" />
+        <span class="tick" />
       </>
     )
   }
 
   {
-    layout === 'bignum' && (
+    layout === 'tiles' && (
       <>
-        <p class="side l" aria-hidden="true">
-          {`${kicker} · `.repeat(6)}
-        </p>
-        <p class="n">{num}</p>
-        <p class="side r" aria-hidden="true">
-          {`${kicker} · `.repeat(6)}
-        </p>
-        <p class="t">{title}</p>
+        <Photo {...photo} class="p p1" position="left top" />
+        <div class="kt">
+          <p class="k">{kicker}</p>
+          <span class="dots" aria-hidden="true">
+            •••
+          </span>
+        </div>
+        <div class="it">
+          <p class="t">{title}</p>
+          <p class="foot">{foot}</p>
+        </div>
+        <Photo {...photo} class="p p2" position="right bottom" />
       </>
     )
   }
 
   {
-    layout === 'brush' && (
+    layout === 'caption' && (
       <>
-        <Brush class="stroke" />
-        <p class="k">{kicker}</p>
-        <p class="t">{title}</p>
-        <span class="x" aria-hidden="true">
-          ×
-        </span>
+        <Photo {...photo} class="p" />
+        <span class="hatch" />
+        <div class="panel">
+          <p class="lbl">
+            <span>{kicker}</span>
+          </p>
+          <p class="t">{title}</p>
+          <p class="foot">{foot}</p>
+        </div>
+        <span class="tick" />
       </>
     )
   }
 
   {
-    layout === 'spaced' && (
+    layout === 'quarter' && (
       <>
-        <Brush class="stroke" variant={2} />
-        <div class="letters" aria-hidden="true" style={`--cols: ${Math.ceil(Math.sqrt(letters.length))}`}>
+        <span class="xx" aria-hidden="true" />
+        <span class="moon" />
+        <Photo {...photo} class="p" bw />
+        <p class="side">{blurb}</p>
+        <p class="t">{title}</p>
+        <p class="foot">{foot}</p>
+        <span class="dot" />
+      </>
+    )
+  }
+
+  {
+    layout === 'spread' && (
+      <>
+        <Brush class="b1" />
+        <Brush class="b2" variant={2} />
+        <Photo {...photo} class="p" />
+        <div class="letters" aria-hidden="true" style={`--cols: ${Math.ceil(letters.length / 2)}`}>
           {letters.map((c) => (
             <span>{c}</span>
           ))}
         </div>
-        <p class="t">{title}</p>
+        <p class="lbl">
+          <span>{title}</span>
+        </p>
       </>
     )
   }
 
   {
-    layout === 'tape' && (
+    layout === 'lshape' && (
       <>
         <span class="l1" />
         <span class="l2" />
-        <p class="k">{kicker}</p>
-        <p class="tape">
+        <Photo {...photo} class="p" />
+        <p class="lbl">
           <span>{title}</span>
         </p>
-        <p class="m">{stamp}</p>
+        <p class="k">{kicker}</p>
+        <Brush class="b1" />
+        <span class="tick" />
       </>
     )
   }
 
   {
-    layout === 'xmark' && (
+    layout === 'mono' && (
       <>
-        <span class="xx" aria-hidden="true" />
-        <span class="moon" />
-        {image && (
-          <div class="ph">
-            <Image src={image} alt={imageAlt} widths={[480, 960]} sizes="40vw" />
-          </div>
-        )}
-        <p class="t">{title}</p>
-        <p class="side">{kicker}</p>
-      </>
-    )
-  }
-
-  {
-    layout === 'hashtag' && (
-      <>
-        <Brush class="s1" />
-        <Brush class="s2" variant={2} />
-        <p class="h">#{kicker.toLowerCase().replace(/\s+/g, '')}</p>
-        <p class="t">{title}</p>
-      </>
-    )
-  }
-
-  {
-    layout === 'quote' && (
-      <div class="frame">
-        <span class="corner tl" />
-        <span class="corner br" />
-        <span class="qm" aria-hidden="true">
-          “
-        </span>
-        <p class="t">{title}</p>
-        <p class="m">— drei, {kicker.toLowerCase()}</p>
-      </div>
-    )
-  }
-
-  {
-    layout === 'hatch' && (
-      <>
-        <span class="lines" />
-        <span class="dotgrid" />
-        <p class="k">
+        <Photo {...photo} class="p" bw />
+        <div class="stack" aria-hidden="true">
           <span>{kicker}</span>
-        </p>
+          <span class="o">{kicker}</span>
+          <span>{kicker}</span>
+        </div>
         <p class="t">{title}</p>
+        <span class="dot" />
       </>
     )
   }

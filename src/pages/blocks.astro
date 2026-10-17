@@ -3,13 +3,23 @@ import Base from '../layouts/Base.astro';
 import Cover from '../components/Cover.astro';
 import { LAYOUTS, PALETTES } from '../lib/cover';
 import { Content as Blocks } from '../demo/blocks.md';
+import hero from '../demo/sample-hero.jpg';
+import log from '../demo/sample-log.jpg';
+import phone from '../demo/sample-phone.jpg';
+import dark from '../demo/sample-dark.jpg';
 
 // Every cover layout in every palette, plus the in-post blocks.
 // Not linked from the site; it's a picker for writing posts.
-const sample = { title: 'We bought drei.gg. That’s the whole update.', date: new Date('2026-10-16'), label: 'v0.0.1' };
+const images = [hero, log, dark, phone];
+const sample = {
+  title: 'We bought drei.gg. That’s the whole update.',
+  summary: 'The domain kept calling. Here’s why it does three jobs.',
+  date: new Date('2026-10-16'),
+  label: 'v0.0.1',
+};
 const kickers: Record<string, string> = {
-  stamp: 'SHIPPED', vertical: 'SHIPPED', echo: 'RANT', split: 'NEW', bignum: 'SHIP', brush: 'RIP',
-  spaced: 'CLEARANCE', tape: 'BUILD', xmark: 'DEAD', hashtag: 'STAYWILD', quote: 'RANT', hatch: 'NEW LOOK',
+  giveaway: 'SHIPPED', streetwear: 'SHIPPED', everyday: 'BUILD', offset: 'BUILD', overlay: 'RANT', bracket: 'RANT',
+  tiles: 'NEW', caption: 'NEW LOOK', quarter: 'DEAD', spread: 'SHIP', lshape: 'BUILD', mono: 'NEW',
 };
 ---
 
@@ -19,20 +29,21 @@ const kickers: Record<string, string> = {
       <a class="back" href="/">← home</a>
       <h1>Post blocks</h1>
       <p class="intro">
-        Every post gets a cover. Set <code>layout</code>, <code>palette</code> and <code>kicker</code> in a post's front
-        matter, or leave them out and the post's filename picks them. {LAYOUTS.length} layouts × {PALETTES.length} palettes.
+        Every post gets a cover built around its image. Set <code>image</code>, <code>layout</code>, <code>palette</code>
+        and <code>kicker</code> in a post's front matter; leave layout and palette out and the post's filename picks them.
+        {LAYOUTS.length} layouts × {PALETTES.length} palettes. The sample images are screenshots of this site.
       </p>
 
       {
-        LAYOUTS.map((layout) => (
+        LAYOUTS.map((layout, i) => (
           <section class="layout-row">
             <h2>
               <code>layout: {layout}</code>
             </h2>
             <div class="swatches">
-              {PALETTES.map((palette) => (
+              {PALETTES.map((palette, j) => (
                 <div>
-                  <Cover layout={layout} palette={palette} kicker={kickers[layout]} {...sample} size="card" />
+                  <Cover layout={layout} palette={palette} kicker={kickers[layout]} {...sample} image={images[(i + j) % images.length]} imageAlt="" size="card" />
                   <p class="cap">
                     <code>palette: {palette}</code>
                   </p>
@@ -44,8 +55,23 @@ const kickers: Record<string, string> = {
       }
 
       <section class="layout-row">
+        <h2>No image</h2>
+        <p class="intro">A post without an image still gets its cover; the image slot becomes a hatched panel with the kicker.</p>
+        <div class="swatches">
+          {
+            ['giveaway', 'caption', 'mono'].map((layout) => (
+              <Cover layout={layout as any} palette="marker" kicker={kickers[layout]} {...sample} size="card" />
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="layout-row">
         <h2>In-post blocks</h2>
-        <p class="intro">Fenced blocks in a post's Markdown. The fence name picks the block, e.g. <code>```callout</code>.</p>
+        <p class="intro">
+          Fenced blocks in a post's Markdown; the fence name picks the block, e.g. <code>```callout</code>. Images get a frame
+          from their title: <code>![alt](./shot.png "offset | caption")</code>.
+        </p>
         <div class="prose"><Blocks /></div>
       </section>
     </div>
@@ -57,6 +83,6 @@ const kickers: Record<string, string> = {
   .intro { color: var(--mute); max-width: 70ch; margin: 0 0 24px; }
   .layout-row { border-top: 1px solid var(--line); padding-block: 24px; }
   .layout-row h2 { font: 600 14px/1 var(--mono); margin: 0 0 16px; }
-  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 18px; }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 18px; }
   .cap { margin: 6px 0 0; font: 12px/1 var(--mono); color: var(--mute); }
 </style>
