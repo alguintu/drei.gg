@@ -1,26 +1,30 @@
-// Hand-edited bits of the home page. Posts live in src/content/posts.
+// The home page's own content lives in home.json, so the desk can edit it.
+// Posts live in src/content/posts.
+import home from './home.json';
 
-export const domainBought = new Date('2026-10-16');
+type Killfeed = { who: string; verb: string; what: string; style: 'good' | 'bad' };
+type Item = { name: string; note: string; status: 'live' | 'empty'; href?: string };
 
-// The ticker under the hero. verb style: 'good' is blue, 'bad' is red.
-export const killfeed = [
-  { who: 'drei', verb: 'bought', what: 'drei.gg', style: 'good' },
-  { who: 'drei', verb: 'shipped', what: 'this site', style: 'good' },
-  { who: 'marketing', verb: 'was kicked', what: 'from the lobby', style: 'bad' },
-  { who: 'the models', verb: 'got', what: 'better again', style: 'good' },
-  { who: 'you', verb: 'joined', what: 'the server', style: 'good' },
-] as const;
+export const domainBought = new Date(home.domainBought);
+
+// The line under the big drei.gg. ==text== is highlighted.
+export const thesis = home.thesis;
+
+// The .gg definitions. *text* is italic.
+export const gloss: { tag: string; text: string }[] = home.gloss;
+
+// The ticker under the hero. style: 'good' is blue, 'bad' is red.
+export const killfeed = home.killfeed as Killfeed[];
 
 // Products. status: 'live' fills the slot, 'empty' draws a dashed placeholder.
-export const inventory = [
-  { name: 'drei.gg', note: 'this site · live', status: 'live', href: '/' },
-  { name: 'empty slot', note: 'first product goes here', status: 'empty' },
-  { name: 'empty slot', note: 'reserved', status: 'empty' },
-] as const;
+export const inventory = home.inventory as Item[];
 
-export const rules = [
-  'We build, then we post. Never the other way around.',
-  'Say what we actually think.',
-  'Dead projects get a funeral, not a cover-up.',
-  'Marketing happens somewhere else.',
-];
+export const rules: string[] = home.rules;
+
+// The tiny markup home.json allows: ==mark== and *em*. Everything else is escaped.
+export function inline(text: string) {
+  return text
+    .replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!)
+    .replace(/==(.+?)==/g, '<mark>$1</mark>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>');
+}

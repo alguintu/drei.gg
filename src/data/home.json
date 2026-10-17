@@ -1,0 +1,74 @@
+{
+  "domainBought": "2026-10-16",
+  "thesis": "We build things and post about them. ==No funnel.== No launch week. Just the log.",
+  "gloss": [
+    {
+      "tag": "gaming",
+      "text": "Good game. Said at the end of a match, win or lose."
+    },
+    {
+      "tag": "name",
+      "text": "Drei's middle initial and last name. The domain was sitting there."
+    },
+    {
+      "tag": "PH",
+      "text": "*Good luck, you're screwed.* Said to the other team when it's already over. Also how it feels to build software in the year of the AI doompost."
+    }
+  ],
+  "killfeed": [
+    {
+      "who": "drei",
+      "verb": "bought",
+      "what": "drei.gg",
+      "style": "good"
+    },
+    {
+      "who": "drei",
+      "verb": "shipped",
+      "what": "this site",
+      "style": "good"
+    },
+    {
+      "who": "marketing",
+      "verb": "was kicked",
+      "what": "from the lobby",
+      "style": "bad"
+    },
+    {
+      "who": "the models",
+      "verb": "got",
+      "what": "better again",
+      "style": "good"
+    },
+    {
+      "who": "you",
+      "verb": "joined",
+      "what": "the server",
+      "style": "good"
+    }
+  ],
+  "inventory": [
+    {
+      "name": "drei.gg",
+      "note": "this site · live",
+      "status": "live",
+      "href": "/"
+    },
+    {
+      "name": "empty slot",
+      "note": "first product goes here",
+      "status": "empty"
+    },
+    {
+      "name": "empty slot",
+      "note": "reserved",
+      "status": "empty"
+    }
+  ],
+  "rules": [
+    "We build, then we post. Never the other way around.",
+    "Say what we actually think.",
+    "Dead projects get a funeral, not a cover-up.",
+    "Marketing happens somewhere else."
+  ]
+}

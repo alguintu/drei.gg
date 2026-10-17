@@ -14,6 +14,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const POSTS = join(ROOT, 'src/content/posts');
 const UI = join(ROOT, 'scripts/desk/index.html');
+const HOME = join(ROOT, 'src/data/home.json');
 const DESK_PORT = Number(process.env.DESK_PORT || 4320);
 const SITE_PORT = Number(process.env.SITE_PORT || 4321);
 const run = promisify(execFile);
@@ -120,9 +121,15 @@ async function cover() {
   return import(`${pathToFileURL(file)}?v=${(await stat(file)).mtimeMs}`);
 }
 
+// The blocks the toolbar inserts, from src/lib/blocks.ts (the catalog page shows the same list).
+async function blocks() {
+  const file = join(ROOT, 'src/lib/blocks.ts');
+  return (await import(`${pathToFileURL(file)}?v=${(await stat(file)).mtimeMs}`)).BLOCKS;
+}
+
 async function meta() {
   const c = await cover();
-  return { image: [...c.LAYOUTS], type: [...c.TYPE_LAYOUTS], palettes: [...c.PALETTES], slots: c.SLOTS, tags: ['ship', 'build', 'rant', 'dead'], site: `http://localhost:${SITE_PORT}` };
+  return { image: [...c.LAYOUTS], type: [...c.TYPE_LAYOUTS], palettes: [...c.PALETTES], slots: c.SLOTS, blocks: await blocks(), tags: ['ship', 'build', 'rant', 'dead'], site: `http://localhost:${SITE_PORT}` };
 }
 
 function slugify(title) {
@@ -181,10 +188,18 @@ const routes = {
     await writeFile(join(dir, name), await body(req));
     return { name, images: await images(id) };
   },
-  'GET /api/status': async () => ({ branch: await git('branch', '--show-current'), changes: await git('status', '--short', '--', 'src/content/posts') }),
+  // The home page's own content (src/data/home.json).
+  'GET /api/home': async () => JSON.parse(await readFile(HOME, 'utf8')),
+  'PUT /api/home': async (q, req) => {
+    const data = JSON.parse(await body(req));
+    if (!Array.isArray(data.gloss) || !Array.isArray(data.killfeed) || !Array.isArray(data.inventory) || !Array.isArray(data.rules)) throw httpError(400, 'bad home data');
+    await writeFile(HOME, JSON.stringify(data, null, 2) + '\n');
+    return { ok: true };
+  },
+  'GET /api/status': async () => ({ branch: await git('branch', '--show-current'), changes: await git('status', '--short', '--', 'src/content/posts', 'src/data/home.json') }),
   'POST /api/publish': async (q, req) => {
-    const { id, message } = JSON.parse(await body(req));
-    const target = id ? (fileFor(id).endsWith('index.md') ? join('src/content/posts', id) : join('src/content/posts', `${id}.md`)) : 'src/content/posts';
+    const { id, home, message } = JSON.parse(await body(req));
+    const target = home ? 'src/data/home.json' : id ? (fileFor(id).endsWith('index.md') ? join('src/content/posts', id) : join('src/content/posts', `${id}.md`)) : 'src/content/posts';
     const log = [];
     log.push(await git('add', '-A', '--', target));
     const staged = await git('diff', '--cached', '--name-only');

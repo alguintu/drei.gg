@@ -20,6 +20,8 @@ npm run desk
 
 Open http://localhost:4320. The desk is a local editor: post list on the left, a form for the front matter and cover (image, layout, palette, and one box per text slot on the chosen layout), the Markdown body with buttons for every block, and the real site running in `astro dev` as a live preview, split beside the editor or in a popup, at desktop or phone width. Every change saves straight to `src/content/posts` and the preview reloads. Drop an image on the body to upload it beside the post and insert it with a frame. **publish** commits the post and pushes the current branch; the live site redeploys when `main` changes. It only listens on localhost.
 
+**Home page** at the top of the post list edits the home page's own content: the thesis line, the .gg definitions, the killfeed, the inventory slots, the house rules and the domain date. **catalog** turns the preview into a catalog for the open post: every cover layout drawn with the post's own words and image (click one to use it, with a palette toggle), and every block and image frame (click one to insert it at the cursor). The catalog is a dev-only page; it's never built for the live site.
+
 ## Write a post
 
 ```sh
@@ -112,7 +114,7 @@ Frames: `offset` (on a yellow block), `teal` (on teal), `bracket` (corner bracke
 
 ## Edit the home page
 
-`src/data/site.ts` holds the killfeed ticker, the inventory slots and the house rules. Styles are in `src/styles/global.css`; colors are tokens at the top (ink, ribbon red, marker yellow, with blue only for links, numbers and tags).
+`src/data/home.json` holds the home page's content: the thesis, the .gg definitions, the killfeed ticker, the inventory slots and the house rules (the desk edits it; `src/data/site.ts` reads it). In its text, `==text==` is highlighted and `*text*` is italic. The blocks the desk inserts are listed in `src/lib/blocks.ts`. Styles are in `src/styles/global.css`; colors are tokens at the top (ink, ribbon red, marker yellow, with blue only for links, numbers and tags).
 
 ## Deploy
 
