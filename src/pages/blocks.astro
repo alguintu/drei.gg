@@ -38,7 +38,7 @@ const kickers: Record<string, string> = {
       <p class="intro">
         Every post gets a cover. Set <code>image</code>, <code>layout</code>, <code>palette</code> and
         <code>kicker</code> in a post's front matter; leave layout and palette out and the post's filename picks them, from
-        the image layouts when the post has an image and the type layouts when it doesn't.
+        every layout when the post has an image and from the type layouts when it doesn't.
         {LAYOUTS.length + TYPE_LAYOUTS.length} layouts × {PALETTES.length} palettes. Grey boxes stand in for the post image.
       </p>
 
@@ -74,6 +74,27 @@ const kickers: Record<string, string> = {
               {PALETTES.map((palette) => (
                 <div>
                   <Cover layout={layout} palette={palette} kicker={kickers[layout]} {...sample} size="card" />
+                  <p class="cap">
+                    <code>palette: {palette}</code>
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+
+      <h2 class="group">Type layouts with an image <span>{TYPE_LAYOUTS.length}</span></h2>
+      {
+        TYPE_LAYOUTS.map((layout) => (
+          <section class="layout-row">
+            <h2>
+              <code>layout: {layout} + image</code>
+            </h2>
+            <div class="swatches">
+              {PALETTES.map((palette, j) => (
+                <div>
+                  <Cover layout={layout} palette={palette} kicker={kickers[layout]} {...sample} image={images[j % images.length]} imageAlt="" size="card" />
                   <p class="cap">
                     <code>palette: {palette}</code>
                   </p>

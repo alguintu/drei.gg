@@ -31,7 +31,7 @@ const fit = (text: string, width: number, max: number) => Math.min(max, width / 
 const script = kicker.toLowerCase().replace(/\s+/g, '');
 ---
 
-<figure class={`cv cv-${layout} pal-${palette} cv-${size}`} aria-label={title}>
+<figure class={`cv cv-${layout} pal-${palette} cv-${size}${image ? ' has-img' : ''}`} aria-label={title}>
   {
     layout === 'giveaway' && (
       <>
@@ -205,6 +205,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
           <span>{kicker} {kicker} {kicker}</span>
           <span class="o">{kicker} {kicker} {kicker}</span>
         </div>
+        {image && <Photo {...photo} class="p" />}
         <span class="dot" />
         <p class="lbl">
           <span>{title}</span>
@@ -221,6 +222,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
           <span>{mm}</span>
         </p>
         <span class="ring" />
+        {image && <Photo {...photo} class="p" />}
         <div class="col">
           <p class="t">{title}</p>
           <p class="k">{kicker}</p>
@@ -233,6 +235,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
   {
     layout === 'stripes' && (
       <>
+        {image && <Photo {...photo} class="p" bw />}
         <p class="k" style={`font-size: ${fit(kicker, 84, 24)}cqw`}>
           {kicker}
         </p>
@@ -246,6 +249,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
   {
     layout === 'bignum' && (
       <>
+        {image && <Photo {...photo} class="p" bw />}
         <p class="side" aria-hidden="true">
           {kicker} {kicker} {kicker} {kicker} {kicker}
         </p>
@@ -267,6 +271,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
       <>
         <span class="ring" />
         <span class="blk" />
+        {image && <Photo {...photo} class="p" />}
         <div class="col">
           <p class="t">{title}</p>
           {summary && <p class="s">{summary}</p>}
@@ -280,6 +285,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
   {
     layout === 'clearance' && (
       <>
+        {image && <Photo {...photo} class="p" bw />}
         <Brush class="b1" variant={2} />
         <div class="grid" aria-hidden="true">
           {[...kicker.replace(/\s+/g, '')].slice(0, 12).map((c) => (
@@ -297,6 +303,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
   {
     layout === 'wild' && (
       <>
+        {image && <Photo {...photo} class="p" bw />}
         <Brush class="b1" />
         <Brush class="b2" variant={2} />
         <Brush class="b3" />
@@ -311,6 +318,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
   {
     layout === 'promo' && (
       <>
+        {image && <Photo {...photo} class="p" />}
         <div class="a">
           <p class="k" style={`font-size: ${fit(kicker, 38, 15)}cqw`}>
             {kicker}
@@ -330,6 +338,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
   {
     layout === 'quote' && (
       <>
+        {image && <Photo {...photo} class="p" />}
         <div class="sq">
           <span class="corner tl" />
           <span class="corner br" />
@@ -360,6 +369,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
           </p>
           <p class="foot">{foot}</p>
         </div>
+        {image && <Photo {...photo} class="p" />}
         <span class="dotgrid" />
       </>
     )
@@ -668,6 +678,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
   {
     layout === 'tips' && (
       <>
+        {image && <Photo {...photo} class="p" />}
         <p class="num">
           <span>{kicker}</span>
         </p>
@@ -690,6 +701,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
   {
     layout === 'xband' && (
       <>
+        {image && <Photo {...photo} class="p" bw />}
         <span class="lights" />
         <span class="band b1" />
         <span class="band b2" />
@@ -707,6 +719,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
         <p class="t">{title}</p>
         <p class="k2">{kicker}</p>
         <span class="disc" />
+        {image && <Photo {...photo} class="p" />}
         <Stamp class="st" />
         <p class="foot">{foot}</p>
       </>
@@ -717,6 +730,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
     layout === 'orb' && (
       <>
         <span class="stripes" />
+        {image && <Photo {...photo} class="p" />}
         <span class="ball" />
         <span class="moon" />
         <div class="in">
@@ -733,6 +747,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
     layout === 'glyph' && (
       <>
         <span class="half" />
+        {image && <Photo {...photo} class="p" bw />}
         <p class="g" aria-hidden="true">
           {[...kicker][0]}
         </p>
@@ -748,6 +763,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
       <>
         <span class="bar" />
         <span class="pillb" />
+        {image && <Photo {...photo} class="p" />}
         <p class="t">{title}</p>
         <span class="dotgrid" />
         <span class="stripes" />
@@ -763,6 +779,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
         <span class="y" />
         <span class="panel" />
         <span class="frame" />
+        {image && <Photo {...photo} class="p" bw />}
         <p class="chev" aria-hidden="true">
           ››››››
         </p>
@@ -778,6 +795,7 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
     layout === 'tower' && (
       <>
         <span class="slabb" />
+        {image && <Photo {...photo} class="p" bw />}
         <span class="strip" />
         <span class="line" />
         <p class="plus" aria-hidden="true">

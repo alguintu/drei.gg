@@ -34,7 +34,7 @@ export const LAYOUTS = [
   'duo',
 ] as const;
 
-// Type-only covers, for posts without an image (or when you want words, not a picture).
+// Type layouts: built from words and shapes. Each has an optional image slot too.
 export const TYPE_LAYOUTS = ['repeat', 'arc', 'stripes', 'bignum', 'collection', 'clearance', 'wild', 'promo', 'quote', 'term',
   'tips', 'xband', 'marquee', 'orb', 'glyph', 'pill', 'poster', 'tower'] as const;
 export const ALL_LAYOUTS = [...LAYOUTS, ...TYPE_LAYOUTS] as const;
@@ -61,10 +61,11 @@ function hash(text: string) {
   return h >>> 0;
 }
 
-// A post with an image gets an image layout; one without gets a type-only layout.
+// Type layouts also take an image, so a post with one draws from every layout;
+// a post without one draws from the type layouts.
 export function pickCover(opts: { id: string; tag: string; layout?: Layout; palette?: Palette; kicker?: string; hasImage?: boolean }) {
   const h = hash(opts.id);
-  const pool: readonly Layout[] = opts.hasImage ? LAYOUTS : TYPE_LAYOUTS;
+  const pool: readonly Layout[] = opts.hasImage ? ALL_LAYOUTS : TYPE_LAYOUTS;
   return {
     layout: opts.layout ?? pool[h % pool.length],
     palette: opts.palette ?? PALETTES[(h >>> 8) % PALETTES.length],
