@@ -189,6 +189,10 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; 
   };
 
   useImperativeHandle(ref, () => ({
+    restore: (v: { data: Record<string, any>; body: string }) => {
+      setBlk(null);
+      change((p) => ({ ...p, data: { ...v.data, cover: { ...(v.data.cover ?? {}) } }, body: v.body }));
+    },
     undo: () => current.current && travel(history.undo(current.current), 'undo'),
     redo: () => current.current && travel(history.redo(current.current), 'redo'),
     reload: () =>

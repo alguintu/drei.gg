@@ -143,6 +143,28 @@ async function cards(ids, site = false) {
   return made;
 }
 
+// The one file that holds a post, page or the theme, for its history.
+function versioned(kind, id) {
+  if (kind === 'theme') return THEME_FILE;
+  if (kind === 'page') return pageFile(id);
+  return fileFor(id);
+}
+
+// Every commit that touched it, with the path it had then (posts can move from
+// slug.md to slug/index.md).
+async function versions(kind, id) {
+  const file = relative(ROOT, versioned(kind, id));
+  const out = await git('log', '--follow', '--name-only', '--format=%x00%H\t%aI\t%s', '--', file).catch(() => '');
+  return out
+    .split('\0')
+    .filter((c) => c.trim())
+    .map((c) => {
+      const [head, ...rest] = c.trim().split('\n');
+      const [rev, date, message] = head.split('\t');
+      return { rev, date, message, path: rest.map((l) => l.trim()).find(Boolean) ?? file };
+    });
+}
+
 function slugify(title) {
   return title.toLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'post';
 }
@@ -279,6 +301,16 @@ const routes = {
     if (!(await git('ls-files', '--', target))) throw httpError(400, 'never published, so there is nothing to go back to');
     await git('checkout', 'HEAD', '--', target);
     return { ok: true };
+  },
+  // Published versions of a post, page or the theme, newest first, from git.
+  'GET /api/history': async (q) => (await versions(q.get('kind'), q.get('id'))).map(({ path, ...v }) => v),
+  // One of those versions, read the way the editor reads the current one.
+  'GET /api/version': async (q) => {
+    const kind = q.get('kind');
+    const v = (await versions(kind, q.get('id'))).find((v) => v.rev === q.get('rev'));
+    if (!v) throw httpError(404, 'no such version');
+    const text = await git('show', `${v.rev}:${v.path}`);
+    return kind === 'post' ? parse(text) : JSON.parse(text);
   },
   'GET /api/status': async () => ({ branch: await git('branch', '--show-current'), changes: await git('status', '--short', '--', 'src/content/posts', 'src/content/pages', 'src/data', 'public/media', 'public/og') }),
   'POST /api/publish': async (q, req) => {

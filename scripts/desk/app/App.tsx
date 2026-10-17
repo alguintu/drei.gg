@@ -17,6 +17,8 @@ export type EditorHandle = {
   redo?: () => void;
   addBlock?: (type: string) => void;
   reload?: () => Promise<unknown>;
+  // Put an older version in place, as an edit (so it saves, and undo takes it back).
+  restore?: (version: any) => void;
 };
 export type EditorProps = { onState: (text: string, cls?: string) => void; onSaved: () => void };
 
@@ -38,7 +40,7 @@ export default function App() {
   const [phone, setPhone] = useState(store.get('w', 'desk') === 'phone');
   const [catalog, setCatalog] = useState(false);
   const [path, setPath] = useState('/');
-  const [dialog, setDialog] = useState<null | 'new' | 'page' | 'publish'>(null);
+  const [dialog, setDialog] = useState<null | 'new' | 'page' | 'publish' | 'history'>(null);
   const [palette, setPalette] = useState(false);
   const editor = useRef<EditorHandle>(null);
   const preview = useRef<PreviewHandle>(null);
@@ -168,6 +170,7 @@ export default function App() {
     { kind: 'edit', label: 'Undo', run: () => editor.current?.undo?.() },
     { kind: 'edit', label: 'Redo', run: () => editor.current?.redo?.() },
     { kind: 'edit', label: 'Discard changes', run: discard },
+    { kind: 'edit', label: 'History', run: () => setDialog('history') },
     ...['split', 'popup', 'off'].map((m) => ({ kind: 'view', label: `Preview: ${m}`, run: () => setPreviewMode(m) })),
     { kind: 'view', label: phone ? 'Preview at desktop width' : 'Preview at phone width', run: () => (store.set('w', phone ? 'desk' : 'phone'), setPhone(!phone)) },
     { kind: 'site', label: 'Retake all social cards', run: () => api('/api/cards', { method: 'POST' }).then(() => onState('cards retaken')) },
@@ -194,6 +197,9 @@ export default function App() {
         </span>
         <button title="Throw away changes since the last publish" disabled={!open} onClick={discard}>
           discard
+        </button>
+        <button title="Every published version" disabled={!open} onClick={() => setDialog('history')}>
+          history
         </button>
         <button title="Everything, by name (Ctrl+K)" onClick={() => setPalette(true)}>
           ⌘K
@@ -302,6 +308,17 @@ export default function App() {
         )}
       </section>
 
+      {dialog === 'history' && open && (
+        <History
+          open={open}
+          onClose={() => setDialog(null)}
+          onRestore={async (v) => {
+            await editor.current?.flush();
+            editor.current?.restore?.(v);
+            onState('restored an older version (undo takes it back)');
+          }}
+        />
+      )}
       {palette && <Palette commands={commands} onClose={() => setPalette(false)} />}
       {dialog === 'page' && <NewPage onClose={() => setDialog(null)} onCreate={(id) => (lists(), go({ kind: 'page', id }))} />}
       {dialog === 'new' && meta && <NewPost meta={meta} onClose={() => setDialog(null)} onCreate={(id) => (lists(), go({ kind: 'post', id }))} />}
@@ -346,6 +363,45 @@ function Dialog({ title, children, ok, onOk, onClose }: { title: string; childre
         </p>
       </form>
     </dialog>
+  );
+}
+
+// Published versions from git; restoring one loads it into the editor as an edit.
+function History({ open, onClose, onRestore }: { open: NonNullable<Open>; onClose: () => void; onRestore: (version: any) => void }) {
+  const [list, setList] = useState<{ rev: string; date: string; message: string }[] | null>(null);
+  useEffect(() => {
+    api(`/api/history?kind=${open.kind}&id=${encodeURIComponent(open.id)}`).then(setList);
+  }, []);
+  return (
+    <Dialog title="History" ok="close" onClose={onClose}>
+      {!list ? (
+        <p className="hint">loading…</p>
+      ) : !list.length ? (
+        <p className="hint">Never published, so there's no history yet.</p>
+      ) : (
+        <ul className="history">
+          {list.map((v, i) => (
+            <li key={v.rev}>
+              <span className="when">{new Date(v.date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</span>
+              <span className="msg">
+                {v.message}
+                {i === 0 && <small> · last published</small>}
+              </span>
+              <button
+                type="button"
+                onClick={async () => {
+                  onRestore(await api(`/api/version?kind=${open.kind}&id=${encodeURIComponent(open.id)}&rev=${v.rev}`));
+                  onClose();
+                }}
+              >
+                restore
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="hint">Restoring loads that version into the editor and saves it; ↶ undo brings back what you had.</p>
+    </Dialog>
   );
 }
 

@@ -75,6 +75,7 @@ export default forwardRef<EditorHandle, EditorProps>(function ThemeEditor({ onSt
       next ? commit(next, false) : onState('nothing there');
     },
     reload: load,
+    restore: (v: Tokens) => commit(structuredClone(v)),
   }));
 
   if (!defaults) return <main className="empty">loading…</main>;

@@ -160,6 +160,10 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; blocks: Bloc
   }
 
   useImperativeHandle(ref, () => ({
+    restore: (v: PageData) => {
+      setSel(null);
+      change(() => structuredClone(v), 300);
+    },
     undo: () => current.current && travel(history.undo(current.current)),
     redo: () => current.current && travel(history.redo(current.current)),
     addBlock,
