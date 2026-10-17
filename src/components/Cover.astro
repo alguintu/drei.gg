@@ -24,6 +24,11 @@ const foot = `drei.gg/log · ${stamp}${label ? ` · ${label}` : ''}`;
 const blurb = summary ?? title;
 const letters = [...kicker.replace(/\s+/g, '')].slice(0, 8);
 const photo = { image, alt: imageAlt, fallback: kicker };
+const dd = date.toLocaleDateString('en-GB', { day: '2-digit', timeZone: 'UTC' });
+const mm = date.toLocaleDateString('en-GB', { month: '2-digit', timeZone: 'UTC' });
+// Font size (in cqw) that fits a word of condensed caps into a given width.
+const fit = (text: string, width: number, max: number) => Math.min(max, width / (Math.max(text.length, 1) * 0.5));
+const script = kicker.toLowerCase().replace(/\s+/g, '');
 ---
 
 <figure class={`cv cv-${layout} pal-${palette} cv-${size}`} aria-label={title}>
@@ -213,6 +218,331 @@ const photo = { image, alt: imageAlt, fallback: kicker };
         </div>
         <p class="t">{title}</p>
         <span class="dot" />
+      </>
+    )
+  }
+  {/* ---- Type-only layouts: for posts without an image ---- */}
+
+  {
+    layout === 'repeat' && (
+      <>
+        <span class="frame" />
+        <div class="rows" aria-hidden="true">
+          <span>{kicker} {kicker} {kicker}</span>
+          <span class="o">{kicker} {kicker} {kicker}</span>
+          <span>{kicker} {kicker} {kicker}</span>
+          <span class="o">{kicker} {kicker} {kicker}</span>
+        </div>
+        <span class="dot" />
+        <p class="lbl">
+          <span>{title}</span>
+        </p>
+      </>
+    )
+  }
+
+  {
+    layout === 'arc' && (
+      <>
+        <p class="num">
+          {dd}
+          <span>{mm}</span>
+        </p>
+        <span class="ring" />
+        <div class="col">
+          <p class="t">{title}</p>
+          <p class="k">{kicker}</p>
+          <p class="foot">{foot}</p>
+        </div>
+      </>
+    )
+  }
+
+  {
+    layout === 'stripes' && (
+      <>
+        <p class="k" style={`font-size: ${fit(kicker, 84, 24)}cqw`}>
+          {kicker}
+        </p>
+        <span class="bars" />
+        <p class="t">{title}</p>
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'bignum' && (
+      <>
+        <p class="side" aria-hidden="true">
+          {kicker} {kicker} {kicker} {kicker} {kicker}
+        </p>
+        <p class="side r" aria-hidden="true">
+          {kicker} {kicker} {kicker} {kicker} {kicker}
+        </p>
+        <p class="t">{title}</p>
+        <p class="k" style={`font-size: ${fit(kicker, 70, 30)}cqw`}>
+          {kicker}
+        </p>
+        <span class="dot" />
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'collection' && (
+      <>
+        <span class="ring" />
+        <span class="blk" />
+        <div class="col">
+          <p class="t">{title}</p>
+          {summary && <p class="s">{summary}</p>}
+          <p class="foot">{foot}</p>
+        </div>
+        <span class="xx" aria-hidden="true" />
+      </>
+    )
+  }
+
+  {
+    layout === 'clearance' && (
+      <>
+        <Brush class="b1" variant={2} />
+        <div class="grid" aria-hidden="true">
+          {[...kicker.replace(/\s+/g, '')].slice(0, 12).map((c) => (
+            <span>{c}</span>
+          ))}
+        </div>
+        <p class="lbl">
+          <span>{title}</span>
+        </p>
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'wild' && (
+      <>
+        <Brush class="b1" />
+        <Brush class="b2" variant={2} />
+        <Brush class="b3" />
+        <Brush class="b4" variant={2} />
+        <p class="sc">#{script}</p>
+        <p class="t">{title}</p>
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'promo' && (
+      <>
+        <div class="a">
+          <p class="k" style={`font-size: ${fit(kicker, 38, 15)}cqw`}>
+            {kicker}
+          </p>
+        </div>
+        <p class="b">new post</p>
+        <p class="c">drei.gg/log</p>
+        <p class="t">{title}</p>
+        <Brush class="b1" />
+        <p class="foot">{foot}</p>
+        <span class="dotgrid" />
+        <span class="dot" />
+      </>
+    )
+  }
+
+  {
+    layout === 'quote' && (
+      <>
+        <div class="sq">
+          <span class="corner tl" />
+          <span class="corner br" />
+          <span class="qm" aria-hidden="true">
+            “
+          </span>
+          <p class="q">{blurb}</p>
+          <p class="foot">— drei · {stamp}</p>
+        </div>
+      </>
+    )
+  }
+
+  {
+    layout === 'term' && (
+      <>
+        <div class="win">
+          <p class="bar">
+            <i />
+            <i />
+            <i />
+            <span>drei@aeris: ~/log</span>
+          </p>
+          <p class="cmd">$ drei log --tag {kicker.toLowerCase()}</p>
+          <p class="t">
+            <b>&gt;</b> {title}
+            <span class="cur" />
+          </p>
+          <p class="foot">{foot}</p>
+        </div>
+        <span class="dotgrid" />
+      </>
+    )
+  }
+
+  {/* ---- More image layouts ---- */}
+
+  {
+    layout === 'split' && (
+      <>
+        <div class="stack" aria-hidden="true" style={`font-size: ${fit(kicker, 40, 12)}cqw`}>
+          <span>{kicker}</span>
+          <span class="o">{kicker}</span>
+          <span>{kicker}</span>
+        </div>
+        <p class="t">{title}</p>
+        <p class="foot">{foot}</p>
+        <span class="dark" />
+        <Photo {...photo} class="p" bw />
+        <span class="ring" />
+      </>
+    )
+  }
+
+  {
+    layout === 'circle' && (
+      <>
+        <span class="disc" />
+        <Photo {...photo} class="p" />
+        <span class="xx" aria-hidden="true" />
+        <p class="t">{title}</p>
+        <p class="foot">{foot}</p>
+        <span class="dot" />
+        <span class="dotgrid" />
+      </>
+    )
+  }
+
+  {
+    layout === 'twin' && (
+      <>
+        <span class="band1" />
+        <span class="band2" />
+        <Photo {...photo} class="p p1" position="center 30%" />
+        <Photo {...photo} class="p p2" position="center 80%" />
+        <Brush class="b1" />
+        <p class="lbl">
+          <span>{kicker}</span>
+        </p>
+        <p class="t">{title}</p>
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'ushape' && (
+      <>
+        <span class="u" />
+        <Photo {...photo} class="p" />
+        <Brush class="x1" />
+        <Brush class="x2" variant={2} />
+        <p class="lbl">
+          <span>{kicker}</span>
+        </p>
+        <p class="t">{title}</p>
+        <Brush class="under" variant={2} />
+        <p class="sc">#{script}</p>
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'bleed' && (
+      <>
+        <Photo {...photo} class="p" />
+        <div class="bar">
+          <p class="lbl">
+            <span>{kicker}</span>
+          </p>
+          <p class="t">{title}</p>
+          <p class="foot">{foot}</p>
+        </div>
+        <span class="tick" />
+      </>
+    )
+  }
+
+  {
+    layout === 'arch' && (
+      <>
+        <span class="sun" />
+        <div class="col">
+          <p class="t">{title}</p>
+          {summary && <p class="s">{summary}</p>}
+        </div>
+        <Photo {...photo} class="p" />
+        <span class="dotgrid" />
+        <span class="hatch" />
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'polaroid' && (
+      <>
+        <span class="dotgrid" />
+        <div class="card">
+          <Photo {...photo} class="p" />
+          <p class="sc">{script}</p>
+        </div>
+        <span class="tape" />
+        <p class="t">{title}</p>
+        <p class="foot">{foot}</p>
+        <span class="dot" />
+      </>
+    )
+  }
+
+  {
+    layout === 'filmstrip' && (
+      <>
+        <span class="strip" />
+        <Photo {...photo} class="p f1" position="left center" />
+        <Photo {...photo} class="p f2" position="center center" bw />
+        <Photo {...photo} class="p f3" position="right center" />
+        <p class="t">{title}</p>
+        <p class="foot">{foot}</p>
+        <span class="tick" />
+      </>
+    )
+  }
+
+  {
+    layout === 'browser' && (
+      <>
+        <span class="main-blk" />
+        <div class="win">
+          <p class="bar">
+            <i />
+            <i />
+            <i />
+            <span>drei.gg/log</span>
+          </p>
+          <Photo {...photo} class="p" position="left top" />
+        </div>
+        <p class="lbl">
+          <span>{kicker}</span>
+        </p>
+        <p class="t">{title}</p>
+        <p class="foot">{foot}</p>
+        <span class="dotgrid" />
+        <span class="tick" />
       </>
     )
   }

@@ -139,8 +139,8 @@
 
 /* quarter: big X, a B&W photo, a color disc peeking behind it */
 .cv-quarter .xx { left: 5cqw; top: 5cqw; width: 5cqw; height: 5cqw; }
-.cv-quarter .xx::before, .cv-quarter .xx::after { content: ""; position: absolute; left: 50%; top: -12%; width: 1.3cqw; height: 124%; background: var(--text); transform: translateX(-50%) rotate(45deg); }
-.cv-quarter .xx::after { transform: translateX(-50%) rotate(-45deg); }
+.cv .xx::before, .cv .xx::after { content: ""; position: absolute; left: 50%; top: -12%; width: 1.3cqw; height: 124%; background: var(--text); transform: translateX(-50%) rotate(45deg); }
+.cv .xx::after { transform: translateX(-50%) rotate(-45deg); }
 .cv-quarter .moon { right: 6cqw; bottom: -14cqw; width: 34cqw; height: 34cqw; border-radius: 50%; background: var(--main); }
 .cv-quarter .p { left: 40cqw; top: 6cqw; width: 34cqw; bottom: 6cqw; }
 .cv-quarter .side { left: 76cqw; top: 6cqw; height: 44cqw; writing-mode: vertical-rl; font-weight: 800; font-stretch: 70%; font-size: 2cqw; line-height: 1.15; text-transform: uppercase; overflow: hidden; }
@@ -174,6 +174,208 @@
 .cv-mono .stack .o { color: transparent; -webkit-text-stroke: .3cqw var(--main); }
 .cv-mono .t { left: 5cqw; bottom: 5cqw; width: 40cqw; font-size: 2.8cqw; color: #f1f2f4; }
 .cv-mono .dot { left: 47cqw; top: 4cqw; }
+
+/* ================= More image layouts ================= */
+
+.cv .sc { font-family: "Nothing You Could Do", cursive; font-weight: 400; text-transform: none; line-height: 1.1; }
+.cv svg { position: absolute; }
+
+/* split: kicker stacked on the left, black-and-white photo on a dark right half, a ring across the seam */
+.cv-split .stack { left: 5cqw; top: 4cqw; display: flex; flex-direction: column; font-weight: 900; font-stretch: 60%; line-height: .88; text-transform: uppercase; color: var(--main); white-space: nowrap; }
+.cv-split .stack .o { color: transparent; -webkit-text-stroke: .18cqw var(--main); }
+.pal-marker.cv-split .stack span, .pal-aeris.cv-split .stack span { color: var(--text); }
+.pal-marker.cv-split .stack .o, .pal-aeris.cv-split .stack .o { color: transparent; -webkit-text-stroke-color: var(--text); }
+.pal-marker.cv-split .stack span:last-child, .pal-aeris.cv-split .stack span:last-child { color: var(--main); }
+.cv-split .t { left: 5cqw; bottom: 9cqw; width: 38cqw; font-size: 2.3cqw; }
+.cv-split .foot { left: 5cqw; bottom: 4.5cqw; width: 40cqw; }
+.cv-split .dark { left: 50cqw; top: 0; right: 0; bottom: 0; background: #15171d; }
+.cv-split .p { left: 54cqw; top: 4cqw; right: 4cqw; bottom: 0; }
+.cv-split .ring { left: 40cqw; bottom: -14cqw; width: 26cqw; aspect-ratio: 1; border-radius: 50%; border: 2.2cqw solid var(--main); }
+
+/* circle: photo in a circle, offset over a solid disc */
+.cv-circle .disc { right: 6cqw; top: 4cqw; width: 44cqw; aspect-ratio: 1; border-radius: 50%; background: var(--main); }
+.cv-circle .p { right: 10cqw; top: 8cqw; width: 44cqw; aspect-ratio: 1; border-radius: 50%; }
+.cv-circle .xx { left: 6cqw; top: 6cqw; width: 4.5cqw; height: 4.5cqw; }
+.cv-circle .t { left: 6cqw; top: 17cqw; width: 36cqw; font-size: 4cqw; }
+.cv-circle .foot { left: 6cqw; bottom: 6cqw; width: 36cqw; }
+.cv-circle .dot { left: 40cqw; top: 7cqw; }
+.cv-circle .dotgrid { left: 6cqw; bottom: 11cqw; width: 9cqw; height: 5.4cqw; }
+
+/* twin: two photo slots, staggered, with color bands and a label across the middle */
+.cv-twin .p1 { left: 5cqw; top: 4cqw; width: 48cqw; height: 24cqw; }
+.cv-twin .band1 { left: 53cqw; top: 4cqw; width: 11cqw; height: 24cqw; background: var(--main); }
+.cv-twin .p2 { left: 47cqw; top: 28cqw; right: 5cqw; bottom: 4cqw; }
+.cv-twin .band2 { left: 36cqw; top: 28cqw; width: 11cqw; bottom: 4cqw; background: var(--main); }
+.cv-twin .b1 { left: 58cqw; top: 23cqw; width: 26cqw; height: 4cqw; color: var(--main); transform: rotate(-12deg); }
+.cv-twin .lbl { left: 30cqw; top: 25.4cqw; font-size: 2.2cqw; z-index: 2; }
+.cv-twin .t { left: 66cqw; top: 6cqw; right: 5cqw; font-size: 2.8cqw; }
+.cv-twin .foot { left: 5cqw; bottom: 4cqw; width: 28cqw; }
+
+/* ushape: photo set into a color U, brushed X, a script hashtag */
+.cv-ushape .u { left: 34cqw; top: 0; right: 4cqw; height: 32cqw; background: var(--main); }
+.cv-ushape .p { left: 39cqw; top: 6cqw; right: 9cqw; bottom: 5cqw; }
+.cv-ushape .x1, .cv-ushape .x2 { right: 3cqw; top: 3.5cqw; width: 11cqw; height: 2.6cqw; color: var(--text); }
+.cv-ushape .x1 { transform: rotate(38deg); }
+.cv-ushape .x2 { transform: rotate(-38deg); }
+.cv-ushape .lbl { left: 5cqw; top: 5cqw; font-size: 1.6cqw; }
+.cv-ushape .t { left: 5cqw; top: 11cqw; width: 28cqw; font-size: 3cqw; }
+.cv-ushape .under { left: 3cqw; bottom: 11cqw; width: 30cqw; height: 4.5cqw; color: var(--main); }
+.cv-ushape .sc { left: 5cqw; bottom: 11.5cqw; font-size: 4.4cqw; }
+.cv-ushape .foot { left: 5cqw; bottom: 5cqw; width: 28cqw; }
+
+/* bleed: the photo fills the cover, a color bar carries the words */
+.cv-bleed .p { inset: 0; }
+.cv-bleed .bar { left: 0; bottom: 0; width: 54cqw; padding: 3cqw 4cqw 3cqw 5cqw; background: var(--main); color: var(--on-main); --text: var(--on-main); display: flex; flex-direction: column; gap: 1.2cqw; align-items: flex-start; }
+.cv-bleed .bar .lbl { font-size: 1.5cqw; }
+.cv-bleed .bar .lbl span { color: var(--main); }
+.cv-bleed .bar .t { font-size: 3.4cqw; }
+.cv-bleed .tick { left: 5cqw; top: 4cqw; }
+
+/* arch: color ground, an arch-topped photo, a pale sun behind the title */
+.cv-arch { background: var(--main); color: var(--on-main); --text: var(--on-main); }
+.cv-arch .sun { left: -7cqw; top: -9cqw; width: 26cqw; aspect-ratio: 1; border-radius: 50%; background: #fbfbfa; }
+.cv-arch .col { left: 6cqw; top: 9cqw; width: 44cqw; display: flex; flex-direction: column; gap: 1.6cqw; }
+.cv-arch .t { font-size: 4.4cqw; }
+.cv-arch .s { font: 600 1.6cqw/1.4 var(--mono-f); max-width: 38cqw; }
+.cv-arch .p { left: 58cqw; top: 5cqw; right: 6cqw; bottom: 0; border-radius: 18cqw 18cqw 0 0; }
+.cv-arch .dotgrid { left: 6cqw; bottom: 13cqw; width: 10.8cqw; height: 3.6cqw; }
+.cv-arch .hatch { left: 44cqw; bottom: 4cqw; width: 10cqw; height: 6cqw; }
+.cv-arch .foot { left: 6cqw; bottom: 5cqw; }
+
+/* polaroid: a taped, tilted print on a color ground */
+.cv-polaroid { background: var(--main); color: var(--on-main); --text: var(--on-main); }
+.cv-polaroid .dotgrid { left: 3cqw; top: 3cqw; width: 50cqw; height: 50cqw; opacity: .18; }
+.cv-polaroid .card { left: 9cqw; top: 5cqw; width: 38cqw; height: 47cqw; background: #fbfbfa; transform: rotate(-4deg); box-shadow: 0 1cqw 2.4cqw rgb(0 0 0 / .18); }
+.cv-polaroid .card .p { position: absolute; left: 2.2cqw; top: 2.2cqw; right: 2.2cqw; bottom: 10cqw; }
+.cv-polaroid .card .sc { position: absolute; left: 3cqw; bottom: 2.6cqw; font-size: 4cqw; color: #15171d; }
+.cv-polaroid .tape { left: 21cqw; top: 2.4cqw; width: 14cqw; height: 4cqw; background: rgb(251 251 250 / .7); transform: rotate(3deg); }
+.cv-polaroid .t { left: 55cqw; top: 13cqw; width: 38cqw; font-size: 4.2cqw; }
+.cv-polaroid .foot { left: 55cqw; bottom: 7cqw; width: 38cqw; }
+.cv-polaroid .dot { left: 55cqw; top: 8cqw; }
+
+/* filmstrip: three frames of the same image on a strip with sprocket holes */
+.cv-filmstrip .strip { left: 0; right: 0; top: 6cqw; height: 30cqw; background:
+  radial-gradient(circle at 50% 50%, var(--ground) 0 .55cqw, transparent .6cqw) 0 1.1cqw / 3cqw 2.2cqw repeat-x,
+  radial-gradient(circle at 50% 50%, var(--ground) 0 .55cqw, transparent .6cqw) 0 26.8cqw / 3cqw 2.2cqw repeat-x,
+  #15171d; }
+.pal-ink.cv-filmstrip .strip { background-color: #2a2e3b; }
+.cv-filmstrip .p { top: 10cqw; width: 29cqw; height: 22cqw; }
+.cv-filmstrip .f1 { left: 3cqw; }
+.cv-filmstrip .f2 { left: 35.5cqw; }
+.cv-filmstrip .f3 { left: 68cqw; }
+.cv-filmstrip .f2::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 .5cqw var(--main); }
+.cv-filmstrip .t { left: 5cqw; top: 40cqw; width: 64cqw; font-size: 3.6cqw; }
+.cv-filmstrip .foot { right: 5cqw; bottom: 5cqw; text-align: right; }
+.cv-filmstrip .tick { right: 5cqw; top: 40cqw; }
+
+/* browser: the image in a browser window, offset on a color block */
+.cv-browser .main-blk { left: 42cqw; top: 9cqw; right: 3cqw; bottom: 3cqw; background: var(--main); }
+.cv-browser .win { left: 38cqw; top: 5cqw; right: 7cqw; bottom: 7cqw; background: var(--ground); border: .25cqw solid var(--text); display: flex; flex-direction: column; }
+.cv-browser .win .bar, .cv-term .win .bar { margin: 0; display: flex; align-items: center; gap: .8cqw; height: 3.4cqw; padding: 0 1.2cqw; border-bottom: .25cqw solid var(--text); font: 600 1.2cqw/1 var(--mono-f); flex: none; }
+.cv-browser .win .bar i, .cv-term .win .bar i { width: 1cqw; height: 1cqw; border-radius: 50%; border: .2cqw solid currentColor; }
+.cv-browser .win .bar span, .cv-term .win .bar span { margin-left: 1cqw; opacity: .7; }
+.cv-browser .win .p { position: relative; flex: 1; }
+.cv-browser .lbl { left: 5cqw; top: 7cqw; font-size: 1.6cqw; }
+.cv-browser .t { left: 5cqw; top: 13cqw; width: 29cqw; font-size: 3.2cqw; }
+.cv-browser .foot { left: 5cqw; bottom: 7cqw; width: 30cqw; }
+.cv-browser .dotgrid { left: 5cqw; bottom: 12cqw; width: 9cqw; height: 3.6cqw; }
+.cv-browser .tick { left: 35.5cqw; top: 5cqw; }
+
+/* ================= Type-only layouts ================= */
+
+/* repeat: the kicker over and over, solid and outline, on the main color */
+.cv-repeat { background: var(--main); color: var(--on-main); --text: var(--on-main); }
+.cv-repeat .frame { inset: 2.6cqw; border: .3cqw solid var(--on-main); }
+.cv-repeat .rows { left: 0; right: 0; top: 3.4cqw; display: flex; flex-direction: column; }
+.cv-repeat .rows span { font-weight: 900; font-stretch: 60%; font-size: 10.5cqw; line-height: .9; text-transform: uppercase; white-space: nowrap; }
+.cv-repeat .rows .o { color: transparent; -webkit-text-stroke: .2cqw var(--on-main); }
+.cv-repeat .rows span:nth-child(1) { margin-left: 22cqw; }
+.cv-repeat .rows span:nth-child(2) { margin-left: -8cqw; }
+.cv-repeat .rows span:nth-child(3) { margin-left: 40cqw; }
+.cv-repeat .rows span:nth-child(4) { margin-left: 4cqw; }
+.cv-repeat .dot { left: 5cqw; top: 5cqw; background: var(--on-main); }
+.cv-repeat .lbl { left: 5cqw; bottom: 5cqw; max-width: 70cqw; font-size: 2cqw; }
+.cv-repeat .lbl span { color: var(--main); }
+
+/* arc: date numbers, a big headline and the kicker in color, a ring off the right edge */
+.cv-arc .num { left: 6cqw; top: 5cqw; font: 700 4.2cqw/1 var(--mono-f); color: var(--team, #2b3cf0); }
+.cv-arc .num span { margin-left: 2cqw; }
+.cv-arc .ring { right: -15cqw; top: 6cqw; width: 44cqw; aspect-ratio: 1; border-radius: 50%; border: 3.4cqw solid var(--main); }
+.cv-arc .col { left: 6cqw; top: 14cqw; width: 64cqw; display: flex; flex-direction: column; gap: 1.6cqw; }
+.cv-arc .t { font-size: 5.4cqw; font-stretch: 70%; font-weight: 900; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.cv-arc .k { font-size: 9cqw; color: var(--main); }
+.pal-marker.cv-arc .k { -webkit-text-stroke: .12cqw var(--text); }
+
+/* stripes: one huge word over three bars, on black */
+.cv-stripes { --ground: #15171d; --text: #f1f2f4; background: var(--ground); color: var(--text); }
+.cv-stripes .k { left: 0; right: 0; top: 4cqw; text-align: center; color: var(--main); white-space: nowrap; }
+.cv-stripes .bars { left: 24cqw; right: 24cqw; top: 33cqw; height: 7.6cqw; background: repeating-linear-gradient(180deg, var(--main) 0 1.6cqw, transparent 1.6cqw 3cqw); }
+.cv-stripes .t { left: 12cqw; right: 12cqw; top: 43.5cqw; text-align: center; font-size: 2.2cqw; }
+.cv-stripes .foot { left: 0; right: 0; bottom: 2.6cqw; text-align: center; }
+
+/* bignum: a giant number with stepped shadows, the kicker running up both edges */
+.cv-bignum { background: var(--main); color: var(--on-main); --text: var(--on-main); }
+.cv-bignum .k { left: 0; right: 0; top: 50%; transform: translateY(-52%); text-align: center; white-space: nowrap;
+  text-shadow: .8cqw .8cqw 0 color-mix(in srgb, var(--on-main) 60%, var(--main)), 1.6cqw 1.6cqw 0 color-mix(in srgb, var(--on-main) 35%, var(--main)), 2.4cqw 2.4cqw 0 color-mix(in srgb, var(--on-main) 15%, var(--main)); }
+.cv-bignum .side { top: 0; bottom: 0; left: 3cqw; width: 1em; writing-mode: vertical-rl; transform: rotate(180deg); font-weight: 900; font-stretch: 60%; font-size: 5.4cqw; line-height: 1; white-space: nowrap; overflow: hidden; text-transform: uppercase; color: transparent; -webkit-text-stroke: .14cqw var(--on-main); }
+.cv-bignum .side.r { left: auto; right: 3cqw; transform: none; }
+.cv-bignum .t { left: 13cqw; top: 4cqw; width: 50cqw; font-size: 1.9cqw; }
+.cv-bignum .dot { right: 13cqw; top: 4.4cqw; }
+.cv-bignum .foot { right: 13cqw; bottom: 4cqw; }
+
+/* collection: big type on white, a color block behind the right side, a ring and an X */
+.cv-collection .ring { left: -15cqw; top: -19cqw; width: 32cqw; aspect-ratio: 1; border-radius: 50%; border: 2.6cqw solid var(--main); }
+.cv-collection .blk { right: 6cqw; bottom: 6cqw; width: 30cqw; height: 14cqw; background: var(--main); }
+.cv-collection .col { left: 8cqw; top: 12cqw; width: 72cqw; display: flex; flex-direction: column; gap: 1.8cqw; }
+.cv-collection .t { font-size: 6.2cqw; font-stretch: 68%; font-weight: 900; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.cv-collection .s { font-weight: 700; font-stretch: 75%; font-size: 2.4cqw; text-transform: uppercase; line-height: 1.1; max-width: 46cqw; }
+.cv-collection .xx { --text: var(--on-main); right: 9cqw; bottom: 10.8cqw; width: 4.5cqw; height: 4.5cqw; }
+
+/* clearance: the kicker's letters spaced in a grid over a vertical brush stroke */
+.cv-clearance .b1 { left: 27cqw; top: 22cqw; width: 46cqw; height: 9cqw; color: var(--main); transform: rotate(-84deg); }
+.cv-clearance .grid { left: 50%; top: 47%; transform: translate(-50%, -50%); display: grid; grid-template-columns: repeat(3, 8cqw); column-gap: 9cqw; row-gap: 2.6cqw; justify-items: center; font-weight: 700; font-stretch: 100%; font-size: 7.4cqw; line-height: 1; }
+.cv-clearance .lbl { left: 4cqw; bottom: 4cqw; max-width: 44cqw; font-size: 1.5cqw; }
+.cv-clearance .foot { right: 4cqw; bottom: 4.6cqw; }
+
+/* wild: brush strokes and a script hashtag on black */
+.cv-wild { --ground: #15171d; --text: #f1f2f4; background: var(--ground); color: var(--text); }
+.cv-wild .b1 { left: -3cqw; top: 6cqw; width: 34cqw; height: 6cqw; color: var(--main); transform: rotate(32deg); }
+.cv-wild .b2 { left: 2cqw; top: 3cqw; width: 22cqw; height: 4cqw; color: var(--text); transform: rotate(-38deg); }
+.cv-wild .b3 { right: 2cqw; bottom: 8cqw; width: 40cqw; height: 7cqw; color: var(--main); transform: rotate(-28deg); }
+.cv-wild .b4 { right: 8cqw; bottom: 9cqw; width: 34cqw; height: 4cqw; color: #2bb3ad; transform: rotate(8deg); }
+.cv-wild .sc { left: 10cqw; right: 10cqw; top: 17cqw; text-align: center; font-size: 7cqw; overflow-wrap: anywhere; }
+.cv-wild .t { left: 18cqw; right: 18cqw; top: 33cqw; text-align: center; font-size: 2.2cqw; }
+.cv-wild .foot { left: 0; right: 0; bottom: 3cqw; text-align: center; }
+
+/* promo: a grid of color, black columns with script, and the headline */
+.cv-promo .a { left: 0; top: 0; width: 46cqw; height: 32cqw; background: var(--main); color: var(--on-main); display: grid; place-items: center; }
+.cv-promo .a .k { white-space: nowrap; }
+.cv-promo .b, .cv-promo .c { background: #15171d; color: #f1f2f4; font-family: "Nothing You Could Do", cursive; font-size: 2.6cqw; writing-mode: vertical-rl; display: flex; align-items: center; justify-content: center; white-space: nowrap; }
+.cv-promo .b { left: 46cqw; top: 0; width: 11cqw; height: 32cqw; }
+.cv-promo .c { left: 0; top: 32cqw; width: 11cqw; bottom: 0; transform: rotate(180deg); }
+.cv-promo .t { left: 61cqw; top: 6cqw; right: 5cqw; font-size: 3.2cqw; }
+.cv-promo .b1 { left: 30cqw; top: 38cqw; width: 30cqw; height: 6cqw; color: var(--main); transform: rotate(-24deg); }
+.cv-promo .foot { left: 16cqw; bottom: 4cqw; }
+.cv-promo .dotgrid { right: 5cqw; bottom: 5cqw; width: 9cqw; height: 5.4cqw; }
+.cv-promo .dot { right: 5cqw; top: 27cqw; }
+
+/* quote: a color square with corner brackets and a big quote mark */
+.cv-quote .sq { left: 8cqw; top: 6cqw; right: 8cqw; bottom: 6cqw; background: var(--main); color: var(--on-main); padding: 6cqw 8cqw; display: flex; flex-direction: column; justify-content: center; gap: 2cqw; }
+.cv-quote .sq .corner { border-color: var(--text); }
+.pal-ink.cv-quote .sq .corner { border-color: var(--main); }
+.cv-quote .qm { position: static; font-weight: 900; font-size: 9cqw; line-height: .5; height: 3cqw; }
+.cv-quote .q { font-weight: 700; font-stretch: 85%; font-size: 3.4cqw; line-height: 1.2; text-wrap: balance; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* term: the headline typed into a terminal */
+.cv-term .win { left: 7cqw; top: 6cqw; right: 7cqw; bottom: 6cqw; background: #15171d; color: #f1f2f4; border-radius: 1cqw; display: flex; flex-direction: column; gap: 2cqw; box-shadow: 1.6cqw 1.6cqw 0 var(--main); }
+.cv-term .win .bar { border-color: #2a2e3b; }
+.cv-term .win .bar i:first-child { background: var(--red); border-color: var(--red); }
+.cv-term .cmd { margin: 0 3cqw; font: 500 1.8cqw/1.3 var(--mono-f); color: #9298a8; }
+.cv-term .t { margin: 0 3cqw; font-size: 4cqw; font-stretch: 100%; }
+.cv-term .t b { color: var(--main); }
+.cv-term .cur { display: inline-block; width: 2.2cqw; height: 3.6cqw; background: var(--main); vertical-align: -0.3cqw; margin-left: .6cqw; }
+.cv-term .foot { margin: auto 3cqw 2.6cqw; color: #9298a8; }
+.cv-term .dotgrid { right: 3cqw; bottom: 2cqw; width: 7.2cqw; height: 3.6cqw; }
 
 /* In-post blocks from fenced code: callout, pull, bignum, shout, tape */
 .blk { margin: 20px 0; max-width: 64ch; }

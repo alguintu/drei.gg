@@ -33,7 +33,7 @@ Front matter:
 | `layout`  | no       | Cover layout (see below). Picked from the filename if unset |
 | `palette` | no       | `marker` (white and yellow), `aeris` (white and teal) or `ink` (black and yellow). Picked from the filename if unset |
 | `kicker`  | no       | Short word on the cover, up to 14 characters. Defaults to the tag |
-| `image`   | no       | The cover image (`./shot.png`). Every layout is built around it |
+| `image`   | no       | The cover image (`./shot.png`). Posts with one get an image layout |
 | `image_alt` | no     | Alt text for `image`                                      |
 
 Patch notes go in a `notes` block:
@@ -49,7 +49,13 @@ Patch notes go in a `notes` block:
 
 ## Covers and blocks
 
-Every post gets a cover built around its `image`: the photo is the main element and the layout frames it with color blocks, dot grids, hatching, corner brackets, a stamp or a brush stroke. Red only ever shows up as small ticks and dots. There are 12 layouts (`giveaway`, `streetwear`, `everyday`, `offset`, `overlay`, `bracket`, `tiles`, `caption`, `quarter`, `spread`, `lshape`, `mono`) in 3 palettes. Leave `layout` and `palette` out and the post's filename picks them, which keeps neighbouring posts from looking alike. A post with no image still gets a cover; the image slot becomes a hatched panel. Run `npm run dev` and open `/blocks` to see every combination.
+Every post gets a cover. Image layouts make the post's `image` the main element and frame it with color blocks, dot grids, hatching, corner brackets, a stamp, a brush stroke, a polaroid, a filmstrip or a browser window. Type layouts are for posts without an image and work with words alone: the kicker repeated, a giant number, spaced letters over a brush stroke, a script hashtag, a terminal. Red only ever shows up as small ticks and dots.
+
+Image layouts (21): `giveaway`, `streetwear`, `everyday`, `offset`, `overlay`, `bracket`, `tiles`, `caption`, `quarter`, `spread`, `lshape`, `mono`, `split`, `circle`, `twin`, `ushape`, `bleed`, `arch`, `polaroid`, `filmstrip`, `browser`.
+
+Type layouts (10): `repeat`, `arc`, `stripes`, `bignum`, `collection`, `clearance`, `wild`, `promo`, `quote`, `term`.
+
+Each comes in 3 palettes. Leave `layout` and `palette` out and the post's filename picks them, from the image layouts when the post has an image and from the type layouts when it doesn't, which keeps neighbouring posts from looking alike. For `bignum`, set `kicker` to the number (`kicker: "80%"`). Run `npm run dev` and open `/blocks` to see every combination.
 
 Inside a post, fenced blocks turn into designed blocks:
 

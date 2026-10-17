@@ -42,14 +42,14 @@ No funnel. No launch week. Just the log.
 
 ## Framed images
 
-![The drei.gg home page](./sample-hero.jpg "offset | offset: the image sits on a yellow block")
+![Placeholder](./sample-hero.jpg "offset | offset: the image sits on a yellow block")
 
-![The log on a phone](./sample-log.jpg "teal | teal: same, on Aeris teal")
+![Placeholder](./sample-log.jpg "teal | teal: same, on Aeris teal")
 
-![The dark theme](./sample-dark.jpg "bracket | bracket: corner brackets")
+![Placeholder](./sample-dark.jpg "bracket | bracket: corner brackets")
 
-![The hero again](./sample-hero.jpg "rounded | rounded: one rounded corner and a yellow tab")
+![Placeholder](./sample-hero.jpg "rounded | rounded: one rounded corner and a yellow tab")
 
-![The log, in black and white](./sample-log.jpg "quarter | quarter: black and white with a yellow disc")
+![Placeholder](./sample-log.jpg "quarter | quarter: black and white with a yellow disc")
 
-![The dark theme](./sample-dark.jpg "tape | Tape: the caption on black tape")
+![Placeholder](./sample-dark.jpg "tape | Tape: the caption on black tape")

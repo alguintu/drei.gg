@@ -9,7 +9,7 @@ interface Props {
 }
 const { post, size } = Astro.props;
 const d = post.data;
-const pick = pickCover({ id: post.id, tag: d.tag, layout: d.layout, palette: d.palette, kicker: d.kicker });
+const pick = pickCover({ id: post.id, tag: d.tag, layout: d.layout, palette: d.palette, kicker: d.kicker, hasImage: !!d.image });
 ---
 
 <Cover {...pick} title={d.title} summary={d.summary} date={d.date} label={d.label} image={d.image} imageAlt={d.image_alt} size={size} />

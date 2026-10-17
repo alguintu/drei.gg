@@ -1,7 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
-import { LAYOUTS, PALETTES } from './lib/cover';
+import { ALL_LAYOUTS, PALETTES } from './lib/cover';
 
 // One Markdown file per post. A post with images can be a folder:
 // src/content/posts/my-post/index.md with its images beside it.
@@ -16,7 +16,7 @@ const posts = defineCollection({
       label: z.string().optional(),
       summary: z.string().optional(),
       // Cover poster. Leave these out and the slug picks them.
-      layout: z.enum(LAYOUTS).optional(),
+      layout: z.enum(ALL_LAYOUTS).optional(),
       palette: z.enum(PALETTES).optional(),
       // The big word on the cover. Defaults to the tag (SHIPPED, BUILD, RANT, RIP).
       kicker: z.string().max(14).optional(),
