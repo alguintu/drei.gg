@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { api, send, store, type BlocksMeta, type Meta, type Open } from './api';
 import PostEditor from './PostEditor';
 import PageEditor from './PageEditor';
+import ThemeEditor from './ThemeEditor';
 import Preview, { type PreviewHandle } from './Preview';
 
 // What App can ask of whichever editor is open.
@@ -24,7 +25,7 @@ type ListItem = { id: string; title: string; date?: string; tag?: string; draft?
 // Home first, then pages made in the desk, then the shared frame and post template.
 const rank = (p: ListItem) => (p.id === 'home' ? 0 : p.id === 'frame' ? 2 : p.id === 'post' ? 3 : 1);
 
-const openFrom = (v: string): Open => (v.startsWith('page:') ? { kind: 'page', id: v.slice(5) } : v ? { kind: 'post', id: v } : null);
+const openFrom = (v: string): Open => (v === 'theme' ? { kind: 'theme', id: 'theme' } : v.startsWith('page:') ? { kind: 'page', id: v.slice(5) } : v ? { kind: 'post', id: v } : null);
 
 export default function App() {
   const [meta, setMeta] = useState<Meta | null>(null);
@@ -64,7 +65,7 @@ export default function App() {
   useEffect(() => {
     if (!open) return;
     store.set('open', open.kind === 'page' ? 'page:' + open.id : open.id);
-    if (open.kind === 'page') setCatalog(false);
+    if (open.kind !== 'post') setCatalog(false);
   }, [open?.kind, open?.id]);
 
   // Run anything queued for the editor once it's mounted.
@@ -139,7 +140,7 @@ export default function App() {
   // Back to the last published (committed) version of what's open.
   async function discard() {
     if (!open) return;
-    const what = open.kind === 'post' ? posts.find((p) => p.id === open.id)?.title : open.id === 'frame' ? 'the header and footer' : `the ${open.id} page`;
+    const what = open.kind === 'theme' ? 'the theme' : open.kind === 'post' ? posts.find((p) => p.id === open.id)?.title : open.id === 'frame' ? 'the header and footer' : `the ${open.id} page`;
     if (!confirm(`Throw away every change to ${what} since it was last published? New images stay.`)) return;
     await editor.current?.flush();
     try {
@@ -157,6 +158,7 @@ export default function App() {
   const commands = [
     ...pages.map((p) => ({ kind: 'page', label: p.id === 'frame' ? 'Header & footer' : p.title, run: () => go({ kind: 'page', id: p.id }) })),
     ...posts.map((p) => ({ kind: 'post', label: p.title, run: () => go({ kind: 'post', id: p.id }) })),
+    { kind: 'open', label: 'Theme', run: () => go({ kind: 'theme', id: 'theme' }) },
     { kind: 'new', label: 'New post', run: () => setDialog('new') },
     { kind: 'new', label: 'New page', run: () => setDialog('page') },
     ...(open?.kind === 'page' && blocks
@@ -231,6 +233,10 @@ export default function App() {
               <div className="m">{p.id === 'frame' ? 'on every page' : p.id === 'post' ? 'around every post' : p.id === 'home' ? '/' : `/${p.id}/`}</div>
             </a>
           ))}
+          <a className={open?.kind === 'theme' ? 'cur' : ''} onClick={() => go({ kind: 'theme', id: 'theme' })}>
+            <div className="t">Theme</div>
+            <div className="m">the site's colors</div>
+          </a>
         </nav>
         <p className="group">Posts</p>
         <button className="new" onClick={() => setDialog('new')}>
@@ -256,6 +262,8 @@ export default function App() {
 
       {!open || !meta || !blocks ? (
         <main className="empty">pick a page or a post</main>
+      ) : open.kind === 'theme' ? (
+        <ThemeEditor key="theme" ref={editor} onState={onState} onSaved={onSaved} />
       ) : open.kind === 'post' ? (
         <PostEditor key={open.id} ref={editor} id={open.id} meta={meta} blocks={blocks} catalog={catalog} setPath={setPath} onState={onState} onSaved={onSaved} />
       ) : (
@@ -300,7 +308,7 @@ export default function App() {
       {dialog === 'publish' && (
         <Publish
           open={open}
-          title={open?.kind === 'post' ? posts.find((p) => p.id === open.id)?.title : open?.kind === 'page' ? (open.id === 'frame' ? 'the header and footer' : `the ${open.id} page`) : undefined}
+          title={open?.kind === 'theme' ? 'the theme' : open?.kind === 'post' ? posts.find((p) => p.id === open.id)?.title : open?.kind === 'page' ? (open.id === 'frame' ? 'the header and footer' : `the ${open.id} page`) : undefined}
           draft={open?.kind === 'post' && !!posts.find((p) => p.id === open.id)?.draft}
           flush={() => editor.current?.flush() ?? Promise.resolve()}
           onState={onState}
@@ -439,7 +447,7 @@ function NewPost({ meta, onClose, onCreate }: { meta: Meta; onClose: () => void;
 
 function Publish({ open, title, draft, flush, onState, onClose }: { open: Open; title?: string; draft: boolean; flush: () => Promise<void>; onState: EditorProps['onState']; onClose: () => void }) {
   const [st, setSt] = useState<{ branch: string; changes: string } | null>(null);
-  const [msg, setMsg] = useState(open?.kind === 'post' ? `Post: ${title}` : open?.kind === 'page' ? `Page: ${open.id}` : 'Update content');
+  const [msg, setMsg] = useState(open?.kind === 'post' ? `Post: ${title}` : open?.kind === 'page' ? `Page: ${open.id}` : open?.kind === 'theme' ? 'Theme: colors' : 'Update content');
   const [log, setLog] = useState<string | null>(null);
   useEffect(() => {
     flush().then(() => api('/api/status').then(setSt));
@@ -454,7 +462,7 @@ function Publish({ open, title, draft, flush, onState, onClose }: { open: Open; 
       onOk={async () => {
         onState('publishing…', 'dirty');
         try {
-          const r = await send('/api/publish', 'POST', { id: open?.kind === 'post' ? open.id : undefined, page: open?.kind === 'page' ? open.id : undefined, message: msg });
+          const r = await send('/api/publish', 'POST', { id: open?.kind === 'post' ? open.id : undefined, page: open?.kind === 'page' ? open.id : undefined, theme: open?.kind === 'theme', message: msg });
           onState('published');
           setLog(r.log);
         } catch (e: any) {

@@ -53,5 +53,5 @@ export type Block = { type: string; [slot: string]: unknown };
 export type PageData = { title: string; template: string; regions: Record<string, Block[]> };
 
 // What's open: a post, a page, or nothing yet.
-export type Open = { kind: 'post'; id: string } | { kind: 'page'; id: string } | null;
+export type Open = { kind: 'post'; id: string } | { kind: 'page'; id: string } | { kind: 'theme'; id: 'theme' } | null;
 

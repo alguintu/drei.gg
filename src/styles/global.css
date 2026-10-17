@@ -197,6 +197,8 @@ main .wrap {
   margin-top: 8px;
   border: 1px solid currentColor;
 }
+a.chip { color: inherit; text-decoration: none; }
+a.chip:hover { background: var(--panel); }
 .chip.ship { color: var(--team); }
 .chip.rant { color: var(--ink); background: var(--marker); border-color: var(--marker); color: #15171d; }
 .chip.build { color: var(--mute); }

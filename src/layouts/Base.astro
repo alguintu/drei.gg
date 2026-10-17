@@ -5,6 +5,8 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { getEntry } from 'astro:content';
 import Region from '../blocks/Region.astro';
+import { themeCss } from '../lib/theme';
+import theme from '../data/theme.json';
 
 interface Props {
   title?: string;
@@ -26,6 +28,8 @@ const pageTitle = title ? `${title} · drei.gg` : 'drei.gg';
 const canonical = new URL(Astro.url.pathname, Astro.site);
 // The header and footer every page shares: the `frame` page (src/content/pages/frame.json).
 const frame = (await getEntry('pages', 'frame'))!;
+// Colors changed in the desk's Theme (src/data/theme.json); empty when none are.
+const themed = themeCss(theme);
 ---
 
 <!doctype html>
@@ -39,6 +43,7 @@ const frame = (await getEntry('pages', 'frame'))!;
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title="drei.gg" href="/feed.xml" />
+    {themed && <style is:inline set:html={themed} />}
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />

@@ -11,5 +11,5 @@ const { tag, label, date } = post.data;
 <div class="meta">
   <span class="ver">{label ?? LABELS[tag]}</span>
   <time datetime={date.toISOString()}>{formatDate(date)}</time>
-  <br /><span class={`chip ${tag}`}>{tag}</span>
+  <br /><a class={`chip ${tag}`} href={`/tag/${tag}/`}>{tag}</a>
 </div>

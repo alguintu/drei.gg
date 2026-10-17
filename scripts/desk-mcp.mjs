@@ -219,6 +219,19 @@ server.registerTool(
   }),
 );
 
+// ---- Theme ----
+
+server.registerTool(
+  'theme',
+  {
+    title: 'Theme colors',
+    description:
+      'The site\'s color tokens. Without `values`, returns the defaults, what each token is for, and the current changes. With `values` ({light|dark|marker|aeris|ink: {token: "#rrggbb"}}), replaces the changes: only tokens that differ from the defaults are kept, so send {} to reset everything.',
+    inputSchema: { values: z.record(z.string(), z.record(z.string(), z.string())).optional() },
+  },
+  tool(async ({ values }) => text(values ? await put('/api/theme', values) : await api('/api/theme'))),
+);
+
 // ---- Seeing it ----
 
 const CHROMES = [process.env.CHROME_PATH, '/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'];
@@ -277,7 +290,7 @@ server.registerTool(
   {
     title: 'Discard changes',
     description: 'Puts a post or page back to its last published (committed) version, throwing away everything since. New images stay. Ask the user first.',
-    inputSchema: { kind: z.enum(['post', 'page']), id: z.string() },
+    inputSchema: { kind: z.enum(['post', 'page', 'theme']), id: z.string().describe('The post or page id; anything for the theme.') },
     annotations: { destructiveHint: true },
   },
   tool(async ({ kind, id }) => text(await post('/api/discard', { kind, id }))),
@@ -289,10 +302,10 @@ server.registerTool(
     title: 'Publish',
     description:
       'Builds the site; if it builds, commits the post or page (with its social card and any page images) and pushes the current branch. The live site redeploys when main changes. This pushes to GitHub: only do it when the user has asked to publish.',
-    inputSchema: { kind: z.enum(['post', 'page']), id: z.string(), message: z.string().describe('The commit message.') },
+    inputSchema: { kind: z.enum(['post', 'page', 'theme']), id: z.string().describe('The post or page id; anything for the theme.'), message: z.string().describe('The commit message.') },
     annotations: { destructiveHint: false, openWorldHint: true },
   },
-  tool(async ({ kind, id, message }) => text((await post('/api/publish', kind === 'post' ? { id, message } : { page: id, message })).log)),
+  tool(async ({ kind, id, message }) => text((await post('/api/publish', kind === 'post' ? { id, message } : kind === 'theme' ? { theme: true, message } : { page: id, message })).log)),
 );
 
 await server.connect(new StdioServerTransport());

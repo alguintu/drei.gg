@@ -20,6 +20,7 @@ const PAGES = join(ROOT, 'src/content/pages');
 const MEDIA = join(ROOT, 'public/media');
 // Social cards: public/og/<post>.jpg, and site.jpg for everything else.
 const OG = join(ROOT, 'public/og');
+const THEME_FILE = join(ROOT, 'src/data/theme.json');
 const DESK_PORT = Number(process.env.DESK_PORT || 4320);
 const SITE_PORT = Number(process.env.SITE_PORT || 4321);
 const run = promisify(execFile);
@@ -282,6 +283,25 @@ const routes = {
     const ids = id ? [id] : q.get('site') ? [] : (await listPosts()).map((p) => p.id);
     return { made: await cards(ids, !id) };
   },
+  // The site's colors: defaults from src/lib/theme.ts, changes in src/data/theme.json.
+  'GET /api/theme': async () => {
+    const { THEME, NOTES } = await load('src/lib/theme.ts');
+    return { defaults: THEME, notes: NOTES, values: JSON.parse(await readFile(THEME_FILE, 'utf8')) };
+  },
+  'PUT /api/theme': async (q, req) => {
+    const { THEME } = await load('src/lib/theme.ts');
+    const values = JSON.parse(await body(req));
+    // Only known tokens, only #rrggbb, and only where they differ from the default.
+    const clean = {};
+    for (const [group, tokens] of Object.entries(THEME)) {
+      for (const [k, def] of Object.entries(tokens)) {
+        const v = values[group]?.[k];
+        if (typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v) && v.toLowerCase() !== def.toLowerCase()) (clean[group] ??= {})[k] = v.toLowerCase();
+      }
+    }
+    await writeFile(THEME_FILE, JSON.stringify(clean, null, 2) + '\n');
+    return { ok: true, values: clean };
+  },
   'GET /api/media': async () => (existsSync(MEDIA) ? (await readdir(MEDIA)).filter((f) => FILE.test(f)).map((f) => `/media/${f}`) : []),
   'PUT /api/media': async (q, req) => {
     const name = q.get('name').replace(/\s+/g, '-');
@@ -303,16 +323,16 @@ const routes = {
   // since (new uploads) stay; a post or page that was never committed can't go back.
   'POST /api/discard': async (q, req) => {
     const { kind, id } = JSON.parse(await body(req));
-    const target = kind === 'page' ? relative(ROOT, pageFile(id)) : fileFor(id).endsWith('index.md') ? join('src/content/posts', id) : join('src/content/posts', `${id}.md`);
+    const target = kind === 'theme' ? relative(ROOT, THEME_FILE) : kind === 'page' ? relative(ROOT, pageFile(id)) : fileFor(id).endsWith('index.md') ? join('src/content/posts', id) : join('src/content/posts', `${id}.md`);
     if (!(await git('ls-files', '--', target))) throw httpError(400, 'never published, so there is nothing to go back to');
     await git('checkout', 'HEAD', '--', target);
     return { ok: true };
   },
-  'GET /api/status': async () => ({ branch: await git('branch', '--show-current'), changes: await git('status', '--short', '--', 'src/content/posts', 'src/content/pages', 'public/media', 'public/og') }),
+  'GET /api/status': async () => ({ branch: await git('branch', '--show-current'), changes: await git('status', '--short', '--', 'src/content/posts', 'src/content/pages', 'src/data', 'public/media', 'public/og') }),
   'POST /api/publish': async (q, req) => {
-    const { id, page, message } = JSON.parse(await body(req));
+    const { id, page, theme, message } = JSON.parse(await body(req));
     // A page goes with any images uploaded for pages.
-    const target = page ? [relative(ROOT, pageFile(page)), ...(existsSync(MEDIA) ? ['public/media'] : [])] : id ? (fileFor(id).endsWith('index.md') ? join('src/content/posts', id) : join('src/content/posts', `${id}.md`)) : 'src/content';
+    const target = theme ? [relative(ROOT, THEME_FILE)] : page ? [relative(ROOT, pageFile(page)), ...(existsSync(MEDIA) ? ['public/media'] : [])] : id ? (fileFor(id).endsWith('index.md') ? join('src/content/posts', id) : join('src/content/posts', `${id}.md`)) : 'src/content';
     const log = [];
     // Only publish what builds: a real production build of the site first.
     try {
@@ -325,7 +345,7 @@ const routes = {
     // A post's social card is retaken with it; the home page and frame retake the site card.
     // A missing Chrome shouldn't block publishing, so a failure is only noted.
     try {
-      const made = id ? await cards([id]) : page === 'home' || page === 'frame' ? await cards([], true) : [];
+      const made = id ? await cards([id]) : page === 'home' || page === 'frame' || theme ? await cards([], true) : [];
       target.push?.(...made);
       if (made.length && !Array.isArray(target)) log.push(await git('add', '--', ...made));
       if (made.length) log.push(`social card: ${made.join(', ')}`);
