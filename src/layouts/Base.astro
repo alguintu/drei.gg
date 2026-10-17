@@ -1,14 +1,17 @@
 ---
 import '../styles/global.css';
+import '../styles/cover.css';
 
 interface Props {
   title?: string;
   description?: string;
+  noindex?: boolean;
 }
 
 const {
   title,
   description = 'A devlog. We build things and post about them. No funnel, no launch week.',
+  noindex = false,
 } = Astro.props;
 const pageTitle = title ? `${title} · drei.gg` : 'drei.gg';
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -24,6 +27,7 @@ const nav = (hash: string) => (isHome ? `#${hash}` : `/#${hash}`);
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title="drei.gg" href="/feed.xml" />
     <meta property="og:title" content={pageTitle} />
@@ -34,7 +38,7 @@ const nav = (hash: string) => (isHome ? `#${hash}` : `/#${hash}`);
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,400..900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,400..900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Nothing+You+Could+Do&display=swap"
     />
     <script is:inline>
       // Apply a saved theme before first paint so there's no flash.

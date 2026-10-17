@@ -11,6 +11,7 @@
   --ribbon: #c8221a;
   --marker: #ffd23f;
   --dead: #c8221a;
+  --aeris: #2bb3ad;
   --display: "Anybody", "Arial Narrow", Impact, sans-serif;
   --body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -18,13 +19,13 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --paper: #0f1117; --panel: #171a23; --ink: #e7e9ef; --mute: #9298a8;
-    --line: #2a2e3b; --team: #8a94ff; --ribbon: #ff4d3d; --marker: #ffd23f; --dead: #ff4d3d;
+    --line: #2a2e3b; --team: #8a94ff; --ribbon: #ff4d3d; --marker: #ffd23f; --dead: #ff4d3d; --aeris: #35c2bb;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --paper: #0f1117; --panel: #171a23; --ink: #e7e9ef; --mute: #9298a8;
-  --line: #2a2e3b; --team: #8a94ff; --ribbon: #ff4d3d; --marker: #ffd23f; --dead: #ff4d3d;
+  --line: #2a2e3b; --team: #8a94ff; --ribbon: #ff4d3d; --marker: #ffd23f; --dead: #ff4d3d; --aeris: #35c2bb;
   color-scheme: dark;
 }
 
@@ -296,3 +297,6 @@ main.single .wrap { display: block; padding-block: 48px 72px; }
 
 .empty-log { border: 1px dashed var(--line); padding: 24px; color: var(--mute); font: 14px/1.6 var(--mono); }
 .post .prose h2.title { font-size: clamp(24px, 3vw, 30px); margin: 0 0 10px; line-height: 1.12; letter-spacing: -.01em; }
+.cover-link { display: block; margin-bottom: 18px; }
+.cover-link:focus-visible { outline-offset: 4px; }
+.cover-full { margin: 0 0 28px; }

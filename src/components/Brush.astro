@@ -1,0 +1,25 @@
+---
+// A dry-brush stroke. Color comes from currentColor.
+interface Props {
+  class?: string;
+  variant?: 1 | 2;
+}
+const { class: cls, variant = 1 } = Astro.props;
+---
+
+<svg class={cls} viewBox="0 0 400 80" preserveAspectRatio="none" aria-hidden="true" fill="currentColor">
+  {
+    variant === 1 ? (
+      <>
+        <path d="M6 44 C40 30 95 22 160 20 C230 18 300 16 392 10 C396 16 394 22 388 26 C320 34 250 40 180 46 C110 52 50 60 10 66 C2 60 2 50 6 44 Z" />
+        <path d="M30 70 C90 62 150 58 210 54 C170 60 110 66 40 74 Z" opacity=".7" />
+        <path d="M120 16 C180 12 250 8 330 6 C270 12 200 16 130 20 Z" opacity=".6" />
+      </>
+    ) : (
+      <>
+        <path d="M4 52 C60 40 120 34 200 30 C270 26 330 24 396 18 C398 30 392 38 380 40 C300 46 220 52 150 58 C90 62 40 68 8 70 C0 64 0 58 4 52 Z" />
+        <path d="M60 28 C130 22 200 20 280 18 C220 24 140 28 70 32 Z" opacity=".55" />
+      </>
+    )
+  }
+</svg>

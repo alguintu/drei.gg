@@ -1,0 +1,15 @@
+---
+import Cover from './Cover.astro';
+import { pickCover } from '../lib/cover';
+import type { Post } from '../lib/posts';
+
+interface Props {
+  post: Post;
+  size?: 'full' | 'card';
+}
+const { post, size } = Astro.props;
+const d = post.data;
+const pick = pickCover({ id: post.id, tag: d.tag, layout: d.layout, palette: d.palette, kicker: d.kicker, hasImage: !!d.image });
+---
+
+<Cover {...pick} title={d.title} summary={d.summary} date={d.date} label={d.label} image={d.image} imageAlt={d.image_alt} size={size} />

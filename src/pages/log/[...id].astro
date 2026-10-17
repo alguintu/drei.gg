@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import PostMeta from '../../components/PostMeta.astro';
+import PostCover from '../../components/PostCover.astro';
 import { getPosts, postUrl, type Post } from '../../lib/posts';
 
 export async function getStaticPaths() {
@@ -28,6 +29,7 @@ const { Content } = await render(post);
       <article>
         <PostMeta post={post} />
         <h1>{post.data.title}</h1>
+        <div class="cover-full"><PostCover post={post} /></div>
         <div class="prose"><Content /></div>
         <nav class="pager" aria-label="More posts">
           {older ? <a href={postUrl(older)}>← {older.data.title}</a> : <span />}

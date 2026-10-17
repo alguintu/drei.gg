@@ -1,0 +1,18 @@
+---
+// A round stamp: text running around a ring, like a brand seal.
+interface Props {
+  class?: string;
+  ring?: string;
+  center?: string;
+}
+const { class: cls = '', ring = 'DREI.GG · DEVLOG · BUILD · POST · ', center = 'drei.gg' } = Astro.props;
+const id = `ring-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<svg class={`stamp ${cls}`} viewBox="0 0 100 100" aria-hidden="true">
+  <defs><path id={id} d="M50,50 m-37,0 a37,37 0 1,1 74,0 a37,37 0 1,1 -74,0" /></defs>
+  <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" stroke-width="1.6" />
+  <circle cx="50" cy="50" r="28" fill="none" stroke="currentColor" stroke-width="1" />
+  <text font-size="9.4" font-weight="700" letter-spacing="1.4" fill="currentColor"><textPath href={`#${id}`}>{ring}</textPath></text>
+  <text x="50" y="54" text-anchor="middle" font-size="11" font-weight="900" fill="currentColor">{center}</text>
+</svg>
