@@ -21,7 +21,7 @@ const link = (href: string) => (href.startsWith('#') && !isHome ? `/${href}` : h
     </nav>
     <div class="right">
       <span {...slotAttrs(path, 'status')}>{block.status}</span>
-      <button type="button" class="theme" id="theme-toggle" aria-label="Switch color theme"
+      <button type="button" class="theme" id="theme-toggle"
         ><span class="sw"></span><span id="theme-label">dark mode</span></button
       >
     </div>

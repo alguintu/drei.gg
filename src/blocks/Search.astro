@@ -25,7 +25,11 @@ const id = `search-${Math.random().toString(36).slice(2, 8)}`;
     s.src = '/pagefind/pagefind-ui.js';
     s.onload = function () {
       box.innerHTML = '';
-      new PagefindUI({ element: box, showSubResults: true, showImages: false, translations: { placeholder: box.dataset.placeholder || 'Search' } });
+      var label = box.dataset.placeholder || 'Search';
+      new PagefindUI({ element: box, showSubResults: true, showImages: false, translations: { placeholder: label } });
+      // Pagefind labels its box with a title only; give it a real name.
+      var field = box.querySelector('input');
+      if (field) field.setAttribute('aria-label', label);
       addEventListener('keydown', function (e) {
         var t = e.target;
         if (e.key !== '/' || t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;

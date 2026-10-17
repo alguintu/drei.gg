@@ -10,7 +10,7 @@ interface Props {
 const { block, path } = Astro.props;
 ---
 
-<section class="hero" id="top" {...blockAttrs(path)}>
+<section class="hero" id="top" aria-label="drei.gg" {...blockAttrs(path)}>
   <div class="wrap">
     <h1 class="gg"><Text path={path} slot="name" text={block.name} /><span class="tld"><span class="dotc">.</span><Text path={path} slot="tld" text={block.tld} /></span></h1>
     <div>

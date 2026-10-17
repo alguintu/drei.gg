@@ -14,7 +14,7 @@ const scroll = block.motion === 'scroll';
 const time = `--feed-time: ${Math.max(20, block.items.length * 7)}s`;
 ---
 
-<div class:list={['feed', { scroll }]} aria-label="Recent activity" {...blockAttrs(path)} style={scroll ? time : undefined}>
+<div class:list={['feed', { scroll }]} role="region" aria-label="Recent activity" {...blockAttrs(path)} style={scroll ? time : undefined}>
   <div class="wrap">
     {
       scroll ? (
