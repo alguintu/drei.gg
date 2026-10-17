@@ -130,9 +130,9 @@ command = "node"
 args = ["/path/to/drei.gg/scripts/desk-mcp.mjs"]
 ```
 
-## Search, archive and tags
+## Archive, tags and sitemap
 
-`npm run build` runs Pagefind over the built site, so `/search/` works on any build (not in `npm run dev`). Only post articles and desk pages are indexed. `/log/` lists every post by year, tags link to `/tag/<tag>/`, and `/sitemap.xml` covers all of it.
+`/log/` lists every post by year, tags link to `/tag/<tag>/`, and `/sitemap.xml` covers all of it.
 
 ## Pages and blocks
 
