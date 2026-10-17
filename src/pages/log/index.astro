@@ -3,10 +3,11 @@
 import Base from '../../layouts/Base.astro';
 import PostRows from '../../components/PostRows.astro';
 import TagNav from '../../components/TagNav.astro';
-import { getPosts } from '../../lib/posts';
+import { getPosts, getSeries } from '../../lib/posts';
 import '../../styles/extras.css';
 
 const posts = await getPosts();
+const series = getSeries(posts);
 ---
 
 <Base title="Archive" description="Every post on drei.gg, newest first.">
@@ -15,6 +16,7 @@ const posts = await getPosts();
       <a class="back" href="/">← home</a>
       <h1>The whole log</h1>
       <TagNav posts={posts} />
+      {series.length > 0 && <p class="series-kicker"><a href="/log/series/">{series.length} {series.length === 1 ? 'series' : 'series'} →</a></p>}
       <PostRows posts={posts} />
     </div>
   </main>

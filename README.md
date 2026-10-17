@@ -45,6 +45,7 @@ Front matter:
 | `tag`     | yes      | `ship`, `build`, `rant` or `dead`                         |
 | `label`   | no       | Short text in the meta column, e.g. `v0.0.2`              |
 | `summary` | no       | Used for the RSS feed and link previews                   |
+| `series`  | no       | Posts with the same series name are parts of one story (see below) |
 | `draft`   | no       | `true` hides the post from the built site                 |
 | `layout`  | no       | Cover layout (see below). Picked from the filename if unset |
 | `palette` | no       | `marker` (white and yellow), `aeris` (white and teal) or `ink` (black and yellow). Picked from the filename if unset |
@@ -133,6 +134,8 @@ args = ["/path/to/drei.gg/scripts/desk-mcp.mjs"]
 ## Archive, tags and sitemap
 
 `/log/` lists every post by year, tags link to `/tag/<tag>/`, and `/sitemap.xml` covers all of it.
+
+Give two or more posts the same `series:` (case and spacing don't matter) and they become one story: each part shows a "part 2 of 4" box listing every part, oldest first, `/log/series/<name>/` lists the parts, and `/log/series/` lists every series. The desk's series field suggests names already in use.
 
 ## Pages and blocks
 

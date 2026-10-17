@@ -24,3 +24,28 @@ export const LABELS: Record<Post['data']['tag'], string> = {
   rant: 'rant',
   dead: 'rip',
 };
+
+export interface Series {
+  name: string;
+  slug: string;
+  url: string;
+  // Oldest first: part 1 is the earliest post.
+  posts: Post[];
+}
+
+export function seriesSlug(name: string) {
+  return name.toLowerCase().normalize('NFKD').replace(/[^\w\s-]/g, '').trim().replace(/[\s_-]+/g, '-') || 'series';
+}
+
+// Every series, newest activity first. Posts are matched by series name, case and spacing ignored.
+export function getSeries(posts: Post[]): Series[] {
+  const all = new Map<string, Series>();
+  for (const post of [...posts].sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf())) {
+    if (!post.data.series) continue;
+    const slug = seriesSlug(post.data.series);
+    const s = all.get(slug) ?? { name: post.data.series, slug, url: `/log/series/${slug}/`, posts: [] };
+    s.posts.push(post);
+    all.set(slug, s);
+  }
+  return [...all.values()].sort((a, b) => b.posts.at(-1)!.data.date.valueOf() - a.posts.at(-1)!.data.date.valueOf());
+}

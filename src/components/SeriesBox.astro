@@ -1,0 +1,29 @@
+---
+// "Part 2 of 4": every part of the post's series, with this one marked.
+import { postUrl, type Post, type Series } from '../lib/posts';
+
+interface Props {
+  post: Post;
+  series: Series;
+}
+const { post, series } = Astro.props;
+const at = series.posts.findIndex((p) => p.id === post.id);
+---
+
+<nav class="series" aria-label={`Series: ${series.name}`}>
+  <p class="series-head">
+    <span class="part">part {at + 1} of {series.posts.length}</span>
+    <a href={series.url}>{series.name}</a>
+  </p>
+  <ol>
+    {
+      series.posts.map((p) =>
+        p.id === post.id ? (
+          <li aria-current="page">{p.data.title}</li>
+        ) : (
+          <li><a href={postUrl(p)}>{p.data.title}</a></li>
+        ),
+      )
+    }
+  </ol>
+</nav>

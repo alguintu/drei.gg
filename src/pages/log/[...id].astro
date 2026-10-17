@@ -4,14 +4,22 @@ import CodeCopy from '../../components/CodeCopy.astro';
 import Base from '../../layouts/Base.astro';
 import PostMeta from '../../components/PostMeta.astro';
 import PostCover from '../../components/PostCover.astro';
-import { getPosts, postUrl, LABELS, type Post } from '../../lib/posts';
+import SeriesBox from '../../components/SeriesBox.astro';
+import { getPosts, getSeries, postUrl, seriesSlug, LABELS, type Post, type Series } from '../../lib/posts';
 import Region from '../../blocks/Region.astro';
+import '../../styles/extras.css';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
+  const series = getSeries(posts);
   return posts.map((post, i) => ({
     params: { id: post.id },
-    props: { post, newer: posts[i - 1], older: posts[i + 1] },
+    props: {
+      post,
+      newer: posts[i - 1],
+      older: posts[i + 1],
+      series: post.data.series ? series.find((s) => s.slug === seriesSlug(post.data.series!)) : undefined,
+    },
   }));
 }
 
@@ -19,8 +27,10 @@ interface Props {
   post: Post;
   newer?: Post;
   older?: Post;
+  series?: Series;
 }
-const { post, newer, older } = Astro.props;
+const { post, newer, older, series } = Astro.props;
+const filters = [`tag:${LABELS[post.data.tag]}`, series && `series:${series.name}`].filter(Boolean).join(', ');
 const { Content } = await render(post);
 // Blocks above and below every post's article: src/content/pages/post.json.
 const template = (await getEntry('pages', 'post'))!;
@@ -31,10 +41,11 @@ const template = (await getEntry('pages', 'post'))!;
     <div class="wrap">
       <a class="back" href="/#log">← back to the log</a>
       <Region page={template} name="top" />
-      <article data-pagefind-body data-pagefind-filter={`tag:${LABELS[post.data.tag]}`}>
+      <article data-pagefind-body data-pagefind-filter={filters}>
         <PostMeta post={post} />
         <h1>{post.data.title}</h1>
         <div class="cover-full"><PostCover post={post} /></div>
+        {series && series.posts.length > 1 && <SeriesBox post={post} series={series} />}
         <div class="prose"><Content /></div>
         <nav class="pager" aria-label="More posts">
           {older ? <a href={postUrl(older)}>← {older.data.title}</a> : <span />}

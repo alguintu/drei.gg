@@ -60,7 +60,7 @@ async function listPosts() {
     else if (entry.isFile() && entry.name.endsWith('.md')) [id, file] = [entry.name.slice(0, -3), join(POSTS, entry.name)];
     else continue;
     const { data } = parse(await readFile(file, 'utf8'));
-    out.push({ id, title: data.title ?? id, date: String(data.date ?? ''), tag: data.tag ?? '', draft: data.draft === true });
+    out.push({ id, title: data.title ?? id, date: String(data.date ?? ''), tag: data.tag ?? '', series: data.series || undefined, draft: data.draft === true });
   }
   return out.sort((a, b) => b.date.localeCompare(a.date));
 }

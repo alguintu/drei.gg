@@ -1,0 +1,32 @@
+---
+// Every series, the one with the newest part first.
+import Base from '../../../layouts/Base.astro';
+import { getPosts, getSeries, formatDate } from '../../../lib/posts';
+import '../../../styles/extras.css';
+
+const all = getSeries(await getPosts());
+---
+
+<Base title="Series" description="Posts on drei.gg that run in parts.">
+  <main class="single archive">
+    <div class="wrap">
+      <a class="back" href="/log/">← the whole log</a>
+      <h1>Series</h1>
+      {all.length === 0 && <p class="empty">No series yet. Give two posts the same <code>series:</code> and they become one.</p>}
+      <ol class="rows">
+        {
+          all.map((s) => (
+            <li>
+              <time datetime={s.posts.at(-1)!.data.date.toISOString().slice(0, 10)}>{formatDate(s.posts.at(-1)!.data.date)}</time>
+              <span class="num">{s.posts.length}×</span>
+              <span class="what">
+                <a href={s.url}>{s.name}</a>
+                <span class="sum">latest: {s.posts.at(-1)!.data.title}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </main>
+</Base>
