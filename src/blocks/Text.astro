@@ -1,0 +1,24 @@
+---
+// A slot's text. In dev it's wrapped in a span that names the slot, for the
+// desk's click-to-edit; in production it's the bare text, nothing added.
+import { inline, type Path } from './desk';
+
+interface Props {
+  path?: Path;
+  slot: string;
+  text: string;
+  rich?: boolean;
+}
+const { path, slot, text, rich = false } = Astro.props;
+const tag = import.meta.env.DEV && path;
+---
+
+{
+  tag ? (
+    rich ? <span data-desk-slot={`${path}.${slot}`} data-desk-rich set:html={inline(text)} /> : <span data-desk-slot={`${path}.${slot}`}>{text}</span>
+  ) : rich ? (
+    <Fragment set:html={inline(text)} />
+  ) : (
+    text
+  )
+}

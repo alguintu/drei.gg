@@ -1,144 +1,22 @@
 ---
-import { render } from 'astro:content';
+// The home page: src/content/pages/home.json, a page made of blocks.
+import { getEntry } from 'astro:content';
 import Base from '../layouts/Base.astro';
-import PostMeta from '../components/PostMeta.astro';
-import PostCover from '../components/PostCover.astro';
-import { getPosts, postUrl } from '../lib/posts';
-import { domainBought, gloss, inline, inventory, killfeed, rules, thesis } from '../data/site';
+import Region from '../blocks/Region.astro';
 
-const posts = await getPosts();
-const rendered = await Promise.all(posts.map(async (post) => ({ post, ...(await render(post)) })));
-const tags = ['all', 'ship', 'build', 'rant', 'dead'];
-const count = (tag: string) => posts.filter((p) => p.data.tag === tag).length;
-const daysSinceDomain = Math.max(0, Math.floor((Date.now() - domainBought.valueOf()) / 86_400_000));
+const page = (await getEntry('pages', 'home'))!;
 ---
 
 <Base>
-  <section class="hero" id="top">
-    <div class="wrap">
-      <h1 class="gg">drei<span class="tld"><span class="dotc">.</span>gg</span></h1>
-      <div>
-        <p class="thesis" set:html={inline(thesis)} />
-      </div>
-      <div class="gloss" aria-label="Definition of gg">
-        <div class="head"><b>.gg</b> &nbsp;/ˌdʒiːˈdʒiː/ &nbsp;interj., n.</div>
-        <ol>
-          {
-            gloss.map((g) => (
-              <li>
-                <span class="tag">{g.tag}</span>
-                <Fragment set:html={inline(g.text)} />
-              </li>
-            ))
-          }
-        </ol>
-      </div>
-    </div>
-  </section>
-
-  <div class="feed" aria-label="Recent activity">
-    <div class="wrap">
-      {
-        killfeed.map((k) => (
-          <span class="kill">
-            <b>{k.who}</b> <span class={k.style === 'bad' ? 'x' : 'v'}>[{k.verb}]</span> {k.what}
-          </span>
-        ))
-      }
-    </div>
-  </div>
+  <Region page={page} name="top" />
 
   <main>
     <div class="wrap">
-      <section id="log" aria-label="Devlog">
-        <p class="label">Log · newest first</p>
-        <div class="filters" role="group" aria-label="Filter posts">
-          {
-            tags.map((t) => (
-              <button type="button" id={`f-${t}`} data-f={t} aria-pressed={t === 'all' ? 'true' : 'false'}>
-                {t}
-              </button>
-            ))
-          }
-        </div>
-
-        <div class="log">
-          {rendered.length === 0 && <p class="empty-log">Nothing posted yet. Add a Markdown file to src/content/posts.</p>}
-          {
-            rendered.map(({ post, Content }) => (
-              <article class="post" data-tag={post.data.tag}>
-                <PostMeta post={post} />
-                <div class="prose">
-                  <a class="cover-link" href={postUrl(post)} tabindex="-1" aria-hidden="true">
-                    <PostCover post={post} size="card" />
-                  </a>
-                  <h2 class="title">
-                    <a href={postUrl(post)}>{post.data.title}</a>
-                  </h2>
-                  <Content />
-                </div>
-              </article>
-            ))
-          }
-        </div>
-      </section>
+      <Region page={page} name="main" />
 
       <aside>
-        <section id="inventory" aria-label="Products">
-          <p class="label">Inventory</p>
-          <div class="slots">
-            {
-              inventory.map((item, i) => (
-                <div class={`slot ${item.status}`}>
-                  <span class="n">{String(i + 1).padStart(2, '0')}</span>
-                  <div>
-                    <b>{item.href ? <a href={item.href} style="color:inherit;text-decoration:none">{item.name}</a> : item.name}</b>
-                    <small>{item.note}</small>
-                  </div>
-                </div>
-              ))
-            }
-          </div>
-        </section>
-
-        <section id="rules" aria-label="House rules">
-          <p class="label">House rules</p>
-          <ul class="rules">
-            {
-              rules.map((rule, i) => (
-                <li>
-                  <span class="k">{String(i + 1).padStart(2, '0')}</span>
-                  <span>{rule}</span>
-                </li>
-              ))
-            }
-          </ul>
-        </section>
-
-        <section aria-label="Scoreboard">
-          <p class="label">Scoreboard</p>
-          <dl class="stats">
-            <dt>posts</dt><dd>{posts.length}</dd>
-            <dt>shipped</dt><dd>{count('ship')}</dd>
-            <dt>killed</dt><dd>{count('dead')}</dd>
-            <dt>days since domain</dt><dd>{daysSinceDomain}</dd>
-          </dl>
-        </section>
+        <Region page={page} name="aside" />
       </aside>
     </div>
   </main>
-
-  <script is:inline>
-    (function () {
-      var buttons = document.querySelectorAll('.filters button');
-      var posts = document.querySelectorAll('.post');
-      buttons.forEach(function (b) {
-        b.addEventListener('click', function () {
-          var f = b.dataset.f;
-          buttons.forEach(function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
-          posts.forEach(function (p) { p.hidden = !(f === 'all' || p.dataset.tag === f); });
-        });
-      });
-    })();
-  </script>
 </Base>

@@ -1,0 +1,23 @@
+---
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+import Text from './Text.astro';
+
+interface Props {
+  block: BlockData<'killfeed'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<div class="feed" aria-label="Recent activity" {...blockAttrs(path)}>
+  <div class="wrap">
+    {
+      block.items.map((k, i) => (
+        <span class="kill">
+          <b {...slotAttrs(path, `items.${i}.who`)}>{k.who}</b> <span class={k.style === 'bad' ? 'x' : 'v'}>[<Text path={path} slot={`items.${i}.verb`} text={k.verb} />]</span> <Text path={path} slot={`items.${i}.what`} text={k.what} />
+        </span>
+      ))
+    }
+  </div>
+</div>

@@ -1,0 +1,28 @@
+---
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+import Text from './Text.astro';
+
+interface Props {
+  block: BlockData<'inventory'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section id="inventory" aria-label="Products" {...blockAttrs(path)}>
+  <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>
+  <div class="slots">
+    {
+      block.items.map((item, i) => (
+        <div class={`slot ${item.status}`}>
+          <span class="n">{String(i + 1).padStart(2, '0')}</span>
+          <div>
+            <b>{item.href ? <a href={item.href} style="color:inherit;text-decoration:none"><Text path={path} slot={`items.${i}.name`} text={item.name} /></a> : <Text path={path} slot={`items.${i}.name`} text={item.name} />}</b>
+            <small {...slotAttrs(path, `items.${i}.note`)}>{item.note}</small>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>

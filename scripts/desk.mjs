@@ -1,20 +1,21 @@
-// npm run desk: a local post editor. It serves the editor on :4320, runs
-// `astro dev` on :4321 for the live preview, and reads and writes the post
-// files in src/content/posts directly. Publishing commits and pushes them.
-// Local only: it listens on 127.0.0.1 and has no auth.
+// npm run desk: a local editor for posts and pages. It builds the editor (a small
+// React app in scripts/desk/app) and serves it on :4320, runs `astro dev` on :4321
+// for the live preview, and reads and writes the files in src/content directly.
+// Publishing commits and pushes them. Local only: it listens on 127.0.0.1 and has no auth.
 import { createServer, request } from 'node:http';
 import { connect } from 'node:net';
 import { spawn, execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile, readdir, mkdir, rename, stat } from 'node:fs/promises';
-import { join, dirname, extname, resolve } from 'node:path';
+import { join, dirname, extname, resolve, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const POSTS = join(ROOT, 'src/content/posts');
-const UI = join(ROOT, 'scripts/desk/index.html');
-const HOME = join(ROOT, 'src/data/home.json');
+const APP = join(ROOT, 'scripts/desk/app');
+const UI = join(ROOT, 'scripts/desk/dist');
+const PAGES = join(ROOT, 'src/content/pages');
 const DESK_PORT = Number(process.env.DESK_PORT || 4320);
 const SITE_PORT = Number(process.env.SITE_PORT || 4321);
 const run = promisify(execFile);
@@ -121,10 +122,34 @@ async function cover() {
   return import(`${pathToFileURL(file)}?v=${(await stat(file)).mtimeMs}`);
 }
 
+// Fresh imports of the site's own TypeScript, so edits show without restarting.
+async function load(rel) {
+  const file = join(ROOT, rel);
+  return import(`${pathToFileURL(file)}?v=${(await stat(file)).mtimeMs}`);
+}
+
 // The blocks the toolbar inserts, from src/lib/blocks.ts (the catalog page shows the same list).
-async function blocks() {
-  const file = join(ROOT, 'src/lib/blocks.ts');
-  return (await import(`${pathToFileURL(file)}?v=${(await stat(file)).mtimeMs}`)).BLOCKS;
+const blocks = async () => (await load('src/lib/blocks.ts')).BLOCKS;
+
+// Page blocks, from src/blocks/schema.ts: each block type's slots as JSON Schema,
+// which the editor turns into forms, plus the templates' regions.
+async function pageBlocks() {
+  const { BLOCKS, TEMPLATES } = await load('src/blocks/schema.ts');
+  const { z } = await import('astro/zod');
+  // Defaults, so a new list item in a form starts as '' rather than null.
+  const fill = (s) => {
+    if (s.type === 'string' && s.default === undefined && s.const === undefined) s.default = s.enum?.[0] ?? '';
+    for (const p of Object.values(s.properties ?? {})) fill(p);
+    if (s.items) fill(s.items);
+    return s;
+  };
+  const schemas = Object.fromEntries(Object.entries(BLOCKS).map(([type, schema]) => [type, fill(z.toJSONSchema(schema, { target: 'draft-7' }))]));
+  return { schemas, templates: TEMPLATES };
+}
+
+function pageFile(id) {
+  if (!SLUG.test(id)) throw httpError(400, 'bad page id');
+  return join(PAGES, `${id}.json`);
 }
 
 async function meta() {
@@ -188,18 +213,30 @@ const routes = {
     await writeFile(join(dir, name), await body(req));
     return { name, images: await images(id) };
   },
-  // The home page's own content (src/data/home.json).
-  'GET /api/home': async () => JSON.parse(await readFile(HOME, 'utf8')),
-  'PUT /api/home': async (q, req) => {
+  // Pages made of blocks (src/content/pages). Saves are checked against the same
+  // zod schema the site builds with, so the desk can't write a page that won't build.
+  'GET /api/blocks': () => pageBlocks(),
+  'GET /api/pages': async () => {
+    const out = [];
+    for (const f of (await readdir(PAGES)).filter((f) => f.endsWith('.json')).sort()) {
+      const data = JSON.parse(await readFile(join(PAGES, f), 'utf8'));
+      out.push({ id: f.slice(0, -5), title: data.title, template: data.template });
+    }
+    return out;
+  },
+  'GET /api/page': async (q) => ({ id: q.get('id'), data: JSON.parse(await readFile(pageFile(q.get('id')), 'utf8')) }),
+  'PUT /api/page': async (q, req) => {
     const data = JSON.parse(await body(req));
-    if (!Array.isArray(data.gloss) || !Array.isArray(data.killfeed) || !Array.isArray(data.inventory) || !Array.isArray(data.rules)) throw httpError(400, 'bad home data');
-    await writeFile(HOME, JSON.stringify(data, null, 2) + '\n');
+    const { Page } = await load('src/blocks/schema.ts');
+    const check = Page.safeParse(data);
+    if (!check.success) throw httpError(400, check.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '));
+    await writeFile(pageFile(q.get('id')), JSON.stringify(data, null, 2) + '\n');
     return { ok: true };
   },
-  'GET /api/status': async () => ({ branch: await git('branch', '--show-current'), changes: await git('status', '--short', '--', 'src/content/posts', 'src/data/home.json') }),
+  'GET /api/status': async () => ({ branch: await git('branch', '--show-current'), changes: await git('status', '--short', '--', 'src/content/posts', 'src/content/pages') }),
   'POST /api/publish': async (q, req) => {
-    const { id, home, message } = JSON.parse(await body(req));
-    const target = home ? 'src/data/home.json' : id ? (fileFor(id).endsWith('index.md') ? join('src/content/posts', id) : join('src/content/posts', `${id}.md`)) : 'src/content/posts';
+    const { id, page, message } = JSON.parse(await body(req));
+    const target = page ? relative(ROOT, pageFile(page)) : id ? (fileFor(id).endsWith('index.md') ? join('src/content/posts', id) : join('src/content/posts', `${id}.md`)) : 'src/content';
     const log = [];
     log.push(await git('add', '-A', '--', target));
     const staged = await git('diff', '--cached', '--name-only');
@@ -265,6 +302,7 @@ function tunnel(req, socket, head) {
   socket.on('error', () => up.destroy());
 }
 
+const ASSET_TYPES = { '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.woff2': 'font/woff2' };
 const TYPES = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif', '.avif': 'image/avif', '.svg': 'image/svg+xml' };
 
 const server = createServer(async (req, res) => {
@@ -273,8 +311,15 @@ const server = createServer(async (req, res) => {
     // The editor lives at /; the same path inside the preview frame is the site's home page.
     const inFrame = req.headers['sec-fetch-dest'] === 'iframe';
     if (req.method === 'GET' && !inFrame && (url.pathname === '/' || url.pathname === '/index.html')) {
-      res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-      return res.end(await readFile(UI));
+      res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
+      return res.end(await readFile(join(UI, 'index.html')));
+    }
+    // The editor's own scripts and styles, built by Vite under /__desk/.
+    const asset = url.pathname.match(/^\/__desk\/(assets\/[\w.-]+)$/);
+    if (req.method === 'GET' && asset) {
+      const p = join(UI, asset[1]);
+      res.writeHead(200, { 'content-type': ASSET_TYPES[extname(p)] ?? 'application/octet-stream', 'cache-control': 'max-age=31536000, immutable' });
+      return res.end(await readFile(p));
     }
     // Post images, for thumbnails in the editor.
     const img = url.pathname.match(/^\/img\/([a-z0-9-]+)\/([^/]+)$/);
@@ -297,6 +342,11 @@ const server = createServer(async (req, res) => {
   }
 });
 server.on('upgrade', tunnel);
+
+// Build the editor before serving it. It's small; this takes a second or two.
+const { build } = await import('vite');
+await build({ configFile: join(ROOT, 'scripts/desk/vite.config.mjs'), logLevel: 'warn' });
+
 server.listen(DESK_PORT, '127.0.0.1', () => {
   console.log(`\n  desk     http://localhost:${DESK_PORT}\n  preview  http://localhost:${SITE_PORT}\n`);
 });
@@ -306,7 +356,9 @@ server.listen(DESK_PORT, '127.0.0.1', () => {
 // way out we also ask it to stop. It binds 127.0.0.1 because the preview proxy
 // connects there; on its own, localhost can resolve to ::1 only.
 if (!process.env.DESK_NO_SITE) {
-  const site = spawn('npx', ['astro', 'dev', '--host', '127.0.0.1', '--port', String(SITE_PORT)], { cwd: ROOT, stdio: 'inherit' });
+  // Building the editor set NODE_ENV=production in this process; the preview is dev.
+  const env = { ...process.env, NODE_ENV: 'development' };
+  const site = spawn('npx', ['astro', 'dev', '--host', '127.0.0.1', '--port', String(SITE_PORT)], { cwd: ROOT, stdio: 'inherit', env });
   let quitting = false;
   const stop = async () => {
     quitting = true;

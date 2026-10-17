@@ -2,6 +2,7 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { ALL_LAYOUTS, PALETTES } from './lib/cover';
+import { Page } from './blocks/schema';
 
 // One Markdown file per post. A post with images can be a folder:
 // src/content/posts/my-post/index.md with its images beside it.
@@ -28,4 +29,10 @@ const posts = defineCollection({
     }),
 });
 
-export const collections = { posts };
+// Pages made of blocks (src/blocks). `frame` is the header and footer every page shares.
+const pages = defineCollection({
+  loader: glob({ base: './src/content/pages', pattern: '*.json' }),
+  schema: Page,
+});
+
+export const collections = { posts, pages };

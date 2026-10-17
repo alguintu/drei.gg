@@ -20,7 +20,9 @@ npm run desk
 
 Open http://localhost:4320. The desk is a local editor: post list on the left, a form for the front matter and cover (image, layout, palette, and one box per text slot on the chosen layout), the Markdown body with buttons for every block, and the real site running in `astro dev` as a live preview, split beside the editor or in a popup, at desktop or phone width. Every change saves straight to `src/content/posts` and the preview reloads. Drop an image on the body to upload it beside the post and insert it with a frame. **publish** commits the post and pushes the current branch; the live site redeploys when `main` changes. It only listens on localhost.
 
-**Home page** at the top of the post list edits the home page's own content: the thesis line, the .gg definitions, the killfeed, the inventory slots, the house rules and the domain date. **catalog** turns the preview into a catalog for the open post: every cover layout drawn with the post's own words and image (click one to use it, with a palette toggle), and every block and image frame (click one to insert it at the cursor). The catalog is a dev-only page; it's never built for the live site.
+The sidebar has **Pages** (the home page, and the header & footer every page shares) above **Posts**. A page is a stack of blocks in regions: drag a block to reorder it, move it to another region, remove it, or add one, and edit the open block's slots in its form. The preview is also the editor: hover to see blocks and slots outlined, click one to open it in the form with the field focused, and double-click plain text to edit it in place (Enter saves, Esc cancels). **catalog** turns the preview into a catalog for the open post: every cover layout drawn with the post's own words and image (click one to use it, with a palette toggle), and every block and image frame (click one to insert it at the cursor). The catalog is a dev-only page; it's never built for the live site.
+
+The desk's editor is a small React app in `scripts/desk/app`, built by Vite each time the desk starts. React and the editor's other packages are dev dependencies; the live site ships none of it.
 
 ## Write a post
 
@@ -112,9 +114,13 @@ Give an image a frame with its title, `"frame | caption"`:
 
 Frames: `offset` (on a yellow block), `teal` (on teal), `bracket` (corner brackets), `rounded` (rounded corner with a yellow tab), `quarter` (black and white with a yellow quarter circle), `tape` (caption on black tape). Videos, GIFs and downloads go in a DigitalOcean Space with the CDN on; link to them from the post.
 
-## Edit the home page
+## Pages and blocks
 
-`src/data/home.json` holds the home page's content: the thesis, the .gg definitions, the killfeed ticker, the inventory slots and the house rules (the desk edits it; `src/data/site.ts` reads it). In its text, `==text==` is highlighted and `*text*` is italic. The blocks the desk inserts are listed in `src/lib/blocks.ts`. Styles are in `src/styles/global.css`; colors are tokens at the top (ink, ribbon red, marker yellow, with blue only for links, numbers and tags).
+Pages are made of blocks. A block is an Astro component in `src/blocks/` whose slots (its text, lists and choices) are a zod schema in `src/blocks/schema.ts`. Blocks are atomic: they hold slots, never other blocks. A page is a JSON file in `src/content/pages/`: a template, and for each of the template's regions, a list of blocks with their slot values. `home.json` is the home page (regions `top`, `main`, `aside`); `frame.json` is the header and footer on every page. In rich text slots, `==text==` is highlighted and `*text*` is italic.
+
+To add a block type: write its schema in `BLOCKS`, its component in `src/blocks/`, and map it in `src/blocks/Blocks.astro`. The desk builds its form from the schema. In dev, blocks and slots carry `data-desk-*` attributes so the desk can map clicks in the preview to fields; production builds have none.
+
+The blocks a post's Markdown can use are listed in `src/lib/blocks.ts`. Styles are in `src/styles/global.css`; colors are tokens at the top (ink, ribbon red, marker yellow, with blue only for links, numbers and tags).
 
 ## Deploy
 

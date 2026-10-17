@@ -1,6 +1,8 @@
 ---
 import '../styles/global.css';
 import '../styles/cover.css';
+import { getEntry } from 'astro:content';
+import Region from '../blocks/Region.astro';
 
 interface Props {
   title?: string;
@@ -15,8 +17,8 @@ const {
 } = Astro.props;
 const pageTitle = title ? `${title} · drei.gg` : 'drei.gg';
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const isHome = Astro.url.pathname === '/';
-const nav = (hash: string) => (isHome ? `#${hash}` : `/#${hash}`);
+// The header and footer every page shares: the `frame` page (src/content/pages/frame.json).
+const frame = (await getEntry('pages', 'frame'))!;
 ---
 
 <!doctype html>
@@ -49,33 +51,11 @@ const nav = (hash: string) => (isHome ? `#${hash}` : `/#${hash}`);
     </script>
   </head>
   <body>
-    <header class="hud">
-      <div class="wrap">
-        <a class="brand" href="/"><span class="dot"></span>drei.gg</a>
-        <nav aria-label="Site">
-          <a href={nav('log')}>log</a>
-          <a href={nav('inventory')}>inventory</a>
-          <a href={nav('rules')}>rules</a>
-          <a href="/feed.xml">rss</a>
-        </nav>
-        <div class="right">
-          <span>build 0.0.1 · region PH · ping fine</span>
-          <button type="button" class="theme" id="theme-toggle" aria-label="Switch color theme"
-            ><span class="sw"></span><span id="theme-label">dark mode</span></button
-          >
-        </div>
-      </div>
-    </header>
+    <Region page={frame} name="header" />
 
     <slot />
 
-    <footer>
-      <div class="wrap">
-        <span class="big">drei.gg</span>
-        <span>rss · <a href="/feed.xml">drei.gg/feed.xml</a><br />no newsletter. on purpose.</span>
-        <span>© {new Date().getFullYear()} Drei</span>
-      </div>
-    </footer>
+    <Region page={frame} name="footer" />
 
     <script is:inline>
       (function () {

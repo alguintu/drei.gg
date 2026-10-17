@@ -1,0 +1,25 @@
+---
+// One region of a page: its blocks, in order. In dev it's wrapped in a
+// display: contents element naming the region, so the desk can add blocks to it;
+// in production there's no wrapper.
+import Blocks from './Blocks.astro';
+import type { BlockData } from './schema';
+
+interface Props {
+  page: { id: string; data: { regions: Record<string, BlockData[]> } };
+  name: string;
+}
+const { page, name } = Astro.props;
+const blocks = page.data.regions[name] ?? [];
+const path = import.meta.env.DEV ? `${page.id}:regions.${name}` : undefined;
+---
+
+{
+  path ? (
+    <div data-desk-region={path} style="display: contents">
+      <Blocks blocks={blocks} path={path} />
+    </div>
+  ) : (
+    <Blocks blocks={blocks} />
+  )
+}

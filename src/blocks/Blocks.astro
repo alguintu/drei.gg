@@ -1,0 +1,38 @@
+---
+// Draws a list of blocks: each block's `type` picks its component.
+import type { BlockData, BlockType } from './schema';
+import type { Path } from './desk';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import Hero from './Hero.astro';
+import Killfeed from './Killfeed.astro';
+import PostLog from './PostLog.astro';
+import Inventory from './Inventory.astro';
+import Rules from './Rules.astro';
+import Scoreboard from './Scoreboard.astro';
+
+export const COMPONENTS: Record<BlockType, any> = {
+  header: Header,
+  footer: Footer,
+  hero: Hero,
+  killfeed: Killfeed,
+  postlog: PostLog,
+  inventory: Inventory,
+  rules: Rules,
+  scoreboard: Scoreboard,
+};
+
+interface Props {
+  blocks: BlockData[];
+  // Where this list lives, e.g. "home:regions.aside". Each block gets "<path>.<index>".
+  path?: Path;
+}
+const { blocks, path } = Astro.props;
+---
+
+{
+  blocks.map((block, i) => {
+    const Component = COMPONENTS[block.type];
+    return <Component block={block} path={path ? `${path}.${i}` : undefined} />;
+  })
+}

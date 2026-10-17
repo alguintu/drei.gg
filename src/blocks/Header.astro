@@ -1,0 +1,29 @@
+---
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+import Text from './Text.astro';
+
+interface Props {
+  block: BlockData<'header'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+const isHome = Astro.url.pathname === '/';
+// #section links point at the home page; from anywhere else they need the /.
+const link = (href: string) => (href.startsWith('#') && !isHome ? `/${href}` : href);
+---
+
+<header class="hud" {...blockAttrs(path)}>
+  <div class="wrap">
+    <a class="brand" href="/"><span class="dot"></span><Text path={path} slot="brand" text={block.brand} /></a>
+    <nav aria-label="Site">
+      {block.nav.map((n, i) => <a href={link(n.href)} {...slotAttrs(path, `nav.${i}.label`)}>{n.label}</a>)}
+    </nav>
+    <div class="right">
+      <span {...slotAttrs(path, 'status')}>{block.status}</span>
+      <button type="button" class="theme" id="theme-toggle" aria-label="Switch color theme"
+        ><span class="sw"></span><span id="theme-label">dark mode</span></button
+      >
+    </div>
+  </div>
+</header>
