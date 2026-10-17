@@ -12,13 +12,21 @@ npm run build    # static output in dist/
 
 Node 22.12 or newer.
 
+## Write a post in the desk
+
+```sh
+npm run desk
+```
+
+Open http://localhost:4320. The desk is a local editor: post list on the left, a form for the front matter and cover (image, layout, palette, kicker), the Markdown body with buttons for every block, and the real site running in `astro dev` as a live preview, split beside the editor or in a popup, at desktop or phone width. Every change saves straight to `src/content/posts` and the preview reloads. Drop an image on the body to upload it beside the post and insert it with a frame. **publish** commits the post and pushes the current branch; the live site redeploys when `main` changes. It only listens on localhost.
+
 ## Write a post
 
 ```sh
 npm run new -- "Post title" ship   # ship | build | rant | dead
 ```
 
-That creates `src/content/posts/post-title.md` with `draft: true`. Drafts show in `npm run dev` only; delete the line to publish.
+That creates `src/content/posts/post-title/index.md` with `draft: true`. Drafts show in `npm run dev` only; delete the line to publish.
 
 Front matter:
 

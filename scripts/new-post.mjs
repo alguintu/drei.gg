@@ -1,5 +1,5 @@
 // npm run new -- "Post title" [tag]
-import { existsSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 
 const [title, tag = 'build'] = process.argv.slice(2);
 if (!title) {
@@ -7,11 +7,13 @@ if (!title) {
   process.exit(1);
 }
 const slug = title.toLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-const file = `src/content/posts/${slug}.md`;
-if (existsSync(file)) {
-  console.error(`${file} already exists`);
+const dir = `src/content/posts/${slug}`;
+const file = `${dir}/index.md`;
+if (existsSync(dir) || existsSync(`${dir}.md`)) {
+  console.error(`${dir} already exists`);
   process.exit(1);
 }
+mkdirSync(dir, { recursive: true });
 const date = new Date().toISOString().slice(0, 10);
 writeFileSync(
   file,

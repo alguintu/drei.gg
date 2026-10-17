@@ -10,7 +10,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "new": "node scripts/new-post.mjs"
+    "new": "node scripts/new-post.mjs",
+    "desk": "node scripts/desk.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "7.3.2",
