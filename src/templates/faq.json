@@ -1,0 +1,62 @@
+{
+  "name": "FAQ",
+  "group": "Product",
+  "description": "Grouped questions with expanding answers and a way to ask more.",
+  "page": {
+    "title": "FAQ",
+    "template": "basic",
+    "regions": {
+      "main": [
+        {
+          "type": "heading",
+          "kicker": "FAQ",
+          "title": "Questions people actually asked"
+        },
+        {
+          "type": "faq",
+          "label": "The site",
+          "heading": "",
+          "items": [
+            {
+              "q": "Why no newsletter?",
+              "a": "Because RSS exists and inboxes are full. The feed is at /feed.xml."
+            },
+            {
+              "q": "Who writes the posts?",
+              "a": "Drei, with Anya and Eris on the tools. If an agent drafted something, the post says so."
+            },
+            {
+              "q": "Why .gg?",
+              "a": "Good game. Also Drei's initial and surname. Also what you type when the other team has already lost."
+            }
+          ]
+        },
+        {
+          "type": "faq",
+          "label": "The work",
+          "heading": "",
+          "items": [
+            {
+              "q": "Do you take client work?",
+              "a": "Sometimes. Write in with what you're building."
+            },
+            {
+              "q": "Can I use the code?",
+              "a": "Ask first; most of it is happy to be borrowed."
+            }
+          ]
+        },
+        {
+          "type": "cta",
+          "heading": "Didn’t find it?",
+          "text": "Ask. The answer might become a post.",
+          "button": "Get in touch",
+          "href": "/contact/",
+          "secondary": "",
+          "secondary_href": "",
+          "style": "aeris"
+        }
+      ]
+    }
+  }
+}

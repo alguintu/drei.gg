@@ -153,6 +153,12 @@ In the desk, click a post block in a post's preview (or put the cursor in one an
 
 A post dated in the future is *scheduled*: the desk marks it, it shows in the preview, and the live site leaves it out until a build on or after that date. `.github/workflows/scheduled.yml` checks every morning (00:10 UTC) for a post dated today and asks DigitalOcean to redeploy; it needs the repository secrets `DIGITALOCEAN_TOKEN` and `DIGITALOCEAN_APP_ID`, and says so if they're missing. Pages have a **draft** box too: a draft page shows in the preview, never on the site. `/now/` and `/uses/` start as drafts with the shape filled in and the details left for you.
 
+## Page templates
+
+`src/templates/` holds 21 page templates, each a JSON file (name, group, description, and the page with sample content): About, Team/credits, Contact, Press kit, Links (link-in-bio), Product landing, Pricing, Changelog, Roadmap, FAQ, Launch/coming soon, Event/talk, Funeral (for dead projects), Case study, Manifesto, Portfolio, Now, Uses, Archive, Legal and Status. They're built from section blocks in `src/blocks/sections/` (features, pricing, FAQ, timeline, roadmap, stats, call to action, quotes, people, link list, gallery, media and text, archive, table, status board, countdown, contact, downloads, divider), styled in `src/styles/sections.css`.
+
+In the desk, **templates** (under Pages) shows a live gallery of every template in the preview; **use this** on one, or **+ new page** and pick it under *start from*, makes a draft page from it with the template in the preview while you name it. The preview has desktop, tablet and phone widths. `scripts/make-templates.py` regenerates the set; editing the JSON directly works too. MCP agents get `list_templates` and `new_page` with a template.
+
 ## Search
 
 `npm run build` ends by running [Pagefind](https://pagefind.app) over `dist/`, which indexes every post's article and every page made in the desk into `/pagefind/`; no server. The **Search** block puts a search box anywhere (there's one at `/search/`, linked from the header), and `/` jumps to it. In dev there's no index, so the box says so; `npm run build && npm run preview` to try it.

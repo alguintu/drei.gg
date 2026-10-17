@@ -1,0 +1,81 @@
+{
+  "name": "Roadmap",
+  "group": "Product",
+  "description": "Now, next, later on a board, with the shipped list underneath.",
+  "page": {
+    "title": "Roadmap",
+    "template": "basic",
+    "regions": {
+      "main": [
+        {
+          "type": "heading",
+          "kicker": "Roadmap",
+          "title": "What’s on the bench"
+        },
+        {
+          "type": "roadmap",
+          "label": "",
+          "heading": "",
+          "columns": [
+            {
+              "name": "Now",
+              "items": [
+                {
+                  "title": "The first product",
+                  "note": "In the inventory's empty slot"
+                },
+                {
+                  "title": "Fill in /now and /uses",
+                  "note": "Drei's homework"
+                }
+              ]
+            },
+            {
+              "name": "Next",
+              "items": [
+                {
+                  "title": "A second series",
+                  "note": "Building in public, weekly"
+                },
+                {
+                  "title": "Better covers for photos",
+                  "note": ""
+                }
+              ]
+            },
+            {
+              "name": "Later",
+              "items": [
+                {
+                  "title": "Comments without a database",
+                  "note": "Maybe. Probably not."
+                }
+              ]
+            },
+            {
+              "name": "Never",
+              "items": [
+                {
+                  "title": "A newsletter",
+                  "note": "Rule 04"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "divider",
+          "style": "dots",
+          "text": ""
+        },
+        {
+          "type": "postlist",
+          "label": "Recently shipped",
+          "tag": "ship",
+          "count": 5,
+          "style": "rows"
+        }
+      ]
+    }
+  }
+}

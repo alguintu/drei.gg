@@ -1,0 +1,27 @@
+---
+import type { BlockData } from '../schema';
+import { blockAttrs, slotAttrs, type Path } from '../desk';
+import Head from './Head.astro';
+import Text from '../Text.astro';
+
+interface Props { block: BlockData<'contact'>; path?: Path }
+const { block, path } = Astro.props;
+---
+
+<section class="sec sec-contact" {...blockAttrs(path)}>
+  <Head label={block.label} heading={block.heading} path={path} />
+  {block.text && <p class="text"><Text path={path} slot="text" text={block.text} rich /></p>}
+  {block.email && <p class="email"><a href={`mailto:${block.email}`} {...slotAttrs(path, 'email')}>{block.email}</a></p>}
+  {
+    block.items.length > 0 && (
+      <dl>
+        {block.items.map((c, i) => (
+          <div>
+            <dt {...slotAttrs(path, `items.${i}.label`)}>{c.label}</dt>
+            <dd>{c.href ? <a href={c.href} {...slotAttrs(path, `items.${i}.value`)}>{c.value}</a> : <span {...slotAttrs(path, `items.${i}.value`)}>{c.value}</span>}</dd>
+          </div>
+        ))}
+      </dl>
+    )
+  }
+</section>

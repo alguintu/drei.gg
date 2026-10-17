@@ -1,0 +1,85 @@
+{
+  "name": "Portfolio",
+  "group": "Personal",
+  "description": "Selected work as a gallery, a featured project up close, and what people said.",
+  "page": {
+    "title": "Work",
+    "template": "basic",
+    "regions": {
+      "main": [
+        {
+          "type": "heading",
+          "kicker": "Selected work",
+          "title": "Things that shipped"
+        },
+        {
+          "type": "gallery",
+          "label": "",
+          "heading": "",
+          "columns": "3",
+          "items": [
+            {
+              "src": "/templates/sample-hero.jpg",
+              "alt": "",
+              "caption": "drei.gg · 2026",
+              "href": "/"
+            },
+            {
+              "src": "/templates/sample-log.jpg",
+              "alt": "",
+              "caption": "The log · 2026",
+              "href": "/log/"
+            },
+            {
+              "src": "/templates/sample-dark.jpg",
+              "alt": "",
+              "caption": "Dark mode · 2026",
+              "href": ""
+            },
+            {
+              "src": "/templates/sample-phone.jpg",
+              "alt": "",
+              "caption": "On a phone · 2026",
+              "href": ""
+            },
+            {
+              "src": "",
+              "alt": "",
+              "caption": "Next thing · soon",
+              "href": ""
+            },
+            {
+              "src": "",
+              "alt": "",
+              "caption": "Empty slot",
+              "href": ""
+            }
+          ]
+        },
+        {
+          "type": "media",
+          "label": "Featured",
+          "heading": "The desk",
+          "text": "A visual editor where every page is blocks, built in a day and written up in the log.",
+          "image": "/templates/sample-log.jpg",
+          "alt": "",
+          "side": "left",
+          "button": "Read the case study",
+          "href": "#"
+        },
+        {
+          "type": "quotes",
+          "label": "",
+          "heading": "",
+          "items": [
+            {
+              "quote": "Who knew an md cms would need an mcp?",
+              "who": "Drei",
+              "role": "client, apparently"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

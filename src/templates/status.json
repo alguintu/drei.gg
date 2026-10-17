@@ -1,0 +1,60 @@
+{
+  "name": "Status",
+  "group": "Utility",
+  "description": "A status board for everything you run, with the incident history.",
+  "page": {
+    "title": "Status",
+    "template": "basic",
+    "regions": {
+      "main": [
+        {
+          "type": "heading",
+          "kicker": "Status",
+          "title": "Is it down?"
+        },
+        {
+          "type": "status",
+          "label": "",
+          "heading": "",
+          "updated": "Updated 17 Oct 2026, 20:00",
+          "items": [
+            {
+              "name": "drei.gg",
+              "state": "up",
+              "note": "Static, on DigitalOcean"
+            },
+            {
+              "name": "RSS feed",
+              "state": "up",
+              "note": ""
+            },
+            {
+              "name": "Search",
+              "state": "up",
+              "note": "Pagefind index"
+            },
+            {
+              "name": "The desk",
+              "state": "maintenance",
+              "note": "Local only; it's on when Drei is"
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "label": "Incidents",
+          "heading": "",
+          "items": [
+            {
+              "date": "17 Oct 2026",
+              "version": "",
+              "title": "Preview blinking on save",
+              "text": "Fixed with a double-buffered preview.",
+              "kind": "dead"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

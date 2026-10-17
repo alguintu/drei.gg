@@ -1,0 +1,26 @@
+---
+import type { BlockData } from '../schema';
+import { blockAttrs, slotAttrs, type Path } from '../desk';
+import Head from './Head.astro';
+
+interface Props { block: BlockData<'timeline'>; path?: Path }
+const { block, path } = Astro.props;
+// Item titles sit under the section's heading, or stand in for it when there's none.
+const H = block.heading ? 'h3' : 'h2';
+---
+
+<section class="sec sec-timeline" {...blockAttrs(path)}>
+  <Head label={block.label} heading={block.heading} path={path} />
+  <ol>
+    {block.items.map((e, i) => (
+      <li class={`k-${e.kind}`}>
+        <p class="when">
+          <span {...slotAttrs(path, `items.${i}.date`)}>{e.date}</span>
+          {e.version && <span class="ver" {...slotAttrs(path, `items.${i}.version`)}>{e.version}</span>}
+        </p>
+        <H class="t" {...slotAttrs(path, `items.${i}.title`)}>{e.title}</H>
+        {e.text && <div class="text" {...slotAttrs(path, `items.${i}.text`)}>{e.text.split(/\n\s*\n/).map((p) => <p>{p}</p>)}</div>}
+      </li>
+    ))}
+  </ol>
+</section>

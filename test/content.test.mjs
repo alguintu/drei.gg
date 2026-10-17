@@ -75,3 +75,14 @@ test('the built site carries no desk markup', { skip: !existsSync('dist/index.ht
   for (const f of files) assert.doesNotMatch(readFileSync(f, 'utf8'), /data-desk|desk\/catalog|desk\/og/, f);
   assert.ok(!existsSync('dist/desk'), 'no desk pages in the build');
 });
+
+test('every page template matches the block schemas', () => {
+  const files = readdirSync('src/templates').filter((f) => f.endsWith('.json'));
+  assert.ok(files.length >= 20, 'a full set of templates');
+  for (const f of files) {
+    const t = JSON.parse(readFileSync(`src/templates/${f}`, 'utf8'));
+    assert.ok(t.name && t.group && t.description, `${f} has a name, group and description`);
+    const check = Page.safeParse(t.page);
+    assert.ok(check.success, `${f}: ${check.error?.issues.map((i) => i.path.join('.') + ' ' + i.message).join('; ')}`);
+  }
+});

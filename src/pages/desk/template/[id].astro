@@ -1,0 +1,23 @@
+---
+// One page template (src/templates/<id>.json) drawn as a real page, with its
+// sample content, for the desk's template gallery. Dev only.
+import Base from '../../../layouts/Base.astro';
+import Region from '../../../blocks/Region.astro';
+import { TEMPLATE_LIST, type PageTemplate } from '../../../lib/templates';
+
+export function getStaticPaths() {
+  if (!import.meta.env.DEV) return [];
+  return TEMPLATE_LIST.map((t) => ({ params: { id: t.id }, props: { t } }));
+}
+
+const { t } = Astro.props as { t: PageTemplate };
+const page = { id: `template-${t.id}`, data: t.page };
+---
+
+<Base title={`${t.name} (template)`} noindex>
+  <main class="single page">
+    <div class="wrap">
+      <Region page={page} name="main" inert />
+    </div>
+  </main>
+</Base>

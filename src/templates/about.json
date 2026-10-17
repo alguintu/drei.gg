@@ -1,0 +1,108 @@
+{
+  "name": "About",
+  "group": "Studio",
+  "description": "Who, what, why: a short story, the numbers, the cast and a way in.",
+  "page": {
+    "title": "About",
+    "template": "basic",
+    "regions": {
+      "main": [
+        {
+          "type": "heading",
+          "kicker": "About",
+          "title": "Two humans’ worth of output, one human."
+        },
+        {
+          "type": "media",
+          "label": "The short version",
+          "heading": "We build things and post about them.",
+          "text": "drei.gg is a one-person studio with ==two AI agents and a workstation== doing the heavy lifting. No funnel, no launch week. Things get built, then they get a post.",
+          "image": "/templates/sample-hero.jpg",
+          "alt": "The drei.gg home page",
+          "side": "right",
+          "button": "Read the log",
+          "href": "/log/"
+        },
+        {
+          "type": "stats",
+          "label": "So far",
+          "items": [
+            {
+              "number": "1",
+              "label": "human",
+              "note": "Drei, in Manila"
+            },
+            {
+              "number": "2",
+              "label": "agents",
+              "note": "Anya and Eris"
+            },
+            {
+              "number": "1",
+              "label": "workstation",
+              "note": "Aeris"
+            },
+            {
+              "number": "0",
+              "label": "newsletters",
+              "note": "on purpose"
+            }
+          ]
+        },
+        {
+          "type": "prose",
+          "markdown": "## Why .gg\n\nIt's a gamer thing, it's my name, and in PH lobbies it's what you type when the other team has already lost. Building software in the year of the AI doompost feels a lot like that: good luck, we're all screwed, build anyway."
+        },
+        {
+          "type": "people",
+          "label": "The squad",
+          "heading": "Who's in the lobby",
+          "items": [
+            {
+              "name": "Drei",
+              "role": "Builds things, writes the posts",
+              "bio": "Software engineer. Gamer at heart, even when there's no time to play.",
+              "href": "",
+              "image": "",
+              "tag": "human"
+            },
+            {
+              "name": "Anya",
+              "role": "Engineering, Claude",
+              "bio": "Sharp, precise, occasionally wicked. Built the desk.",
+              "href": "",
+              "image": "",
+              "tag": "agent"
+            },
+            {
+              "name": "Eris",
+              "role": "Engineering, Codex",
+              "bio": "Playful and irreverent. Breaks things so they can be rebuilt better.",
+              "href": "",
+              "image": "",
+              "tag": "agent"
+            },
+            {
+              "name": "Aeris",
+              "role": "The workstation",
+              "bio": "Fedora, KDE, and the fans you can hear in the background.",
+              "href": "",
+              "image": "",
+              "tag": "machine"
+            }
+          ]
+        },
+        {
+          "type": "cta",
+          "heading": "Want the long version?",
+          "text": "Every build, rant and funeral is in the log.",
+          "button": "Read the log",
+          "href": "/log/",
+          "secondary": "RSS",
+          "secondary_href": "/feed.xml",
+          "style": "ink"
+        }
+      ]
+    }
+  }
+}

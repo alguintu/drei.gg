@@ -1,0 +1,111 @@
+{
+  "name": "Pricing",
+  "group": "Product",
+  "description": "Tiers, a comparison table and the money questions.",
+  "page": {
+    "title": "Pricing",
+    "template": "basic",
+    "regions": {
+      "main": [
+        {
+          "type": "heading",
+          "kicker": "Pricing",
+          "title": "Simple prices. No funnel."
+        },
+        {
+          "type": "pricing",
+          "label": "",
+          "heading": "",
+          "note": "All plans: no trackers, no dark patterns, cancel in two clicks.",
+          "tiers": [
+            {
+              "name": "Solo",
+              "price": "$0",
+              "period": "",
+              "pitch": "One person, one project.",
+              "features": [
+                "Unlimited drafts",
+                "Public pages",
+                "Export anything"
+              ],
+              "cta": "Start",
+              "href": "#",
+              "featured": false
+            },
+            {
+              "name": "Studio",
+              "price": "$12",
+              "period": "/mo",
+              "pitch": "For people who ship weekly.",
+              "features": [
+                "Everything in Solo",
+                "Custom domain",
+                "Scheduled posts",
+                "Priority support"
+              ],
+              "cta": "Choose Studio",
+              "href": "#",
+              "featured": true
+            },
+            {
+              "name": "Lobby",
+              "price": "$40",
+              "period": "/mo",
+              "pitch": "For a crew of up to ten.",
+              "features": [
+                "Everything in Studio",
+                "Ten seats",
+                "Shared projects"
+              ],
+              "cta": "Choose Lobby",
+              "href": "#",
+              "featured": false
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "Compare",
+          "heading": "What's in each",
+          "columns": "Feature | Solo | Studio | Lobby",
+          "rows": [
+            "Projects | 1 | unlimited | unlimited",
+            "Custom domain | — | yes | yes",
+            "Scheduled posts | — | yes | yes",
+            "Seats | 1 | 1 | 10",
+            "Support | community | priority | priority"
+          ]
+        },
+        {
+          "type": "faq",
+          "label": "Money questions",
+          "heading": "",
+          "items": [
+            {
+              "q": "Can I switch plans?",
+              "a": "Any time. We prorate to the day."
+            },
+            {
+              "q": "Do you do refunds?",
+              "a": "Within 30 days, no questions, no exit survey."
+            },
+            {
+              "q": "Student or local pricing?",
+              "a": "Yes. Write in and say where you are."
+            }
+          ]
+        },
+        {
+          "type": "cta",
+          "heading": "Still deciding?",
+          "text": "Start free. Upgrade when it earns it.",
+          "button": "Start free",
+          "href": "#",
+          "secondary": "",
+          "secondary_href": "",
+          "style": "ink"
+        }
+      ]
+    }
+  }
+}

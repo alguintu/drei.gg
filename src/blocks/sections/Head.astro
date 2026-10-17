@@ -1,0 +1,20 @@
+---
+// A section's label and heading, when it has them.
+import { slotAttrs, type Path } from '../desk';
+
+interface Props {
+  label?: string;
+  heading?: string;
+  path?: Path;
+}
+const { label, heading, path } = Astro.props;
+---
+
+{
+  (label || heading) && (
+    <div class="sec-head">
+      {label && <p class="label" {...slotAttrs(path, 'label')}>{label}</p>}
+      {heading && <h2 {...slotAttrs(path, 'heading')}>{heading}</h2>}
+    </div>
+  )
+}

@@ -1,0 +1,30 @@
+---
+import type { BlockData } from '../schema';
+import { blockAttrs, slotAttrs, type Path } from '../desk';
+import Head from './Head.astro';
+import Text from '../Text.astro';
+
+interface Props { block: BlockData<'people'>; path?: Path }
+const { block, path } = Astro.props;
+// No photo: the person's initials on a marker square.
+const initials = (name: string) => name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+// Item titles sit under the section's heading, or stand in for it when there's none.
+const H = block.heading ? 'h3' : 'h2';
+---
+
+<section class="sec sec-people" {...blockAttrs(path)}>
+  <Head label={block.label} heading={block.heading} path={path} />
+  <div class="grid">
+    {block.items.map((p, i) => (
+      <div class="person">
+        {p.image ? <img src={p.image} alt="" loading="lazy" /> : <span class="ph" aria-hidden="true">{initials(p.name)}</span>}
+        <div>
+          {p.tag && <span class="chip" {...slotAttrs(path, `items.${i}.tag`)}>{p.tag}</span>}
+          <H class="t">{p.href ? <a href={p.href} {...slotAttrs(path, `items.${i}.name`)}>{p.name}</a> : <span {...slotAttrs(path, `items.${i}.name`)}>{p.name}</span>}</H>
+          {p.role && <p class="role" {...slotAttrs(path, `items.${i}.role`)}>{p.role}</p>}
+          {p.bio && <p class="bio"><Text path={path} slot={`items.${i}.bio`} text={p.bio} rich /></p>}
+        </div>
+      </div>
+    ))}
+  </div>
+</section>

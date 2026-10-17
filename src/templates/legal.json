@@ -1,0 +1,45 @@
+{
+  "name": "Legal",
+  "group": "Utility",
+  "description": "Privacy and terms in plain words, with a summary up top.",
+  "page": {
+    "title": "Privacy",
+    "template": "basic",
+    "regions": {
+      "main": [
+        {
+          "type": "heading",
+          "kicker": "Legal",
+          "title": "Privacy, in plain words"
+        },
+        {
+          "type": "features",
+          "label": "The short version",
+          "heading": "",
+          "columns": "3",
+          "items": [
+            {
+              "glyph": "0",
+              "title": "No trackers",
+              "text": "No analytics scripts, no pixels."
+            },
+            {
+              "glyph": "0",
+              "title": "No cookies",
+              "text": "Except your theme choice, kept in your own browser."
+            },
+            {
+              "glyph": "0",
+              "title": "No accounts",
+              "text": "There's nothing to sign up for."
+            }
+          ]
+        },
+        {
+          "type": "prose",
+          "markdown": "## What we collect\n\nNothing directly. The host keeps standard server logs (IP address, time, page) for a short time to keep the site running.\n\n## Who to ask\n\nWrite to hello@drei.gg.\n\n_Last updated: write the date here._"
+        }
+      ]
+    }
+  }
+}

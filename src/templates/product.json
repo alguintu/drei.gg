@@ -1,0 +1,180 @@
+{
+  "name": "Product landing",
+  "group": "Product",
+  "description": "A full launch page: hero, features, a closer look, numbers, quotes, pricing, FAQ and a final push.",
+  "page": {
+    "title": "Product",
+    "template": "basic",
+    "regions": {
+      "main": [
+        {
+          "type": "project",
+          "name": "Product name",
+          "status": "building",
+          "pitch": "One line on what it does, and ==who it's for==.",
+          "links": [
+            {
+              "label": "Try it",
+              "href": "#"
+            },
+            {
+              "label": "Read the build log",
+              "href": "/log/"
+            }
+          ]
+        },
+        {
+          "type": "features",
+          "label": "What it does",
+          "heading": "Three things, done properly",
+          "columns": "3",
+          "items": [
+            {
+              "glyph": "01",
+              "title": "It does the first thing",
+              "text": "A sentence on the job it takes off your plate."
+            },
+            {
+              "glyph": "02",
+              "title": "Then the second",
+              "text": "Why it's better than the way you do it now."
+            },
+            {
+              "glyph": "03",
+              "title": "And never the third",
+              "text": "What it ==refuses== to do, on purpose."
+            }
+          ]
+        },
+        {
+          "type": "media",
+          "label": "Up close",
+          "heading": "Show, don't pitch",
+          "text": "A screenshot and two lines beat a page of adjectives. Say what you're looking at.",
+          "image": "/templates/sample-phone.jpg",
+          "alt": "The product on a phone",
+          "side": "left",
+          "button": "",
+          "href": ""
+        },
+        {
+          "type": "stats",
+          "label": "",
+          "items": [
+            {
+              "number": "2.1s",
+              "label": "to first result",
+              "note": "on a cold start"
+            },
+            {
+              "number": "0",
+              "label": "trackers",
+              "note": "none, ever"
+            },
+            {
+              "number": "v0.3",
+              "label": "current",
+              "note": "shipped last week"
+            }
+          ]
+        },
+        {
+          "type": "quotes",
+          "label": "Early players",
+          "heading": "",
+          "items": [
+            {
+              "quote": "It does the one thing I needed and then gets out of the way.",
+              "who": "A real person",
+              "role": "who tried it early"
+            },
+            {
+              "quote": "Finally, a tool that doesn't want to be my whole personality.",
+              "who": "Another one",
+              "role": "beta tester"
+            }
+          ]
+        },
+        {
+          "type": "pricing",
+          "label": "Pricing",
+          "heading": "Pick a lane",
+          "note": "Prices in USD. Cancel any time; we'll even post about it.",
+          "tiers": [
+            {
+              "name": "Free",
+              "price": "$0",
+              "period": "",
+              "pitch": "For trying it out.",
+              "features": [
+                "The core thing",
+                "Community support",
+                "Your data, exportable"
+              ],
+              "cta": "Start free",
+              "href": "#",
+              "featured": false
+            },
+            {
+              "name": "Pro",
+              "price": "$9",
+              "period": "/mo",
+              "pitch": "For using it for real.",
+              "features": [
+                "Everything in Free",
+                "The second thing",
+                "Priority fixes"
+              ],
+              "cta": "Go pro",
+              "href": "#",
+              "featured": true
+            },
+            {
+              "name": "Team",
+              "price": "$29",
+              "period": "/mo",
+              "pitch": "For a small crew.",
+              "features": [
+                "Everything in Pro",
+                "Up to 5 seats",
+                "One shared bill"
+              ],
+              "cta": "Talk to us",
+              "href": "/contact/",
+              "featured": false
+            }
+          ]
+        },
+        {
+          "type": "faq",
+          "label": "FAQ",
+          "heading": "Before you ask",
+          "items": [
+            {
+              "q": "Is it really free?",
+              "a": "The free tier is free forever. The paid tiers pay for the servers and the coffee."
+            },
+            {
+              "q": "What happens to my data?",
+              "a": "It's yours. Export it any time, delete it any time."
+            },
+            {
+              "q": "What if you shut it down?",
+              "a": "You'll get months of notice, an export, and a funeral post."
+            }
+          ]
+        },
+        {
+          "type": "cta",
+          "heading": "Ready when you are.",
+          "text": "It takes a minute to set up. Less if you skip the docs.",
+          "button": "Get started",
+          "href": "#",
+          "secondary": "See the changelog",
+          "secondary_href": "/changelog/",
+          "style": "marker"
+        }
+      ]
+    }
+  }
+}
