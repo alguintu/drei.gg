@@ -1,1 +1,133 @@
-/* Section blocks, group c. */
+/* Section blocks, group c: timeline, contact, specs, listing, toc. */
+
+/* Timeline: dates on the left, a rule with square marker dots, entries on the right */
+.timeline { margin-block: 40px; max-width: 760px; }
+.timeline ol { list-style: none; margin: 0; padding: 0; }
+.timeline li { display: grid; grid-template-columns: 116px minmax(0, 1fr); gap: 0 24px; }
+.timeline .when {
+  font: 600 12px/1.2 var(--mono); letter-spacing: .04em; color: var(--mute);
+  text-align: right; padding-top: 7px; font-variant-numeric: tabular-nums;
+}
+.timeline li:first-child .when { color: var(--ink); }
+.timeline .body {
+  position: relative; padding: 0 0 34px 30px; min-width: 0;
+  background: linear-gradient(var(--ink), var(--ink)) 5px 0 / 2px 100% no-repeat;
+}
+.timeline li:first-child .body { background-position: 5px 10px; }
+.timeline li:last-child .body { background-image: linear-gradient(var(--ink), transparent); padding-bottom: 8px; }
+/* The dot sits on the rule; the newest entry's is marker yellow. */
+.timeline .body::before {
+  content: ""; position: absolute; left: 0; top: 6px; width: 12px; height: 12px;
+  background: var(--paper); border: 2px solid var(--ink);
+}
+.timeline li:first-child .body::before { background: var(--marker); box-shadow: 2px 2px 0 var(--ink); }
+.timeline h3 { font: 800 22px/1.15 var(--display); font-stretch: 80%; letter-spacing: -.005em; margin: 0 0 6px; text-wrap: balance; }
+.timeline .body p { margin: 0; font-size: 16px; line-height: 1.55; max-width: 60ch; }
+.timeline mark { background: var(--marker); color: #15171d; padding: 0 .15em; }
+@media (max-width: 560px) {
+  .timeline li { grid-template-columns: minmax(0, 1fr); }
+  /* One column: the rule runs through the date too, and the dot moves up to it. */
+  .timeline .when {
+    position: relative; text-align: left; padding: 1px 0 8px 30px;
+    background: linear-gradient(var(--ink), var(--ink)) 5px 0 / 2px 100% no-repeat;
+  }
+  .timeline li:first-child .when { background-position: 5px 8px; }
+  .timeline .when::before { content: ""; position: absolute; left: 0; top: 1px; width: 12px; height: 12px; background: var(--paper); border: 2px solid var(--ink); }
+  .timeline li:first-child .when::before { background: var(--marker); box-shadow: 2px 2px 0 var(--ink); }
+  .timeline .body::before { display: none; }
+  .timeline .body { padding-bottom: 28px; }
+  .timeline h3 { font-size: 20px; }
+}
+
+/* Contact: the email huge, handles as rows */
+.contact { margin-block: 40px; max-width: 760px; }
+.contact .mail {
+  font: 900 clamp(34px, 7.2vw, 76px)/1.02 var(--display); font-stretch: 80%; letter-spacing: -.025em;
+  color: var(--ink); text-decoration: none; overflow-wrap: break-word; padding: 0 .05em;
+  /* A marker underline drawn as a background, so it stays whole across wrapped lines
+     and fills the word on hover. */
+  background: linear-gradient(var(--marker), var(--marker)) 0 88% / 100% .11em no-repeat;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  transition: background-size .15s, color .15s;
+}
+.contact .mail:hover { background-size: 100% 100%; background-position: 0 0; color: #15171d; }
+.contact .note { margin: 22px 0 0; font-size: 18px; line-height: 1.5; max-width: 52ch; }
+.contact .note mark { background: var(--marker); color: #15171d; padding: 0 .15em; }
+.contact ul { list-style: none; margin: 32px 0 0; padding: 0; border-top: 2px solid var(--ink); }
+.contact li { border-bottom: 1px solid var(--line); }
+.contact li a {
+  display: grid; grid-template-columns: 140px minmax(0, 1fr) auto; align-items: baseline; gap: 4px 16px;
+  padding: 14px 4px; color: var(--ink); text-decoration: none;
+}
+.contact .where { font: 600 11px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .12em; color: var(--mute); }
+.contact .handle { font: 600 16px/1.4 var(--mono); overflow-wrap: anywhere; }
+.contact .go { font: 700 15px/1 var(--mono); color: var(--team); transition: transform .1s; }
+.contact li a:hover { background: var(--panel); box-shadow: inset 4px 0 0 var(--marker); }
+.contact li a:hover .handle { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.contact li a:hover .go { transform: translate(2px, -2px); }
+@media (max-width: 520px) {
+  .contact li a { grid-template-columns: 92px minmax(0, 1fr) auto; gap: 4px 12px; }
+  .contact .handle { font-size: 14px; }
+}
+
+/* Spec sheet: a two-column definition table */
+.specs { margin-block: 40px; max-width: 760px; }
+.specs dl { margin: 0; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.specs dl > div { display: grid; grid-template-columns: minmax(110px, 200px) minmax(0, 1fr); gap: 4px 24px; padding: 12px 4px; }
+.specs dl > div + div { border-top: 1px solid var(--line); }
+.specs dt { font: 600 12px/1.6 var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--mute); padding-top: 1px; }
+.specs dd { margin: 0; font-size: 16px; line-height: 1.5; min-width: 0; overflow-wrap: anywhere; }
+.specs dd mark { background: var(--marker); color: #15171d; padding: 0 .15em; }
+.specs dd em { font-style: italic; color: var(--mute); }
+@media (max-width: 480px) {
+  .specs dl > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+/* Listing: meta | title + detail | tag; a linked row is one big link */
+.listing { margin-block: 40px; max-width: 760px; }
+.listing ul { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--ink); }
+.listing li { border-bottom: 1px solid var(--line); }
+.listing .row {
+  display: grid; grid-template-columns: 120px minmax(0, 1fr) auto 16px; align-items: baseline; gap: 4px 20px;
+  padding: 16px 4px; color: var(--ink); text-decoration: none;
+}
+.listing .k { font: 600 12px/1.5 var(--mono); letter-spacing: .04em; color: var(--mute); font-variant-numeric: tabular-nums; }
+.listing .what { min-width: 0; display: grid; gap: 3px; }
+.listing b { font: 800 20px/1.2 var(--display); font-stretch: 80%; letter-spacing: -.005em; overflow-wrap: anywhere; }
+.listing small { font-size: 15px; line-height: 1.45; color: var(--mute); }
+.listing .tag {
+  grid-column: 3; justify-self: end; white-space: nowrap; align-self: center;
+  font: 600 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em;
+  padding: 5px 7px 4px; border: 1px solid currentColor; color: var(--team);
+}
+.listing .go { grid-column: 4; align-self: center; font: 700 16px/1 var(--mono); color: var(--ink); transition: transform .1s; }
+.listing a.row:hover { background: var(--panel); box-shadow: inset 4px 0 0 var(--marker); }
+.listing a.row:hover b { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.listing a.row:hover .go { transform: translateX(3px); }
+.listing a.row:focus-visible { outline: 2px solid var(--team); outline-offset: -2px; }
+@media (max-width: 560px) {
+  .listing .row { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; padding: 14px 2px; }
+  .listing .k { grid-row: 1; grid-column: 1; }
+  .listing .tag { grid-row: 1; grid-column: 2; }
+  .listing .what { grid-column: 1 / -1; }
+  .listing .go { display: none; }
+  .listing b { font-size: 19px; }
+}
+
+/* Contents: compact, numbered; sticky in a sidebar or nav column */
+.toc { margin-block: 28px; max-width: 360px; }
+.toc ol { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--ink); }
+.toc a {
+  display: grid; grid-template-columns: 26px minmax(0, 1fr); align-items: baseline; gap: 6px;
+  padding: 7px 10px 7px 14px; color: var(--ink); text-decoration: none; font-size: 15px; line-height: 1.35;
+}
+.toc .n { font: 600 11px/1 var(--mono); color: var(--team); }
+.toc a:hover { background: var(--panel); box-shadow: inset 3px 0 0 var(--marker); }
+.toc a:hover span:last-child { text-decoration: underline; text-underline-offset: 3px; }
+.toc a:focus-visible { outline-offset: -2px; }
+:is(aside, nav) .toc { position: sticky; top: 24px; margin-block: 0; max-height: calc(100vh - 48px); overflow-y: auto; }
+
+/* Overrides for links, roadmap and faq (global.css): the same section rhythm as the
+   blocks above, and a visible top rule on the later roadmap columns in dark mode. */
+section:is(.linkstack, .roadmap, .faq) { margin-block: 40px; }
+.roadmap .col:is(.c2, .c3) { border-top-color: var(--mute); }
