@@ -136,6 +136,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--team); outline-
 .kill b { color: var(--ink); font-weight: 600; }
 .kill .v { color: var(--team); }
 .kill .x { color: var(--dead); }
+/* Scrolling feed: two copies slide left by one copy's width, then repeat. */
+.feed.scroll .wrap { overflow: hidden; }
+.feed .track { display: flex; width: max-content; animation: feed var(--feed-time, 40s) linear infinite; }
+.feed .set { display: flex; gap: 28px; padding-right: 28px; }
+.feed.scroll:hover .track, .feed.scroll:focus-within .track { animation-play-state: paused; }
+@keyframes feed { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .feed .track { animation: none; }
+  .feed .set[aria-hidden] { display: none; }
+  .feed.scroll .wrap { overflow-x: auto; }
+}
 
 /* Main grid */
 main .wrap {

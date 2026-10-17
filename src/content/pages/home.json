@@ -7,7 +7,7 @@
         "type": "hero",
         "name": "drei",
         "tld": "gg",
-        "thesis": "We build things and post about them. ==No funnel.== No launch week. Just the log.",
+        "thesis": "We build things and post about them. ==No funnel.== No launch week. Just the log. ",
         "word": ".gg",
         "ipa": "/ˌdʒiːˈdʒiː/",
         "pos": "interj., n.",
@@ -59,7 +59,8 @@
             "what": "the server",
             "style": "good"
           }
-        ]
+        ],
+        "motion": "scroll"
       }
     ],
     "main": [

@@ -67,9 +67,13 @@ export const BLOCKS = {
           who: text('Who'),
           verb: text('Verb'),
           what: text('What'),
-          style: z.enum(['good', 'bad']).meta({ title: 'Color', description: 'good is blue, bad is red.', ...page }),
+          style: z.enum(['good', 'bad']).meta({ title: 'Color', description: 'good is blue, bad is red.' }),
         }),
       ),
+      motion: z
+        .enum(['scroll', 'still'])
+        .optional()
+        .meta({ title: 'Motion', description: 'scroll loops the feed sideways, pausing on hover; still holds it in place. Anyone whose system asks for reduced motion always gets still.' }),
     })
     .meta({ title: 'Killfeed', description: 'The ticker of things that happened.', ...page }),
 

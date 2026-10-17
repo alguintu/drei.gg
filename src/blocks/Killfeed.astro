@@ -8,16 +8,34 @@ interface Props {
   path?: Path;
 }
 const { block, path } = Astro.props;
+// Scrolling runs two copies of the feed side by side and slides by one copy, so
+// the loop has no seam. The copy is hidden from screen readers and from the desk.
+const scroll = block.motion === 'scroll';
+const time = `--feed-time: ${Math.max(20, block.items.length * 7)}s`;
 ---
 
-<div class="feed" aria-label="Recent activity" {...blockAttrs(path)}>
+<div class:list={['feed', { scroll }]} aria-label="Recent activity" {...blockAttrs(path)} style={scroll ? time : undefined}>
   <div class="wrap">
     {
-      block.items.map((k, i) => (
-        <span class="kill">
-          <b {...slotAttrs(path, `items.${i}.who`)}>{k.who}</b> <span class={k.style === 'bad' ? 'x' : 'v'}>[<Text path={path} slot={`items.${i}.verb`} text={k.verb} />]</span> <Text path={path} slot={`items.${i}.what`} text={k.what} />
-        </span>
-      ))
+      scroll ? (
+        <div class="track">
+          {[path, undefined].map((p, copy) => (
+            <div class="set" aria-hidden={copy ? 'true' : undefined}>
+              {block.items.map((k, i) => (
+                <span class="kill">
+                  <b {...slotAttrs(p, `items.${i}.who`)}>{k.who}</b> <span class={k.style === 'bad' ? 'x' : 'v'}>[<Text path={p} slot={`items.${i}.verb`} text={k.verb} />]</span> <Text path={p} slot={`items.${i}.what`} text={k.what} />
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      ) : (
+        block.items.map((k, i) => (
+          <span class="kill">
+            <b {...slotAttrs(path, `items.${i}.who`)}>{k.who}</b> <span class={k.style === 'bad' ? 'x' : 'v'}>[<Text path={path} slot={`items.${i}.verb`} text={k.verb} />]</span> <Text path={path} slot={`items.${i}.what`} text={k.what} />
+          </span>
+        ))
+      )
     }
   </div>
 </div>

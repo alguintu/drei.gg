@@ -385,6 +385,9 @@ server.listen(DESK_PORT, '127.0.0.1', () => {
 // way out we also ask it to stop. It binds 127.0.0.1 because the preview proxy
 // connects there; on its own, localhost can resolve to ::1 only.
 if (!process.env.DESK_NO_SITE) {
+  // Astro keeps parsed content between runs; after a block schema changes it can
+  // serve stale data, so the preview starts from the files every time.
+  await rm(join(ROOT, '.astro/data-store.json'), { force: true });
   // Building the editor set NODE_ENV=production in this process; the preview is dev.
   const env = { ...process.env, NODE_ENV: 'development' };
   const site = spawn('npx', ['astro', 'dev', '--host', '127.0.0.1', '--port', String(SITE_PORT)], { cwd: ROOT, stdio: 'inherit', env });
