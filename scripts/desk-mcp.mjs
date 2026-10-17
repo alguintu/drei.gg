@@ -25,8 +25,10 @@ async function api(path, opts = {}) {
   if (!r.ok) throw new Error(j.error || r.statusText);
   return j;
 }
-const put = (path, data) => api(path, { method: 'PUT', body: JSON.stringify(data) });
-const post = (path, data = {}) => api(path, { method: 'POST', body: JSON.stringify(data) });
+// When this server last changed a file: the preview needs a moment to pick it up.
+let wrote = 0;
+const put = (path, data) => ((wrote = Date.now()), api(path, { method: 'PUT', body: JSON.stringify(data) }));
+const post = (path, data = {}) => ((wrote = Date.now()), api(path, { method: 'POST', body: JSON.stringify(data) }));
 
 const text = (value) => ({ content: [{ type: 'text', text: typeof value === 'string' ? value : JSON.stringify(value, null, 2) }] });
 // Each tool's errors come back as a readable message rather than a crash.
@@ -252,6 +254,8 @@ server.registerTool(
   tool(async ({ path, width, full_page, theme }) => {
     const executablePath = CHROMES.find((p) => p && existsSync(p));
     if (!executablePath) throw new Error('No Chrome or Chromium found; set CHROME_PATH.');
+    // Right after a write, give Astro time to re-read the file, or the shot shows the old page.
+    await new Promise((r) => setTimeout(r, Math.max(0, wrote + 2000 - Date.now())));
     const { chromium } = await import('playwright-core');
     const browser = await chromium.launch({ executablePath });
     try {
