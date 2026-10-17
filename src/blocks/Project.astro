@@ -1,0 +1,29 @@
+---
+// The top of a project page: name, status, pitch, links.
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+import Text from './Text.astro';
+
+interface Props {
+  block: BlockData<'project'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<header class={`project st-${block.status}`} {...blockAttrs(path)}>
+  <p class="label"><span class="status">{block.status}</span></p>
+  <h1 {...slotAttrs(path, 'name')}>{block.name}</h1>
+  {block.pitch && <p class="pitch"><Text path={path} slot="pitch" text={block.pitch} rich /></p>}
+  {
+    block.links.length > 0 && (
+      <p class="links">
+        {block.links.map((l, i) => (
+          <a href={l.href} {...slotAttrs(path, `links.${i}.label`)}>
+            {l.label} →
+          </a>
+        ))}
+      </p>
+    )
+  }
+</header>

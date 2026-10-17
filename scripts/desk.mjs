@@ -233,12 +233,23 @@ const routes = {
     return out;
   },
   'POST /api/pages': async (q, req) => {
-    const { title } = JSON.parse(await body(req));
+    const { title, kind = 'plain' } = JSON.parse(await body(req));
     if (!title?.trim()) throw httpError(400, 'title required');
     const { RESERVED } = await load('src/blocks/schema.ts');
     let id = slugify(title);
     while (RESERVED.includes(id) || existsSync(join(PAGES, `${id}.json`))) id += '-2';
-    const data = { title: title.trim(), template: 'basic', regions: { main: [{ type: 'heading', kicker: '', title: title.trim() }, { type: 'prose', markdown: 'Write here.' }] } };
+    const name = title.trim();
+    // A plain page starts with a heading and text; a project page with the project's
+    // header, some text, and a log of the posts filed under it.
+    const main =
+      kind === 'project'
+        ? [
+            { type: 'project', name, status: 'building', pitch: 'What it is, in a line.', links: [] },
+            { type: 'prose', markdown: 'Write here.' },
+            { type: 'postlist', label: 'Log', tag: '', count: 20, style: 'rows', project: id },
+          ]
+        : [{ type: 'heading', kicker: '', title: name }, { type: 'prose', markdown: 'Write here.' }];
+    const data = { title: name, template: 'basic', regions: { main } };
     await writeFile(join(PAGES, `${id}.json`), JSON.stringify(data, null, 2) + '\n');
     return { id };
   },

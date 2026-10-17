@@ -26,6 +26,8 @@ const posts = defineCollection({
       image: image().optional(),
       image_alt: z.string().optional(),
       draft: z.boolean().default(false),
+      // A project page (src/content/pages/<id>.json) this post belongs to; its Post list can show only these.
+      project: z.string().optional(),
     }),
 });
 

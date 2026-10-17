@@ -138,6 +138,7 @@ export const BLOCKS = {
       label: text('Label'),
       tag: z.enum(['', 'ship', 'build', 'rant', 'dead']).meta({ title: 'Tag', description: 'Empty shows every tag.' }),
       count: z.number().int().min(1).max(50).meta({ title: 'How many', description: 'Newest first.' }),
+      project: z.string().optional().meta({ title: 'Project', description: 'Only posts filed under this project page (its id). Empty: any.' }),
       style: z.enum(['rows', 'cards']).meta({ title: 'Style', description: 'rows: titles and dates; cards: covers.' }),
     })
     .meta({ title: 'Post list', description: 'The newest posts, optionally one tag, as rows or covers.', ...page }),
@@ -149,6 +150,16 @@ export const BLOCKS = {
       caption: text('Caption'),
     })
     .meta({ title: 'Embed', description: 'A video, a GitHub repo, or a link card.', ...page }),
+
+  project: z
+    .object({
+      type: z.literal('project'),
+      name: text('Name'),
+      status: z.enum(['idea', 'building', 'live', 'paused', 'dead']).meta({ title: 'Status' }),
+      pitch: rich('Pitch', 'One or two lines: what it is and who it’s for.'),
+      links: list('Links', z.object({ label: text('Label'), href: text('Link') })),
+    })
+    .meta({ title: 'Project', description: 'A product’s name, status, pitch and links: the top of a project page.', ...page }),
 
   search: z
     .object({

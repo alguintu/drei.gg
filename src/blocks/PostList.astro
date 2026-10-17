@@ -10,7 +10,9 @@ interface Props {
   path?: Path;
 }
 const { block, path } = Astro.props;
-const posts = (await getPosts()).filter((p) => !block.tag || p.data.tag === block.tag).slice(0, block.count);
+const posts = (await getPosts())
+  .filter((p) => (!block.tag || p.data.tag === block.tag) && (!block.project || p.data.project === block.project))
+  .slice(0, block.count);
 ---
 
 <section class={`postlist ${block.style}`} {...blockAttrs(path)}>
@@ -25,6 +27,8 @@ const posts = (await getPosts()).filter((p) => !block.tag || p.data.tag === bloc
           </a>
         ))}
       </div>
+    ) : !posts.length ? (
+      <p class="empty-log">Nothing posted here yet.</p>
     ) : (
       <ul>
         {posts.map((p) => (

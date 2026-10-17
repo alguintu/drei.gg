@@ -2,7 +2,7 @@
 // of maps (cover:). Shared by the desk and its tests.
 
 // Keys in the order we write them. Unknown keys are kept after these.
-export const KEYS = ['title', 'date', 'tag', 'label', 'summary', 'layout', 'palette', 'cover', 'image', 'image_alt', 'draft'];
+export const KEYS = ['title', 'date', 'tag', 'label', 'summary', 'layout', 'palette', 'cover', 'image', 'image_alt', 'project', 'draft'];
 
 export function value(v) {
   v = v.trim();

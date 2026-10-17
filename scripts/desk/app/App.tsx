@@ -271,7 +271,7 @@ export default function App() {
       ) : open.kind === 'theme' ? (
         <ThemeEditor key="theme" ref={editor} onState={onState} onSaved={onSaved} />
       ) : open.kind === 'post' ? (
-        <PostEditor key={open.id} ref={editor} id={open.id} meta={meta} blocks={blocks} catalog={catalog} setPath={setPath} onState={onState} onSaved={onSaved} />
+        <PostEditor key={open.id} ref={editor} id={open.id} meta={meta} blocks={blocks} projects={pages.filter((p) => p.template === 'basic')} catalog={catalog} setPath={setPath} onState={onState} onSaved={onSaved} />
       ) : (
         <PageEditor key={open.id} ref={editor} id={open.id} blocks={blocks} posts={posts} setPath={setPath} onState={onState} onSaved={onSaved} onPick={(p) => preview.current?.mark(p)} onDeleted={() => (lists(), setOpen({ kind: 'page', id: 'home' }))} />
       )}
@@ -448,6 +448,7 @@ function Palette({ commands, onClose }: { commands: { kind: string; label: strin
 
 function NewPage({ onClose, onCreate }: { onClose: () => void; onCreate: (id: string) => void }) {
   const [title, setTitle] = useState('');
+  const [kind, setKind] = useState('plain');
   return (
     <Dialog
       title="New page"
@@ -455,16 +456,27 @@ function NewPage({ onClose, onCreate }: { onClose: () => void; onCreate: (id: st
       onClose={onClose}
       onOk={async () => {
         if (!title.trim()) return;
-        const { id } = await send('/api/pages', 'POST', { title });
+        const { id } = await send('/api/pages', 'POST', { title, kind });
         onClose();
         onCreate(id);
       }}
     >
-      <label className="grow">
-        title
-        <input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="About" />
-      </label>
-      <p className="hint">Its address comes from the title (About → /about/). It starts with a heading and some text.</p>
+      <div className="row">
+        <label className="grow">
+          title
+          <input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="About" />
+        </label>
+        <label>
+          kind
+          <select value={kind} onChange={(e) => setKind(e.target.value)}>
+            <option value="plain">plain page</option>
+            <option value="project">project</option>
+          </select>
+        </label>
+      </div>
+      <p className="hint">
+        Its address comes from the title (About → /about/). A plain page starts with a heading and text; a project starts with its name, status and pitch, text, and a log of the posts you file under it.
+      </p>
     </Dialog>
   );
 }

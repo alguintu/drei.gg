@@ -44,8 +44,8 @@ type Post = {
 
 // One post: front matter, cover, and the Markdown body. Saves itself 700ms after
 // the last change.
-export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; blocks: BlocksMeta; catalog: boolean; setPath: (p: string) => void }>(function PostEditor(
-  { id, meta, blocks, catalog, setPath, onState, onSaved },
+export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; blocks: BlocksMeta; projects: { id: string; title: string }[]; catalog: boolean; setPath: (p: string) => void }>(function PostEditor(
+  { id, meta, blocks, projects, catalog, setPath, onState, onSaved },
   ref,
 ) {
   const [post, setPost] = useState<Post | null>(null);
@@ -243,6 +243,19 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; 
           summary
           <input value={d.summary ?? ''} placeholder="One line for RSS and link previews" onChange={(e) => set('summary', e.target.value)} />
         </label>
+        {projects.length > 0 && (
+          <label>
+            project
+            <select value={d.project ?? ''} onChange={(e) => set('project', e.target.value)} title="File this post under a project page; its post list shows it">
+              <option value="">none</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.title}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <label className="chk">
           <input type="checkbox" checked={d.draft === true} onChange={(e) => set('draft', e.target.checked)} /> draft
         </label>

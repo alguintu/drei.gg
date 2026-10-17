@@ -159,10 +159,11 @@ server.registerTool(
   'new_page',
   {
     title: 'New page',
-    description: 'Makes a page at /<slug>/ from a title (About → /about/), starting with a Heading and a Text block. Returns its id. Link it from the frame\'s header block to put it in the nav.',
-    inputSchema: { title: z.string() },
+    description:
+      'Makes a page at /<slug>/ from a title (About → /about/) and returns its id. kind "plain" starts with a Heading and a Text block; "project" with a Project block (name, status, pitch, links), text, and a Post list of the posts filed under it (posts set `project: <page id>` in their front matter). Link it from the frame\'s header block, or an inventory slot, to put it in front of people.',
+    inputSchema: { title: z.string(), kind: z.enum(['plain', 'project']).default('plain') },
   },
-  tool(async ({ title }) => text(await post('/api/pages', { title }))),
+  tool(async ({ title, kind }) => text(await post('/api/pages', { title, kind }))),
 );
 
 server.registerTool(

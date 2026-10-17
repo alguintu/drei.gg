@@ -350,3 +350,14 @@ main.single .wrap { display: block; padding-block: 48px 72px; }
 .search .pagefind-ui__result-title { font-family: var(--display); font-stretch: 80%; font-weight: 800; }
 .search .pagefind-ui__result-excerpt mark { background: var(--marker); color: #15171d; }
 .search-off { font: 13px/1.5 var(--mono); color: var(--mute); border: 1px dashed var(--line); padding: 12px 14px; }
+
+/* Project block: the top of a project page */
+.project { margin-bottom: 28px; max-width: 760px; }
+.project h1 { margin: 6px 0 12px; }
+.project .status { display: inline-block; font: 600 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; padding: 5px 7px 4px; border: 1px solid currentColor; }
+.project.st-live .status { color: var(--team); }
+.project.st-building .status { background: var(--marker); border-color: var(--marker); color: #15171d; }
+.project.st-dead .status { color: var(--dead); }
+.project .pitch { font-size: 20px; line-height: 1.45; margin: 0 0 14px; }
+.project .pitch mark { background: var(--marker); color: #15171d; padding: 0 .15em; }
+.project .links { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 600 14px/1.4 var(--mono); margin: 0; }
