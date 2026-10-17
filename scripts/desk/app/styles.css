@@ -74,8 +74,7 @@ button:disabled { opacity: .45; cursor: default; }
 .preview .stage { overflow: auto; display: grid; justify-items: center; background: var(--panel); }
 .preview iframe { grid-area: 1 / 1; border: 0; width: 100%; height: 100%; background: #fff; }
 .preview iframe.next { visibility: hidden; }
-.stage.w-phone iframe { width: 390px; border-inline: 1px solid var(--line); }
-.stage.w-tablet iframe { width: 820px; max-width: 100%; border-inline: 1px solid var(--line); }
+.stage.phone iframe { width: 390px; border-inline: 1px solid var(--line); }
 
 dialog { border: 1px solid var(--ink); background: var(--paper); color: var(--ink); max-width: 560px; width: 90vw; }
 dialog pre { white-space: pre-wrap; font: 12px/1.5 var(--mono); background: var(--panel); padding: 10px; max-height: 40vh; overflow: auto; }
@@ -163,6 +162,3 @@ ul.history .msg { flex: 1; font-size: 14px; }
 ul.history small { color: var(--team); }
 
 aside a .s { color: var(--team); }
-
-aside .row.two { display: flex; gap: 6px; margin: 0 0 12px; }
-aside .row.two .new { margin: 0; }

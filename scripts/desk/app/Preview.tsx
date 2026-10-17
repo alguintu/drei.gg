@@ -12,11 +12,11 @@ export type PreviewHandle = { refresh: () => void; refreshSoon: () => void; mark
 
 type Props = {
   path: string;
-  width: string;
+  phone: boolean;
   editable: boolean;
   onSelect: (path: string) => void;
   onInline: (path: string, value: string) => void;
-  onCatalog: (msg: { tab?: string; pick?: { layout: string; palette?: string }; insert?: string; template?: string }) => void;
+  onCatalog: (msg: { tab?: string; pick?: { layout: string; palette?: string }; insert?: string }) => void;
 };
 
 const STYLE = `
@@ -26,7 +26,7 @@ const STYLE = `
 [contenteditable].desk-editing { outline: 2px solid #ffd23f !important; outline-offset: 2px; cursor: text; }
 `;
 
-export default forwardRef<PreviewHandle, Props>(function Preview({ path, width, editable, onSelect, onInline, onCatalog }, ref) {
+export default forwardRef<PreviewHandle, Props>(function Preview({ path, phone, editable, onSelect, onInline, onCatalog }, ref) {
   const stage = useRef<HTMLDivElement>(null);
   const front = useRef<HTMLIFrameElement | null>(null);
   const pending = useRef<HTMLIFrameElement | null>(null);
@@ -175,5 +175,5 @@ export default forwardRef<PreviewHandle, Props>(function Preview({ path, width, 
     return () => removeEventListener('message', onMessage);
   }, []);
 
-  return <div className={`stage w-${width}`} ref={stage} />;
+  return <div className={`stage${phone ? ' phone' : ''}`} ref={stage} />;
 });
