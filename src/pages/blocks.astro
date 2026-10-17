@@ -1,0 +1,62 @@
+---
+import Base from '../layouts/Base.astro';
+import Cover from '../components/Cover.astro';
+import { LAYOUTS, PALETTES } from '../lib/cover';
+import { Content as Blocks } from '../demo/blocks.md';
+
+// Every cover layout in every palette, plus the in-post blocks.
+// Not linked from the site; it's a picker for writing posts.
+const sample = { title: 'We bought drei.gg. That’s the whole update.', date: new Date('2026-10-16'), label: 'v0.0.1' };
+const kickers: Record<string, string> = {
+  stamp: 'SHIPPED', vertical: 'SHIPPED', echo: 'RANT', split: 'NEW', bignum: 'SHIP', brush: 'RIP',
+  spaced: 'CLEARANCE', tape: 'BUILD', xmark: 'DEAD', hashtag: 'STAYWILD', quote: 'RANT', hatch: 'NEW LOOK',
+};
+---
+
+<Base title="Blocks" noindex>
+  <main class="single blocks-page">
+    <div class="wrap">
+      <a class="back" href="/">← home</a>
+      <h1>Post blocks</h1>
+      <p class="intro">
+        Every post gets a cover. Set <code>layout</code>, <code>palette</code> and <code>kicker</code> in a post's front
+        matter, or leave them out and the post's filename picks them. {LAYOUTS.length} layouts × {PALETTES.length} palettes.
+      </p>
+
+      {
+        LAYOUTS.map((layout) => (
+          <section class="layout-row">
+            <h2>
+              <code>layout: {layout}</code>
+            </h2>
+            <div class="swatches">
+              {PALETTES.map((palette) => (
+                <div>
+                  <Cover layout={layout} palette={palette} kicker={kickers[layout]} {...sample} size="card" />
+                  <p class="cap">
+                    <code>palette: {palette}</code>
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+
+      <section class="layout-row">
+        <h2>In-post blocks</h2>
+        <p class="intro">Fenced blocks in a post's Markdown. The fence name picks the block, e.g. <code>```callout</code>.</p>
+        <div class="prose"><Blocks /></div>
+      </section>
+    </div>
+  </main>
+</Base>
+
+<style>
+  .blocks-page h1 { margin-bottom: 8px; }
+  .intro { color: var(--mute); max-width: 70ch; margin: 0 0 24px; }
+  .layout-row { border-top: 1px solid var(--line); padding-block: 24px; }
+  .layout-row h2 { font: 600 14px/1 var(--mono); margin: 0 0 16px; }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 18px; }
+  .cap { margin: 6px 0 0; font: 12px/1 var(--mono); color: var(--mute); }
+</style>

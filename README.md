@@ -30,6 +30,11 @@ Front matter:
 | `label`   | no       | Short text in the meta column, e.g. `v0.0.2`              |
 | `summary` | no       | Used for the RSS feed and link previews                   |
 | `draft`   | no       | `true` hides the post from the built site                 |
+| `layout`  | no       | Cover layout (see below). Picked from the filename if unset |
+| `palette` | no       | `ink`, `ribbon`, `marker`, `aeris` or `paper`. Picked from the filename if unset |
+| `kicker`  | no       | The big word on the cover, up to 14 characters. Defaults to the tag |
+| `image`   | no       | A photo beside the post (`./shot.png`); `vertical` and `xmark` frame it |
+| `image_alt` | no     | Alt text for `image`                                      |
 
 Patch notes go in a `notes` block:
 
@@ -41,6 +46,22 @@ Patch notes go in a `notes` block:
 ! broke something
 ```
 ````
+
+## Covers and blocks
+
+Every post gets a poster-style cover. There are 12 layouts (`stamp`, `vertical`, `echo`, `split`, `bignum`, `brush`, `spaced`, `tape`, `xmark`, `hashtag`, `quote`, `hatch`) in 5 palettes, so 60 combinations. Leave `layout` and `palette` out and the post's filename picks them, which keeps neighbouring posts from looking alike. Run `npm run dev` and open `/blocks` to see every combination.
+
+Inside a post, fenced blocks turn into designed blocks:
+
+| fence      | what it makes                                                       |
+|------------|---------------------------------------------------------------------|
+| `notes`    | Patch notes (`+` added, `-` removed, `~` changed, `!` broke)         |
+| `callout`  | Yellow box with corner brackets. First line is the heading          |
+| `aeris`    | Same, in teal                                                        |
+| `pull`     | Pull quote. A line starting with `-- ` is the attribution           |
+| `bignum`   | Giant number; first line is the number, the rest is the caption     |
+| `shout`    | One to four short lines set huge, solid/outline/red. One line repeats |
+| `tape`     | A line of text on black tape                                         |
 
 ## Images
 

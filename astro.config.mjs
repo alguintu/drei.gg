@@ -6,7 +6,7 @@ export default defineConfig({
   site: 'https://drei.gg',
   trailingSlash: 'ignore',
   markdown: {
-    syntaxHighlight: { type: 'shiki', excludeLangs: ['notes', 'math'] },
+    syntaxHighlight: { type: 'shiki', excludeLangs: ['notes', 'callout', 'aeris', 'pull', 'bignum', 'shout', 'tape', 'math'] },
     shikiConfig: { themes: { light: 'github-light', dark: 'github-dark' } },
     rehypePlugins: [rehypeNotes],
   },

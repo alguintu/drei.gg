@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import PostMeta from '../components/PostMeta.astro';
+import PostCover from '../components/PostCover.astro';
 import { getPosts, postUrl } from '../lib/posts';
 import { domainBought, inventory, killfeed, rules } from '../data/site';
 
@@ -66,6 +67,9 @@ const daysSinceDomain = Math.max(0, Math.floor((Date.now() - domainBought.valueO
               <article class="post" data-tag={post.data.tag}>
                 <PostMeta post={post} />
                 <div class="prose">
+                  <a class="cover-link" href={postUrl(post)} tabindex="-1" aria-hidden="true">
+                    <PostCover post={post} size="card" />
+                  </a>
                   <h2 class="title">
                     <a href={postUrl(post)}>{post.data.title}</a>
                   </h2>
