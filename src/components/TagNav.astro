@@ -1,0 +1,22 @@
+---
+// all · ship · build · rant · dead, with counts. The current one is marked.
+import { LABELS, type Post } from '../lib/posts';
+
+interface Props {
+  posts: Post[];
+  current?: string;
+}
+const { posts, current } = Astro.props;
+const tags = Object.keys(LABELS) as Post['data']['tag'][];
+---
+
+<nav class="tagnav" aria-label="Tags">
+  <a href="/log/" aria-current={current ? undefined : 'page'}>all <b>{posts.length}</b></a>
+  {
+    tags.map((t) => (
+      <a href={`/tag/${t}/`} aria-current={current === t ? 'page' : undefined}>
+        {LABELS[t]} <b>{posts.filter((p) => p.data.tag === t).length}</b>
+      </a>
+    ))
+  }
+</nav>

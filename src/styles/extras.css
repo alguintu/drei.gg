@@ -1,0 +1,33 @@
+/* Archive and tag pages. */
+
+.tagnav { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 40px; }
+.tagnav a {
+  font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em;
+  padding: 8px 12px; border: 1px solid var(--line); color: var(--ink); text-decoration: none;
+}
+.tagnav a b { color: var(--team); font-weight: 600; margin-left: 4px; }
+.tagnav a:hover { border-color: var(--ink); }
+.tagnav a[aria-current] { background: var(--marker); border-color: var(--marker); color: #15171d; }
+.tagnav a[aria-current] b { color: #15171d; }
+
+.year h2 {
+  font-family: var(--display); font-stretch: 80%; font-weight: 900; font-size: 28px;
+  margin: 0 0 12px; padding-bottom: 8px; border-bottom: 2px solid var(--ink);
+}
+.year { max-width: 820px; }
+.year + .year { margin-top: 40px; }
+.rows { list-style: none; margin: 0; padding: 0; max-width: 820px; }
+.rows li {
+  display: grid; grid-template-columns: 110px 64px minmax(0, 1fr); gap: 4px 16px; align-items: baseline;
+  padding: 14px 0; border-bottom: 1px solid var(--line);
+}
+.rows time { font: 13px/1.4 var(--mono); color: var(--mute); }
+.rows .tag { font: 600 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--team); text-decoration: none; }
+.rows .what a { font-weight: 700; color: var(--ink); text-decoration: none; }
+.rows .what a:hover { text-decoration: underline; text-decoration-color: var(--ribbon); text-underline-offset: 3px; }
+.rows .sum { display: block; color: var(--mute); font-size: 15px; margin-top: 2px; }
+@media (max-width: 560px) {
+  .rows li { grid-template-columns: auto 1fr; }
+  .rows .what { grid-column: 1 / -1; }
+}
+.archive .empty { color: var(--mute); font: 14px/1.5 var(--mono); }

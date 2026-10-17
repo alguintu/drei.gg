@@ -243,7 +243,7 @@ export const TEMPLATES = {
 } as const;
 
 // Page ids that would collide with the site's own routes.
-export const RESERVED = ['home', 'frame', 'post', 'log', 'blocks', 'desk', 'feed', '404', 'media', '_astro', 'tag', 'og', 'pagefind'];
+export const RESERVED = ['home', 'frame', 'post', 'log', 'blocks', 'desk', 'feed', '404', 'media', '_astro', 'tag', 'og', 'pagefind', 'sitemap'];
 
 export const Page = z.object({
   title: z.string(),
