@@ -53,18 +53,19 @@ const KICKERS: Record<string, string> = {
 };
 
 // ---- Text slots ----
-// Every word on a cover that isn't the title, the summary or a shape is a slot.
+// Every word on a cover is a slot, the title and summary included, so a cover
+// can carry a shorter line than the post itself.
 // A post fills them under `cover:` in its front matter; an empty slot uses the
 // default here. Defaults and post values can use these tokens:
 //   {date} 16 Oct 2026   {dd} 16   {mm} 10   {label} " · v0.1" or nothing
-//   {tag} ship   {kicker} the cover's kicker   {script} the kicker as one lowercase word
+//   {title} {summary} the post's own   {tag} ship   {kicker} the cover's kicker   {script} the kicker as one lowercase word
 //   {initial} the kicker's first character
 // Order matters: the desk lists slots in this order.
 const FOOT = 'drei.gg/log · {date}{label}';
 const SEAL = { ring: 'DREI.GG · DEVLOG · BUILD · POST · ', seal: 'drei.gg' };
 const K = { kicker: '{tag}' };
 
-export const SLOTS: Record<Layout, Record<string, string>> = {
+const OWN: Record<Layout, Record<string, string>> = {
   giveaway: { ...K, ...SEAL, foot: FOOT },
   streetwear: { ...SEAL, foot: FOOT },
   everyday: { foot: FOOT },
@@ -113,6 +114,13 @@ export const SLOTS: Record<Layout, Record<string, string>> = {
   tower: { ...K, foot: FOOT },
 };
 
+// Layouts that print the summary (or the title again when there is none).
+const WITH_SUMMARY = new Set<string>(['everyday', 'quarter', 'collection', 'quote', 'arch', 'porthole', 'slab', 'quadrant', 'banner', 'tips']);
+
+export const SLOTS = Object.fromEntries(
+  ALL_LAYOUTS.map((l) => [l, { title: '{title}', ...(WITH_SUMMARY.has(l) ? { summary: '{summary}' } : {}), ...OWN[l] }]),
+) as Record<Layout, Record<string, string>>;
+
 function hash(text: string) {
   let h = 2166136261;
   for (let i = 0; i < text.length; i++) {
@@ -135,7 +143,7 @@ export function pickCover(opts: { id: string; layout?: Layout; palette?: Palette
 
 // The words for one cover: the post's own values over the layout's defaults, tokens filled in.
 // The kicker is resolved first so the other slots can use it.
-export function coverText(layout: Layout, opts: { tag: string; date: Date; label?: string; text?: Record<string, string> }) {
+export function coverText(layout: Layout, opts: { tag: string; title: string; summary?: string; date: Date; label?: string; text?: Record<string, string> }) {
   const utc = { timeZone: 'UTC' } as const;
   const ctx: Record<string, string> = {
     date: opts.date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', ...utc }),
@@ -143,6 +151,8 @@ export function coverText(layout: Layout, opts: { tag: string; date: Date; label
     mm: opts.date.toLocaleDateString('en-GB', { month: '2-digit', ...utc }),
     label: opts.label ? ` · ${opts.label}` : '',
     tag: KICKERS[opts.tag] ?? opts.tag,
+    title: opts.title,
+    summary: opts.summary ?? '',
   };
   const fill = (s: string) => s.replace(/\{(\w+)\}/g, (m, k) => ctx[k] ?? m);
   const given = opts.text ?? {};
@@ -150,7 +160,7 @@ export function coverText(layout: Layout, opts: { tag: string; date: Date; label
   ctx.kicker = pick('kicker', '{tag}').toUpperCase();
   ctx.script = ctx.kicker.toLowerCase().replace(/\s+/g, '');
   ctx.initial = [...ctx.kicker][0] ?? '';
-  const out: Record<string, string> = { kicker: ctx.kicker };
-  for (const k of Object.keys(SLOTS[layout] ?? {})) if (k !== 'kicker') out[k] = pick(k);
+  const out: Record<string, string> = { kicker: ctx.kicker, title: pick('title', '{title}'), summary: pick('summary', '{summary}') };
+  for (const k of Object.keys(SLOTS[layout] ?? {})) if (!(k in out)) out[k] = pick(k);
   return out;
 }

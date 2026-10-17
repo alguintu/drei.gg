@@ -20,9 +20,10 @@ interface Props {
   size?: 'full' | 'card';
 }
 
-const { layout, palette, tag, text, title, summary, date, label, image, imageAlt = '', size = 'full' } = Astro.props;
-const w = coverText(layout, { tag, date, label, text });
-const { kicker, foot = '' } = w;
+const { layout, palette, tag, text, date, label, image, imageAlt = '', size = 'full' } = Astro.props;
+const w = coverText(layout, { tag, title: Astro.props.title, summary: Astro.props.summary, date, label, text });
+const { kicker, title, foot = '' } = w;
+const summary = w.summary || undefined;
 const blurb = summary ?? title;
 const letters = [...kicker.replace(/\s+/g, '')].slice(0, 8);
 const photo = { image, alt: imageAlt, fallback: kicker };

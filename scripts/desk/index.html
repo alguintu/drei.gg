@@ -133,7 +133,7 @@
     </div>
     <p class="hint" id="pickHint"></p>
     <div class="row slots" id="slots"></div>
-    <p class="hint">Cover text: blank uses the layout's default. Tokens: {date} {dd} {mm} {label} {tag} {kicker} {script} {initial}.</p>
+    <p class="hint">Cover text: blank uses the layout's default, and title and summary default to the post's own. Tokens: {date} {dd} {mm} {label} {title} {summary} {tag} {kicker} {script} {initial}.</p>
   </fieldset>
 
   <div class="tools" id="tools"></div>
@@ -247,8 +247,10 @@ function renderSlots(layout) {
   if (box.dataset.layout === layout) return;
   box.dataset.layout = layout;
   const slots = META.slots[layout] ?? {};
-  box.innerHTML = Object.entries(slots).map(([k, def]) =>
-    `<label>${esc(k)}<input data-slot="${esc(k)}" value="${esc(cur.data.cover[k] ?? '')}" placeholder="${esc(def)}" size="${Math.min(28, Math.max(8, def.length))}" /></label>`).join('')
+  // The title and summary slots default to the post's own, so show those.
+  const own = (def) => def.replace('{title}', cur.data.title ?? '').replace('{summary}', cur.data.summary || cur.data.title || '');
+  box.innerHTML = Object.entries(slots).map(([k, d]) => [k, own(d)]).map(([k, def]) =>
+    `<label${k === 'title' || k === 'summary' ? ' class="grow"' : ''}>${esc(k)}<input data-slot="${esc(k)}" value="${esc(cur.data.cover[k] ?? '')}" placeholder="${esc(def)}" size="${Math.min(28, Math.max(8, def.length))}" /></label>`).join('')
     || '<p class="hint">This layout only shows the title and summary.</p>';
 }
 

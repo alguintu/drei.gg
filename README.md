@@ -67,7 +67,7 @@ Each comes in 3 palettes. Leave `layout` and `palette` out and the post's filena
 
 ### Cover text
 
-Every word on a cover other than the title and summary is a text slot: the kicker, the footer line, "read it", "new post", the stamp ring, the terminal command and so on. Each layout lists its slots and their defaults in `SLOTS` in `src/lib/cover.ts`, and `/blocks` prints them under each layout. Fill the ones you want under `cover:`; the rest keep their defaults.
+Every word on a cover is a text slot: the title and summary (they default to the post's own, so a cover can carry a shorter line), the kicker, the footer line, "read it", "new post", the stamp ring, the terminal command and so on. Each layout lists its slots and their defaults in `SLOTS` in `src/lib/cover.ts`, and `/blocks` prints them under each layout. Fill the ones you want under `cover:`; the rest keep their defaults.
 
 ```yaml
 layout: promo
@@ -77,7 +77,7 @@ cover:
   foot: "filed {date} from aeris"
 ```
 
-Defaults and your own values can use tokens: `{date}` (16 Oct 2026), `{dd}`, `{mm}`, `{label}` (" · v0.1", or nothing), `{tag}` (shipped, build, rant, rip), `{kicker}`, `{script}` (the kicker as one lowercase word) and `{initial}` (its first character). The kicker defaults to the tag; for `bignum` and `tips` set it to a number (`kicker: "80%"`), and for `glyph` set `glyph: "?"`. Quote a value that starts with `{`.
+Defaults and your own values can use tokens: `{date}` (16 Oct 2026), `{dd}`, `{mm}`, `{label}` (" · v0.1", or nothing), `{title}`, `{summary}`, `{tag}` (shipped, build, rant, rip), `{kicker}`, `{script}` (the kicker as one lowercase word) and `{initial}` (its first character). The kicker defaults to the tag; for `bignum` and `tips` set it to a number (`kicker: "80%"`), and for `glyph` set `glyph: "?"`. Quote a value that starts with `{`.
 
 Inside a post, fenced blocks turn into designed blocks:
 
