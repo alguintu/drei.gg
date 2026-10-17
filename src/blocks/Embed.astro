@@ -1,0 +1,42 @@
+---
+// A link, drawn by what it points at: a YouTube video plays in place (from
+// youtube-nocookie), a GitHub repo gets a card, anything else a plain link card.
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'embed'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+let url: URL | undefined;
+try {
+  url = new URL(block.url);
+} catch {}
+const host = url?.hostname.replace(/^www\./, '') ?? '';
+const youtube = url && (host === 'youtu.be' ? url.pathname.slice(1) : host.endsWith('youtube.com') ? url.searchParams.get('v') : null);
+const repo = host === 'github.com' ? url!.pathname.split('/').filter(Boolean).slice(0, 2).join('/') : '';
+---
+
+{
+  url && (
+    <figure class="embed" {...blockAttrs(path)}>
+      {youtube ? (
+        <div class="video">
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${encodeURIComponent(youtube)}`}
+            title={block.caption || 'Video'}
+            loading="lazy"
+            allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+          />
+        </div>
+      ) : (
+        <a class="linkcard" href={url.href} rel="noopener">
+          <span class="host">{repo ? 'github' : host}</span>
+          <b>{repo || url.href.replace(/^https?:\/\//, '')}</b>
+        </a>
+      )}
+      {block.caption && <figcaption {...slotAttrs(path, 'caption')}>{block.caption}</figcaption>}
+    </figure>
+  )
+}

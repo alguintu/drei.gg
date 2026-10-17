@@ -318,3 +318,23 @@ main.single .wrap { display: block; padding-block: 48px 72px; }
 .page .page-head h1 { margin: 0; }
 .page .prose, .page .blk, .page .frm { max-width: 760px; }
 .single .wrap > .blk, .single .wrap > .frm, .single .wrap > .prose { margin-block: 24px; }
+
+/* Post list block */
+.postlist { margin-block: 24px; }
+.postlist ul { list-style: none; margin: 0; padding: 0; }
+.postlist li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.postlist li time { font: 12px/1 var(--mono); color: var(--mute); min-width: 92px; }
+.postlist li .chip { margin: 0; }
+.postlist li a { font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: 20px; line-height: 1.15; }
+.postlist .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 18px; }
+.postlist .item { color: inherit; text-decoration: none; display: grid; gap: 8px; }
+.postlist .item .t { font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: 18px; line-height: 1.15; }
+
+/* Embed block */
+.embed { margin: 24px 0; max-width: 760px; }
+.embed .video { aspect-ratio: 16 / 9; background: #000; }
+.embed .video iframe { width: 100%; height: 100%; border: 0; }
+.embed .linkcard { display: grid; gap: 4px; padding: 16px 18px; border: 1px solid var(--line); border-left: 4px solid var(--marker); color: inherit; text-decoration: none; }
+.embed .linkcard .host { font: 600 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--mute); }
+.embed .linkcard b { font: 800 20px/1.2 var(--display); font-stretch: 80%; overflow-wrap: anywhere; }
+.embed figcaption { font: 13px/1.5 var(--mono); color: var(--mute); margin-top: 8px; }

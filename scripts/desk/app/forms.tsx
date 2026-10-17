@@ -12,6 +12,7 @@ export function blank(schema: JSONSchema): any {
   if (schema.enum) return schema.enum[0];
   if (schema.type === 'array') return [];
   if (schema.type === 'boolean') return true;
+  if (schema.type === 'integer' || schema.type === 'number') return Math.max((schema as any).minimum ?? 0, Math.min(5, (schema as any).maximum ?? 5));
   if ((schema as any).pattern === '^\\d{4}-\\d{2}-\\d{2}$') return new Date().toISOString().slice(0, 10);
   if (schema.type === 'object') {
     const out: Record<string, unknown> = {};

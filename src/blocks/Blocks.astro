@@ -14,6 +14,8 @@ import CoverBlock from './CoverBlock.astro';
 import PostBlock from './PostBlock.astro';
 import Heading from './Heading.astro';
 import Prose from './Prose.astro';
+import PostList from './PostList.astro';
+import Embed from './Embed.astro';
 
 export const COMPONENTS: Record<BlockType, any> = {
   header: Header,
@@ -27,6 +29,8 @@ export const COMPONENTS: Record<BlockType, any> = {
   cover: CoverBlock,
   heading: Heading,
   prose: Prose,
+  postlist: PostList,
+  embed: Embed,
   // Post blocks draw the same way they do inside posts.
   callout: PostBlock,
   aeris: PostBlock,

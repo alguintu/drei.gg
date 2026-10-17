@@ -132,6 +132,24 @@ export const BLOCKS = {
     })
     .meta({ title: 'Cover', description: 'A post’s cover, linking to it.', ...page }),
 
+  postlist: z
+    .object({
+      type: z.literal('postlist'),
+      label: text('Label'),
+      tag: z.enum(['', 'ship', 'build', 'rant', 'dead']).meta({ title: 'Tag', description: 'Empty shows every tag.' }),
+      count: z.number().int().min(1).max(50).meta({ title: 'How many', description: 'Newest first.' }),
+      style: z.enum(['rows', 'cards']).meta({ title: 'Style', description: 'rows: titles and dates; cards: covers.' }),
+    })
+    .meta({ title: 'Post list', description: 'The newest posts, optionally one tag, as rows or covers.', ...page }),
+
+  embed: z
+    .object({
+      type: z.literal('embed'),
+      url: text('Link', 'A YouTube video plays in place; a GitHub repo gets a card; anything else, a link card.'),
+      caption: text('Caption'),
+    })
+    .meta({ title: 'Embed', description: 'A video, a GitHub repo, or a link card.', ...page }),
+
   heading: z
     .object({
       type: z.literal('heading'),
