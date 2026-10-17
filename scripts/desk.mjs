@@ -10,6 +10,7 @@ import { existsSync } from 'node:fs';
 import { readFile, writeFile, readdir, mkdir, rename, stat, rm } from 'node:fs/promises';
 import { join, dirname, extname, resolve, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { parse, stringify } from './desk/frontmatter.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const POSTS = join(ROOT, 'src/content/posts');
@@ -25,60 +26,10 @@ const DESK_PORT = Number(process.env.DESK_PORT || 4320);
 const SITE_PORT = Number(process.env.SITE_PORT || 4321);
 const run = promisify(execFile);
 
-// Front matter keys in the order we write them. Unknown keys are kept after these.
-const KEYS = ['title', 'date', 'tag', 'label', 'summary', 'layout', 'palette', 'cover', 'image', 'image_alt', 'draft'];
 const SLUG = /^[a-z0-9][a-z0-9-]*$/;
 const FILE = /^[A-Za-z0-9][A-Za-z0-9._-]*\.(png|jpe?g|webp|gif|avif|svg)$/i;
 
-// ---- Front matter: the subset our posts use, flat key: value plus one level of maps (cover:) ----
-
-function value(v) {
-  v = v.trim();
-  if (v === 'true' || v === 'false') return v === 'true';
-  if (/^".*"$/.test(v)) return JSON.parse(v);
-  if (/^'.*'$/.test(v)) return v.slice(1, -1).replace(/''/g, "'");
-  return v;
-}
-
-function parse(text) {
-  const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-  if (!m) return { data: {}, body: text };
-  const data = {};
-  let map = null;
-  for (const line of m[1].split(/\r?\n/)) {
-    const kv = line.match(/^(\s*)([A-Za-z_][\w-]*):\s*(.*)$/);
-    if (!kv) continue;
-    if (kv[1] && map) map[kv[2]] = String(value(kv[3]));
-    else if (!kv[1] && kv[3].trim() === '') map = data[kv[2]] = {};
-    else if (!kv[1]) [map, data[kv[2]]] = [null, value(kv[3])];
-  }
-  return { data, body: m[2].replace(/^\r?\n/, '') };
-}
-
-// Plain YAML where it is safe, quoted where YAML would misread it.
-function scalar(v) {
-  if (typeof v === 'boolean') return String(v);
-  const s = String(v);
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  const risky = /^[\s\-?:,[\]{}#&*!|>'"%@`]/.test(s) || /:(\s|$)|\s#|\s$|\n/.test(s) || /^(true|false|yes|no|on|off|null|~)$/i.test(s) || /^[-+.\d][\d._eE+-]*$/.test(s);
-  return risky ? JSON.stringify(s) : s;
-}
-
-function stringify(data, body) {
-  const keys = [...KEYS.filter((k) => k in data), ...Object.keys(data).filter((k) => !KEYS.includes(k))];
-  const empty = (v) => v === '' || v === undefined || v === null;
-  const lines = [];
-  for (const k of keys) {
-    const v = data[k];
-    if (empty(v) || (k === 'draft' && v === false)) continue;
-    if (typeof v !== 'object') lines.push(`${k}: ${scalar(v)}`);
-    else {
-      const entries = Object.entries(v).filter(([, x]) => !empty(x) && String(x).trim() !== '');
-      if (entries.length) lines.push(`${k}:`, ...entries.map(([sk, x]) => `  ${sk}: ${scalar(String(x).trim())}`));
-    }
-  }
-  return `---\n${lines.join('\n')}\n---\n\n${body.replace(/^\n+/, '')}`;
-}
+// Front matter reading and writing: scripts/desk/frontmatter.mjs.
 
 // ---- Posts on disk: either slug.md or slug/index.md ----
 
@@ -280,6 +231,7 @@ const routes = {
   // Make social cards now: ?id=<post>, or ?site=1 for the site card, or neither for all.
   'POST /api/cards': async (q) => {
     const id = q.get('id');
+    if (id) fileFor(id); // a real post, and a safe name for the card's file
     const ids = id ? [id] : q.get('site') ? [] : (await listPosts()).map((p) => p.id);
     return { made: await cards(ids, !id) };
   },
@@ -352,10 +304,13 @@ const routes = {
     } catch (e) {
       log.push(`social card skipped: ${e.message}`);
     }
-    log.push(await git('add', '-A', '--', ...[target].flat()));
-    const staged = await git('diff', '--cached', '--name-only');
+    // Commit only this post or page (and its card or images), never whatever else
+    // happens to be staged.
+    const paths = [target].flat();
+    log.push(await git('add', '-A', '--', ...paths));
+    const staged = await git('diff', '--cached', '--name-only', '--', ...paths);
     if (!staged) return { log: 'Nothing to publish.' };
-    log.push(await git('commit', '-m', message || 'Update post'));
+    log.push(await git('commit', '-m', message || 'Update post', '--', ...paths));
     try {
       log.push(await git('push'));
     } catch (e) {
@@ -419,8 +374,24 @@ function tunnel(req, socket, head) {
 const ASSET_TYPES = { '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.woff2': 'font/woff2' };
 const TYPES = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif', '.avif': 'image/avif', '.svg': 'image/svg+xml' };
 
+// The desk has no login, so it only answers to itself. A web page open in the
+// same browser could otherwise send it requests (a plain POST needs no CORS
+// preflight), and a DNS-rebound name could pose as localhost. So: the Host must
+// be this machine, and a request from a page must come from the desk's own origin.
+const LOCAL = new Set([`localhost:${DESK_PORT}`, `127.0.0.1:${DESK_PORT}`, `[::1]:${DESK_PORT}`]);
+function trusted(req) {
+  if (!LOCAL.has(req.headers.host ?? '')) return false;
+  const origin = req.headers.origin;
+  if (origin && !LOCAL.has(origin.replace(/^https?:\/\//, ''))) return false;
+  return req.headers['sec-fetch-site'] !== 'cross-site';
+}
+
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
+  if (!trusted(req)) {
+    res.writeHead(403, { 'content-type': 'text/plain' });
+    return res.end('The desk only answers to itself.');
+  }
   try {
     // The editor lives at /; the same path inside the preview frame is the site's home page.
     const inFrame = req.headers['sec-fetch-dest'] === 'iframe';
@@ -455,7 +426,7 @@ const server = createServer(async (req, res) => {
     res.end(JSON.stringify({ error: e.message }));
   }
 });
-server.on('upgrade', tunnel);
+server.on('upgrade', (req, socket, head) => (trusted(req) ? tunnel(req, socket, head) : socket.destroy()));
 
 // Build the editor before serving it. It's small; this takes a second or two.
 const { build } = await import('vite');

@@ -12,6 +12,8 @@ const { block, path } = Astro.props;
 let url: URL | undefined;
 try {
   url = new URL(block.url);
+  // Web links only: no javascript: or data: hrefs.
+  if (!/^https?:$/.test(url.protocol)) url = undefined;
 } catch {}
 const host = url?.hostname.replace(/^www\./, '') ?? '';
 const youtube = url && (host === 'youtu.be' ? url.pathname.slice(1) : host.endsWith('youtube.com') ? url.searchParams.get('v') : null);

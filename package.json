@@ -12,7 +12,9 @@
     "preview": "astro preview",
     "new": "node scripts/new-post.mjs",
     "desk": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/desk.mjs",
-    "desk:mcp": "node scripts/desk-mcp.mjs"
+    "desk:mcp": "node scripts/desk-mcp.mjs",
+    "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test test/*.test.mjs",
+    "test:desk": "node test/desk.e2e.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "7.3.2",

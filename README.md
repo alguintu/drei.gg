@@ -142,6 +142,12 @@ There are two kinds. Page blocks (header, footer, hero, killfeed, post log, inve
 
 In the desk, click a post block in a post's preview (or put the cursor in one and press **edit ✎**) and it opens in a form above the body; the form writes the Markdown back as you type. Styles are in `src/styles/global.css`; colors are tokens at the top (ink, ribbon red, marker yellow, with blue only for links, numbers and tags).
 
+## Tests
+
+`npm test` is quick and needs nothing running: every post block survives Markdown and back, front matter round-trips, the pages in the repo match the block schemas, every block makes a form, the theme adds CSS only for real changes, and (after `npm run build`) no desk markup ships. GitHub Actions runs the build and these on every push and pull request.
+
+`npm run test:desk` drives the real desk in Chrome while it's running: a new page, a double-click edit in the preview, adding a block and undoing it, a post block edited by clicking it in the preview, and Ctrl+K. It makes its own page and post and removes them.
+
 ## Deploy
 
 Every push to `main` rebuilds and deploys. First-time setup:
