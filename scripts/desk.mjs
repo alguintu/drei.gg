@@ -7,7 +7,7 @@ import { connect } from 'node:net';
 import { spawn, execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { existsSync } from 'node:fs';
-import { readFile, writeFile, readdir, mkdir, rename, stat } from 'node:fs/promises';
+import { readFile, writeFile, readdir, mkdir, rename, stat, rm } from 'node:fs/promises';
 import { join, dirname, extname, resolve, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -16,6 +16,8 @@ const POSTS = join(ROOT, 'src/content/posts');
 const APP = join(ROOT, 'scripts/desk/app');
 const UI = join(ROOT, 'scripts/desk/dist');
 const PAGES = join(ROOT, 'src/content/pages');
+// Images for pages, served as-is at /media/<name>.
+const MEDIA = join(ROOT, 'public/media');
 const DESK_PORT = Number(process.env.DESK_PORT || 4320);
 const SITE_PORT = Number(process.env.SITE_PORT || 4321);
 const run = promisify(execFile);
@@ -224,6 +226,32 @@ const routes = {
     }
     return out;
   },
+  'POST /api/pages': async (q, req) => {
+    const { title } = JSON.parse(await body(req));
+    if (!title?.trim()) throw httpError(400, 'title required');
+    const { RESERVED } = await load('src/blocks/schema.ts');
+    let id = slugify(title);
+    while (RESERVED.includes(id) || existsSync(join(PAGES, `${id}.json`))) id += '-2';
+    const data = { title: title.trim(), template: 'basic', regions: { main: [{ type: 'heading', kicker: '', title: title.trim() }, { type: 'prose', markdown: 'Write here.' }] } };
+    await writeFile(join(PAGES, `${id}.json`), JSON.stringify(data, null, 2) + '\n');
+    return { id };
+  },
+  // Only pages made in the desk can go; the home page, frame and post template stay.
+  'DELETE /api/page': async (q) => {
+    const id = q.get('id');
+    const data = JSON.parse(await readFile(pageFile(id), 'utf8'));
+    if (data.template !== 'basic') throw httpError(400, 'only basic pages can be deleted');
+    await rm(pageFile(id));
+    return { ok: true };
+  },
+  'GET /api/media': async () => (existsSync(MEDIA) ? (await readdir(MEDIA)).filter((f) => FILE.test(f)).map((f) => `/media/${f}`) : []),
+  'PUT /api/media': async (q, req) => {
+    const name = q.get('name').replace(/\s+/g, '-');
+    if (!FILE.test(name)) throw httpError(400, 'images only: png, jpg, webp, gif, avif, svg');
+    await mkdir(MEDIA, { recursive: true });
+    await writeFile(join(MEDIA, name), await body(req));
+    return { url: `/media/${name}` };
+  },
   'GET /api/page': async (q) => ({ id: q.get('id'), data: JSON.parse(await readFile(pageFile(q.get('id')), 'utf8')) }),
   'PUT /api/page': async (q, req) => {
     const data = JSON.parse(await body(req));
@@ -233,12 +261,13 @@ const routes = {
     await writeFile(pageFile(q.get('id')), JSON.stringify(data, null, 2) + '\n');
     return { ok: true };
   },
-  'GET /api/status': async () => ({ branch: await git('branch', '--show-current'), changes: await git('status', '--short', '--', 'src/content/posts', 'src/content/pages') }),
+  'GET /api/status': async () => ({ branch: await git('branch', '--show-current'), changes: await git('status', '--short', '--', 'src/content/posts', 'src/content/pages', 'public/media') }),
   'POST /api/publish': async (q, req) => {
     const { id, page, message } = JSON.parse(await body(req));
-    const target = page ? relative(ROOT, pageFile(page)) : id ? (fileFor(id).endsWith('index.md') ? join('src/content/posts', id) : join('src/content/posts', `${id}.md`)) : 'src/content';
+    // A page goes with any images uploaded for pages.
+    const target = page ? [relative(ROOT, pageFile(page)), ...(existsSync(MEDIA) ? ['public/media'] : [])] : id ? (fileFor(id).endsWith('index.md') ? join('src/content/posts', id) : join('src/content/posts', `${id}.md`)) : 'src/content';
     const log = [];
-    log.push(await git('add', '-A', '--', target));
+    log.push(await git('add', '-A', '--', ...[target].flat()));
     const staged = await git('diff', '--cached', '--name-only');
     if (!staged) return { log: 'Nothing to publish.' };
     log.push(await git('commit', '-m', message || 'Update post'));

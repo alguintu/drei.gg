@@ -300,3 +300,10 @@ main.single .wrap { display: block; padding-block: 48px 72px; }
 .cover-link { display: block; margin-bottom: 18px; }
 .cover-link:focus-visible { outline-offset: 4px; }
 .cover-full { margin: 0 0 28px; }
+
+/* Pages made of blocks (src/pages/[page].astro) */
+.page .page-head { margin-bottom: 28px; }
+.page .page-head .label { margin-bottom: 8px; }
+.page .page-head h1 { margin: 0; }
+.page .prose, .page .blk, .page .frm { max-width: 760px; }
+.single .wrap > .blk, .single .wrap > .frm, .single .wrap > .prose { margin-block: 24px; }

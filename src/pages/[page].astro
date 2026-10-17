@@ -1,0 +1,22 @@
+---
+// Pages made in the desk: every page in src/content/pages with the basic
+// template, at /<id>/.
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Region from '../blocks/Region.astro';
+
+export async function getStaticPaths() {
+  const pages = await getCollection('pages', ({ data }) => data.template === 'basic');
+  return pages.map((page) => ({ params: { page: page.id }, props: { page } }));
+}
+
+const { page } = Astro.props as { page: CollectionEntry<'pages'> };
+---
+
+<Base title={page.data.title}>
+  <main class="single page">
+    <div class="wrap">
+      <Region page={page} name="main" />
+    </div>
+  </main>
+</Base>

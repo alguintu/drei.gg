@@ -124,3 +124,8 @@ main { overflow-x: hidden; }
 fieldset.bpanel { position: relative; border-color: var(--team); margin: 8px 0 10px; }
 fieldset.bpanel .close { position: absolute; top: -12px; right: 8px; padding: 2px 8px; }
 fieldset.bpanel .bform { border: 0; padding: 4px 0 0; }
+
+/* Image picker in block forms */
+.imgpick .thumbs { margin: 0 0 6px; }
+.imgpick label.none { text-transform: none; letter-spacing: 0; }
+.bform textarea.md, .bform .md textarea { font: 13px/1.6 var(--mono); }

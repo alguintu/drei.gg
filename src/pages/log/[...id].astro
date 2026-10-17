@@ -1,9 +1,10 @@
 ---
-import { render } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import PostMeta from '../../components/PostMeta.astro';
 import PostCover from '../../components/PostCover.astro';
 import { getPosts, postUrl, type Post } from '../../lib/posts';
+import Region from '../../blocks/Region.astro';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -20,12 +21,15 @@ interface Props {
 }
 const { post, newer, older } = Astro.props;
 const { Content } = await render(post);
+// Blocks above and below every post's article: src/content/pages/post.json.
+const template = (await getEntry('pages', 'post'))!;
 ---
 
 <Base title={post.data.title} description={post.data.summary}>
   <main class="single">
     <div class="wrap">
       <a class="back" href="/#log">← back to the log</a>
+      <Region page={template} name="top" />
       <article>
         <PostMeta post={post} />
         <h1>{post.data.title}</h1>
@@ -36,6 +40,7 @@ const { Content } = await render(post);
           {newer ? <a href={postUrl(newer)}>{newer.data.title} →</a> : <span />}
         </nav>
       </article>
+      <Region page={template} name="bottom" />
     </div>
   </main>
 </Base>

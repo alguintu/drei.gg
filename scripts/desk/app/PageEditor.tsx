@@ -45,8 +45,8 @@ function Card({ id, title, gist, selected, onSelect, onRemove, regions, region, 
   );
 }
 
-export default forwardRef<EditorHandle, EditorProps & { id: string; blocks: BlocksMeta; posts: PostRef[]; setPath: (p: string) => void; onPick: (path: string | null) => void }>(function PageEditor(
-  { id, blocks, posts, setPath, onState, onSaved, onPick },
+export default forwardRef<EditorHandle, EditorProps & { id: string; blocks: BlocksMeta; posts: PostRef[]; setPath: (p: string) => void; onPick: (path: string | null) => void; onDeleted: () => void }>(function PageEditor(
+  { id, blocks, posts, setPath, onState, onSaved, onPick, onDeleted },
   ref,
 ) {
   const [page, setPage] = useState<PageData | null>(null);
@@ -55,14 +55,31 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; blocks: Bloc
   const timer = useRef(0);
   const current = useRef<PageData | null>(null);
   current.current = page;
+  // Images for pages live in public/media.
+  const [media, setMedia] = useState<string[]>([]);
+  useEffect(() => void api<string[]>('/api/media').then(setMedia), []);
+  const context = {
+    posts,
+    images: media,
+    upload: async (file: File) => {
+      onState('uploading…', 'dirty');
+      const name = file.name.toLowerCase().replace(/[^a-z0-9._-]+/g, '-');
+      const r = await api(`/api/media?name=${encodeURIComponent(name)}`, { method: 'PUT', body: file });
+      setMedia((m) => [...new Set([...m, r.url])]);
+      onState('uploaded ' + name);
+      return r.url as string;
+    },
+  };
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   useEffect(() => {
     let live = true;
     api<{ data: PageData }>('/api/page?id=' + id).then((r) => live && setPage(r.data));
     setSel(null);
-    // The home page previews at /; the frame shows on whatever page is up; others at /<id>/.
+    // The home page previews at /, the post template on the newest post, other pages
+    // at /<id>/; the frame shows on whatever page is already up.
     if (id === 'home') setPath('/');
+    else if (id === 'post') posts[0] && setPath(`/log/${posts[0].id}/`);
     else if (id !== 'frame') setPath(`/${id}/`);
     return () => {
       live = false;
@@ -157,8 +174,31 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; blocks: Bloc
     <main>
       <input className="title" value={page.title} onChange={(e) => change((p) => ({ ...p, title: e.target.value }))} />
       <p className="hint">
-        {id === 'frame' ? 'The header and footer every page shares.' : `A page made of blocks, template "${page.template}".`} Click anything in the preview to edit it here; double-click plain text to edit it in place.
+        {id === 'frame'
+          ? 'The header and footer every page shares.'
+          : id === 'post'
+            ? 'Blocks above and below the article on every post page.'
+            : page.template === 'basic'
+              ? `A page at /${id}/. Link to it from the header to put it in the nav.`
+              : `A page made of blocks, template "${page.template}".`}{' '}
+        Click anything in the preview to edit it here; double-click plain text to edit it in place.
       </p>
+      {page.template === 'basic' && (
+        <p className="row">
+          <button
+            type="button"
+            onClick={async () => {
+              if (!confirm(`Delete the ${page.title} page? Its file goes; publish to take it off the site.`)) return;
+              clearTimeout(timer.current);
+              timer.current = 0;
+              await api('/api/page?id=' + id, { method: 'DELETE' });
+              onDeleted();
+            }}
+          >
+            delete page
+          </button>
+        </p>
+      )}
       {regions.map((region) => {
         const list = page.regions[region] ?? [];
         return (
@@ -198,7 +238,7 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; blocks: Bloc
                             schema={schema}
                             data={block}
                             idPrefix={idFor(region, i)}
-                            posts={posts}
+                            context={context}
                             onChange={(data) =>
                               change((p) => {
                                 p.regions[region][i] = data;

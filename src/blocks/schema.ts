@@ -13,7 +13,8 @@ import { FRAMES } from '../lib/post-blocks.mjs';
 //
 // The desk turns these schemas into forms (z.toJSONSchema). `title` and
 // `description` label the fields; `widget` picks a special input: 'rich' is text
-// that allows ==mark== and *em*, 'long' is multi-line text, 'post' picks a post.
+// that allows ==mark== and *em*, 'long' is multi-line text, 'markdown' is a
+// Markdown editor, 'post' picks a post, 'image' picks or uploads an image.
 
 const text = (title: string, description?: string) => z.string().meta({ title, description });
 const rich = (title: string, description?: string) => z.string().meta({ title, description, widget: 'rich' });
@@ -127,6 +128,21 @@ export const BLOCKS = {
     })
     .meta({ title: 'Cover', description: 'A post’s cover, linking to it.', ...page }),
 
+  heading: z
+    .object({
+      type: z.literal('heading'),
+      kicker: text('Kicker', 'Small line above, like a label. Optional.'),
+      title: text('Title'),
+    })
+    .meta({ title: 'Heading', description: 'A page title.', ...page }),
+
+  prose: z
+    .object({
+      type: z.literal('prose'),
+      markdown: z.string().meta({ title: 'Text', description: 'Markdown, with the same fenced blocks and image frames posts use.', widget: 'markdown' }),
+    })
+    .meta({ title: 'Text', description: 'Paragraphs of Markdown, like a post body.', ...page }),
+
   // ---- Post blocks ----
   callout: z
     .object({ type: z.literal('callout'), heading: text('Heading'), body: long('Text') })
@@ -161,7 +177,7 @@ export const BLOCKS = {
   image: z
     .object({
       type: z.literal('image'),
-      src: text('Image', 'In a post: ./file.png beside it. On a page: a URL.'),
+      src: z.string().meta({ title: 'Image', description: 'Pick one or upload. In a post: ./file.png beside it; on a page: /media/file.png.', widget: 'image' }),
       alt: text('Alt text'),
       frame: z.enum(FRAMES as [string, ...string[]]).meta({ title: 'Frame' }),
       caption: text('Caption'),
@@ -176,9 +192,18 @@ export type BlockData<T extends BlockType = BlockType> = z.infer<(typeof BLOCKS)
 // Templates: the regions a page has, in order. The template's component decides
 // where each region sits on the page.
 export const TEMPLATES = {
+  // The home page: a hero row, the log, and a sidebar.
   home: ['top', 'main', 'aside'],
+  // The header and footer on every page.
   frame: ['header', 'footer'],
+  // A plain page at /<id>/, one column of blocks.
+  basic: ['main'],
+  // Every post page: blocks above the article and below it.
+  post: ['top', 'bottom'],
 } as const;
+
+// Page ids that would collide with the site's own routes.
+export const RESERVED = ['home', 'frame', 'post', 'log', 'blocks', 'desk', 'feed', '404', 'media', '_astro'];
 
 export const Page = z.object({
   title: z.string(),

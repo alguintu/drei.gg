@@ -17,6 +17,9 @@ export type EditorProps = { onState: (text: string, cls?: string) => void; onSav
 
 type ListItem = { id: string; title: string; date?: string; tag?: string; draft?: boolean; template?: string };
 
+// Home first, then pages made in the desk, then the shared frame and post template.
+const rank = (p: ListItem) => (p.id === 'home' ? 0 : p.id === 'frame' ? 2 : p.id === 'post' ? 3 : 1);
+
 const openFrom = (v: string): Open => (v.startsWith('page:') ? { kind: 'page', id: v.slice(5) } : v ? { kind: 'post', id: v } : null);
 
 export default function App() {
@@ -30,7 +33,7 @@ export default function App() {
   const [phone, setPhone] = useState(store.get('w', 'desk') === 'phone');
   const [catalog, setCatalog] = useState(false);
   const [path, setPath] = useState('/');
-  const [dialog, setDialog] = useState<null | 'new' | 'publish'>(null);
+  const [dialog, setDialog] = useState<null | 'new' | 'page' | 'publish'>(null);
   const editor = useRef<EditorHandle>(null);
   const preview = useRef<PreviewHandle>(null);
   const popup = useRef<Window | null>(null);
@@ -148,11 +151,14 @@ export default function App() {
 
       <aside>
         <p className="group">Pages</p>
+        <button className="new" onClick={() => setDialog('page')}>
+          + new page
+        </button>
         <nav>
-          {pages.map((p) => (
+          {[...pages].sort((a, b) => rank(a) - rank(b)).map((p) => (
             <a key={p.id} className={isCur('page', p.id) ? 'cur' : ''} onClick={() => go({ kind: 'page', id: p.id })}>
               <div className="t">{p.id === 'frame' ? 'Header & footer' : p.title}</div>
-              <div className="m">{p.id === 'frame' ? 'on every page' : `${p.id} · ${p.template}`}</div>
+              <div className="m">{p.id === 'frame' ? 'on every page' : p.id === 'post' ? 'around every post' : p.id === 'home' ? '/' : `/${p.id}/`}</div>
             </a>
           ))}
         </nav>
@@ -183,7 +189,7 @@ export default function App() {
       ) : open.kind === 'post' ? (
         <PostEditor key={open.id} ref={editor} id={open.id} meta={meta} blocks={blocks} catalog={catalog} setPath={setPath} onState={onState} onSaved={onSaved} />
       ) : (
-        <PageEditor key={open.id} ref={editor} id={open.id} blocks={blocks} posts={posts} setPath={setPath} onState={onState} onSaved={onSaved} onPick={(p) => preview.current?.mark(p)} />
+        <PageEditor key={open.id} ref={editor} id={open.id} blocks={blocks} posts={posts} setPath={setPath} onState={onState} onSaved={onSaved} onPick={(p) => preview.current?.mark(p)} onDeleted={() => (lists(), setOpen({ kind: 'page', id: 'home' }))} />
       )}
 
       <section className="preview">
@@ -218,6 +224,7 @@ export default function App() {
         )}
       </section>
 
+      {dialog === 'page' && <NewPage onClose={() => setDialog(null)} onCreate={(id) => (lists(), go({ kind: 'page', id }))} />}
       {dialog === 'new' && meta && <NewPost meta={meta} onClose={() => setDialog(null)} onCreate={(id) => (lists(), go({ kind: 'post', id }))} />}
       {dialog === 'publish' && (
         <Publish
@@ -260,6 +267,29 @@ function Dialog({ title, children, ok, onOk, onClose }: { title: string; childre
         </p>
       </form>
     </dialog>
+  );
+}
+
+function NewPage({ onClose, onCreate }: { onClose: () => void; onCreate: (id: string) => void }) {
+  const [title, setTitle] = useState('');
+  return (
+    <Dialog
+      title="New page"
+      ok="create"
+      onClose={onClose}
+      onOk={async () => {
+        if (!title.trim()) return;
+        const { id } = await send('/api/pages', 'POST', { title });
+        onClose();
+        onCreate(id);
+      }}
+    >
+      <label className="grow">
+        title
+        <input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="About" />
+      </label>
+      <p className="hint">Its address comes from the title (About → /about/). It starts with a heading and some text.</p>
+    </Dialog>
   );
 }
 

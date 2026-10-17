@@ -297,7 +297,14 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; 
             ×
           </button>
           <div className="bform">
-            <BlockForm key={`${blk.type}:${blk.start}`} schema={blocks.schemas[blk.type]} data={{ ...blk.data, type: blk.type }} idPrefix="pb" onChange={({ type, ...data }) => editBlock(data)} />
+            <BlockForm
+              key={`${blk.type}:${blk.start}`}
+              schema={blocks.schemas[blk.type]}
+              data={{ ...blk.data, type: blk.type }}
+              idPrefix="pb"
+              context={{ images: post.images.map((n) => './' + n), thumb: (src) => `/img/${post.id}/${encodeURIComponent(src.replace(/^\.\//, ''))}`, upload: async (f) => './' + (await upload(f)) }}
+              onChange={({ type, ...data }) => editBlock(data)}
+            />
           </div>
         </fieldset>
       )}

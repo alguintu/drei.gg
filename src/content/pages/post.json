@@ -1,0 +1,8 @@
+{
+  "title": "Post template",
+  "template": "post",
+  "regions": {
+    "top": [],
+    "bottom": []
+  }
+}

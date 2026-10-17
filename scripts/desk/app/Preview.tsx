@@ -75,7 +75,11 @@ export default forwardRef<PreviewHandle, Props>(function Preview({ path, phone, 
     style.textContent = STYLE;
     doc.head.append(style);
     let hovered: Element | null = null;
-    const target = (e: Event) => (e.target as Element).closest?.('[data-desk-slot], [data-desk-block], [data-desk-md]') ?? null;
+    // A post block inside a page's Text block belongs to that block, not to a post.
+    const target = (e: Event) => {
+      const el = (e.target as Element).closest?.('[data-desk-slot], [data-desk-block], [data-desk-md]') ?? null;
+      return el?.hasAttribute('data-desk-md') ? (el.parentElement?.closest('[data-desk-block]') ?? el) : el;
+    };
     doc.addEventListener('mouseover', (e) => {
       if (!latest.current.editable) return;
       hovered?.classList.remove('desk-hover');
@@ -136,7 +140,12 @@ export default forwardRef<PreviewHandle, Props>(function Preview({ path, phone, 
     doc.querySelectorAll('.desk-sel').forEach((x) => x.classList.remove('desk-sel'));
     const el = path ? doc.querySelector(`[data-desk-block="${path}"]`) : null;
     el?.classList.add('desk-sel');
-    if (el && scroll) el.scrollIntoView({ block: 'nearest' });
+    // Scroll the frame only: scrollIntoView would drag the desk along with it.
+    if (el && scroll) {
+      const win = doc.defaultView!;
+      const r = el.getBoundingClientRect();
+      if (r.top < 0 || r.bottom > win.innerHeight) win.scrollTo(0, win.scrollY + r.top - 80);
+    }
   }
 
   useImperativeHandle(ref, () => ({

@@ -29,12 +29,23 @@ export function ui(schema: JSONSchema): UiSchema {
     else if (s.widget === 'rich') out[k] = { 'ui:widget': 'textarea', 'ui:options': { rows: 2 }, 'ui:help': '==mark== *italic*' };
     else if (s.widget === 'long') out[k] = { 'ui:widget': 'textarea', 'ui:options': { rows: 3 } };
     else if (s.widget === 'post') out[k] = { 'ui:widget': 'post' };
+    else if (s.widget === 'image') out[k] = { 'ui:widget': 'image' };
+    else if (s.widget === 'markdown') out[k] = { 'ui:widget': 'textarea', 'ui:options': { rows: 14 }, 'ui:classNames': 'md' };
     else if (s.type === 'array' && s.items?.type === 'object') out[k] = { items: ui(s.items) };
   }
   return out;
 }
 
 export type PostRef = { id: string; title: string };
+
+// What a form can reach beyond its own data: the posts to pick from, and the
+// images it can use (with a thumbnail URL for each, and a way to upload more).
+export type FormContext = {
+  posts?: PostRef[];
+  images?: string[];
+  thumb?: (src: string) => string;
+  upload?: (file: File) => Promise<string>;
+};
 
 // Picks a post by title; the form context carries the list.
 function PostWidget({ id, value, onChange, registry }: WidgetProps) {
@@ -51,7 +62,29 @@ function PostWidget({ id, value, onChange, registry }: WidgetProps) {
   );
 }
 
-export function BlockForm({ schema, data, idPrefix, posts = [], onChange }: { schema: JSONSchema; data: any; idPrefix: string; posts?: PostRef[]; onChange: (d: any) => void }) {
+// Picks an image: thumbnails of the ones there are, an upload button, or a typed path.
+function ImageWidget({ id, value, onChange, registry }: WidgetProps) {
+  const ctx = (registry.formContext ?? {}) as FormContext;
+  const thumb = ctx.thumb ?? ((s: string) => s);
+  return (
+    <div className="imgpick">
+      <div className="thumbs">
+        {(ctx.images ?? []).map((src) => (
+          <img key={src} src={thumb(src)} title={src} className={src === value ? 'cur' : ''} onClick={() => onChange(src)} />
+        ))}
+        {ctx.upload && (
+          <label className="none">
+            upload…
+            <input type="file" accept="image/*" hidden onChange={async (e) => e.target.files?.[0] && onChange(await ctx.upload!(e.target.files[0]))} />
+          </label>
+        )}
+      </div>
+      <input id={id} value={value ?? ''} onChange={(e) => onChange(e.target.value)} placeholder="./file.png or /media/file.png" />
+    </div>
+  );
+}
+
+export function BlockForm({ schema, data, idPrefix, context = {}, onChange }: { schema: JSONSchema; data: any; idPrefix: string; context?: FormContext; onChange: (d: any) => void }) {
   return (
     <Form
       schema={schema as any}
@@ -59,8 +92,8 @@ export function BlockForm({ schema, data, idPrefix, posts = [], onChange }: { sc
       formData={data}
       validator={validator}
       idPrefix={idPrefix}
-      widgets={{ post: PostWidget }}
-      formContext={{ posts }}
+      widgets={{ post: PostWidget, image: ImageWidget }}
+      formContext={context}
       noValidate
       showErrorList={false}
       onChange={(e) => onChange(e.formData)}

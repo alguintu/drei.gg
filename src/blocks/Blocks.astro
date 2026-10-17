@@ -12,6 +12,8 @@ import Rules from './Rules.astro';
 import Scoreboard from './Scoreboard.astro';
 import CoverBlock from './CoverBlock.astro';
 import PostBlock from './PostBlock.astro';
+import Heading from './Heading.astro';
+import Prose from './Prose.astro';
 
 export const COMPONENTS: Record<BlockType, any> = {
   header: Header,
@@ -23,6 +25,8 @@ export const COMPONENTS: Record<BlockType, any> = {
   rules: Rules,
   scoreboard: Scoreboard,
   cover: CoverBlock,
+  heading: Heading,
+  prose: Prose,
   // Post blocks draw the same way they do inside posts.
   callout: PostBlock,
   aeris: PostBlock,

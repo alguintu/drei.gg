@@ -1,0 +1,18 @@
+---
+// Markdown on a page, rendered like a post body: the same fenced blocks and
+// image frames (src/lib/rehype-notes.mjs).
+import { createMarkdownProcessor } from '@astrojs/markdown-remark';
+import { markdown } from '../lib/markdown.mjs';
+import type { BlockData } from './schema';
+import { blockAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'prose'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+const md = await createMarkdownProcessor(markdown as any);
+const { code } = await md.render(block.markdown);
+---
+
+<div class="prose" {...blockAttrs(path)} set:html={code} />
