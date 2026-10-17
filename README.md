@@ -118,6 +118,18 @@ Give an image a frame with its title, `"frame | caption"`:
 
 Frames: `offset` (on a yellow block), `teal` (on teal), `bracket` (corner brackets), `rounded` (rounded corner with a yellow tab), `quarter` (black and white with a yellow quarter circle), `tape` (caption on black tape). Videos, GIFs and downloads go in a DigitalOcean Space with the CDN on; link to them from the post.
 
+## The desk for agents (MCP)
+
+`npm run desk:mcp` runs the desk as an MCP server over stdio, so an agent can do what the desk does: `desk_status`, `block_types` (every block's schema, the templates, cover layouts), `read_post` / `new_post` / `write_post` / `insert_post_block`, `read_page` / `new_page` / `write_page` / `edit_page_block`, `preview` (a screenshot of any page, desktop or phone, so the agent can look at what it made), `retake_cards`, `discard`, and `publish`. It talks to the running desk, so start `npm run desk` first; every write goes through the desk's checks (page schemas, allowed layouts and tags, and the build before publishing).
+
+Claude Code picks it up from `.mcp.json` in the repo. For Codex, add to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.drei-desk]
+command = "node"
+args = ["/path/to/drei.gg/scripts/desk-mcp.mjs"]
+```
+
 ## Pages and blocks
 
 Pages are made of blocks. A block is an Astro component in `src/blocks/` whose slots (its text, lists and choices) are a zod schema in `src/blocks/schema.ts`. Blocks are atomic: they hold slots, never other blocks. A page is a JSON file in `src/content/pages/`: a template, and for each of the template's regions, a list of blocks with their slot values. `home.json` is the home page (regions `top`, `main`, `aside`); `frame.json` is the header and footer on every page. In rich text slots, `==text==` is highlighted and `*text*` is italic.
