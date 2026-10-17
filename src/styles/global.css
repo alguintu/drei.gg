@@ -415,3 +415,22 @@ main.single .wrap { display: block; padding-block: 48px 72px; }
 .faq summary:focus-visible { outline: 2px solid var(--team); outline-offset: 2px; }
 .faq details p { margin: 0 0 16px; color: var(--ink); max-width: 64ch; }
 .faq details p mark { background: var(--marker); color: #15171d; padding: 0 .15em; }
+
+/* Page templates: wide (full-bleed sections), sidebar, docs */
+.page-wide > *, .page-wide > [data-desk-region] > * {
+  margin: 0; max-width: none;
+  padding-block: clamp(40px, 6vw, 72px);
+  padding-inline: max(20px, calc((100% - 1080px) / 2));
+}
+.page-wide > * + *, .page-wide > [data-desk-region] > * + * { border-top: 1px solid var(--line); }
+.page-wide .prose, .page-wide .blk, .page-wide .frm { max-width: none; }
+.page-wide .prose > * { max-width: 760px; }
+main.page-sidebar .wrap, main.page-docs .wrap { display: grid; gap: 56px; }
+main.page-sidebar .wrap { grid-template-columns: minmax(0, 1fr) 300px; }
+main.page-docs .wrap { grid-template-columns: 220px minmax(0, 1fr); }
+.page-aside > *:first-child, .page-nav > *:first-child { margin-top: 0; }
+.page-nav { position: sticky; top: 24px; align-self: start; max-height: calc(100vh - 48px); overflow: auto; }
+@media (max-width: 900px) {
+  main.page-sidebar .wrap, main.page-docs .wrap { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .page-nav { position: static; max-height: none; }
+}

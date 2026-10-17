@@ -1,0 +1,41 @@
+---
+// A page's regions laid out by its template: basic (one column), wide (full-bleed
+// sections), sidebar (main and aside) or docs (sticky contents and main).
+// Used by pages made in the desk and by the template gallery.
+import Region from '../blocks/Region.astro';
+import type { BlockData } from '../blocks/schema';
+
+interface Props {
+  page: { id: string; data: { template: string; regions: Record<string, BlockData[]> } };
+}
+const { page } = Astro.props;
+const t = page.data.template;
+---
+
+{
+  t === 'wide' ? (
+    <main class="page page-wide" data-pagefind-body>
+      <Region page={page} name="main" />
+    </main>
+  ) : t === 'sidebar' ? (
+    <main class="single page page-sidebar">
+      <div class="wrap">
+        <div class="page-main" data-pagefind-body><Region page={page} name="main" /></div>
+        <aside class="page-aside"><Region page={page} name="aside" /></aside>
+      </div>
+    </main>
+  ) : t === 'docs' ? (
+    <main class="single page page-docs">
+      <div class="wrap">
+        <nav class="page-nav" aria-label="Contents"><Region page={page} name="nav" /></nav>
+        <div class="page-main" data-pagefind-body><Region page={page} name="main" /></div>
+      </div>
+    </main>
+  ) : (
+    <main class="single page">
+      <div class="wrap" data-pagefind-body>
+        <Region page={page} name="main" />
+      </div>
+    </main>
+  )
+}

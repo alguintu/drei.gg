@@ -232,24 +232,21 @@ const routes = {
     }
     return out;
   },
+  // The page templates "+ new page" offers (src/blocks/starters.ts), by group.
+  'GET /api/starters': async () => {
+    const { STARTERS, STARTER_GROUPS } = await load('src/blocks/starters.ts');
+    return { groups: STARTER_GROUPS, starters: Object.entries(STARTERS).map(([id, s]) => ({ id, title: s.title, group: s.group, description: s.description, template: s.template })) };
+  },
   'POST /api/pages': async (q, req) => {
     const { title, kind = 'plain' } = JSON.parse(await body(req));
     if (!title?.trim()) throw httpError(400, 'title required');
     const { RESERVED } = await load('src/blocks/schema.ts');
+    const { STARTERS, fromStarter } = await load('src/blocks/starters.ts');
+    if (!STARTERS[kind]) throw httpError(400, `unknown template ${kind}; one of ${Object.keys(STARTERS).join(', ')}`);
     let id = slugify(title);
     while (RESERVED.includes(id) || existsSync(join(PAGES, `${id}.json`))) id += '-2';
-    const name = title.trim();
-    // A plain page starts with a heading and text; a project page with the project's
-    // header, some text, and a log of the posts filed under it.
-    const main =
-      kind === 'project'
-        ? [
-            { type: 'project', name, status: 'building', pitch: 'What it is, in a line.', links: [] },
-            { type: 'prose', markdown: 'Write here.' },
-            { type: 'postlist', label: 'Log', tag: '', count: 20, style: 'rows', project: id },
-          ]
-        : [{ type: 'heading', kicker: '', title: name }, { type: 'prose', markdown: 'Write here.' }];
-    const data = { title: name, template: 'basic', regions: { main } };
+    // A page starts as a copy of its template, with the title worked in.
+    const data = fromStarter(kind, title.trim(), id);
     await writeFile(join(PAGES, `${id}.json`), JSON.stringify(data, null, 2) + '\n');
     return { id };
   },
@@ -257,7 +254,8 @@ const routes = {
   'DELETE /api/page': async (q) => {
     const id = q.get('id');
     const data = JSON.parse(await readFile(pageFile(id), 'utf8'));
-    if (data.template !== 'basic') throw httpError(400, 'only basic pages can be deleted');
+    const { PAGE_TEMPLATES } = await load('src/blocks/schema.ts');
+    if (!PAGE_TEMPLATES.includes(data.template)) throw httpError(400, 'only pages made in the desk can be deleted');
     await rm(pageFile(id));
     return { ok: true };
   },

@@ -286,7 +286,7 @@ export default function App() {
       ) : open.kind === 'theme' ? (
         <ThemeEditor key="theme" ref={editor} onState={onState} onSaved={onSaved} />
       ) : open.kind === 'post' ? (
-        <PostEditor key={open.id} ref={editor} id={open.id} meta={meta} blocks={blocks} projects={pages.filter((p) => p.template === 'basic')} catalog={catalog} setPath={setPath} onState={onState} onSaved={onSaved} />
+        <PostEditor key={open.id} ref={editor} id={open.id} meta={meta} blocks={blocks} projects={pages.filter((p) => ['basic', 'wide', 'sidebar', 'docs'].includes(p.template ?? ''))} catalog={catalog} setPath={setPath} onState={onState} onSaved={onSaved} />
       ) : (
         <PageEditor key={open.id} ref={editor} id={open.id} blocks={blocks} posts={posts} setPath={setPath} onState={onState} onSaved={onSaved} onPick={(p) => preview.current?.mark(p)} onDeleted={() => (lists(), setOpen({ kind: 'page', id: 'home' }))} />
       )}
@@ -461,9 +461,16 @@ function Palette({ commands, onClose }: { commands: { kind: string; label: strin
   );
 }
 
+type Starter = { id: string; title: string; group: string; description: string; template: string };
+
 function NewPage({ onClose, onCreate }: { onClose: () => void; onCreate: (id: string) => void }) {
   const [title, setTitle] = useState('');
   const [kind, setKind] = useState('plain');
+  const [list, setList] = useState<{ groups: string[]; starters: Starter[] } | null>(null);
+  useEffect(() => {
+    api('/api/starters').then(setList);
+  }, []);
+  const cur = list?.starters.find((s) => s.id === kind);
   return (
     <Dialog
       title="New page"
@@ -479,18 +486,32 @@ function NewPage({ onClose, onCreate }: { onClose: () => void; onCreate: (id: st
       <div className="row">
         <label className="grow">
           title
-          <input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="About" />
+          <input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder={cur && cur.id !== 'plain' ? cur.title : 'About'} />
         </label>
         <label>
-          kind
+          template
           <select value={kind} onChange={(e) => setKind(e.target.value)}>
-            <option value="plain">plain page</option>
-            <option value="project">project</option>
+            {list?.groups.map((g) => (
+              <optgroup key={g} label={g}>
+                {list.starters
+                  .filter((s) => s.group === g)
+                  .map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.title}
+                    </option>
+                  ))}
+              </optgroup>
+            )) ?? <option value="plain">Plain page</option>}
           </select>
         </label>
       </div>
       <p className="hint">
-        Its address comes from the title (About → /about/). A plain page starts with a heading and text; a project starts with its name, status and pitch, text, and a log of the posts you file under it.
+        {cur ? `${cur.description} (${cur.template} layout) ` : ''}
+        <a href={`/templates/#${kind}`} target="_blank" rel="noopener">
+          preview it ↗
+        </a>
+        <br />
+        Its address comes from the title (About → /about/).
       </p>
     </Dialog>
   );

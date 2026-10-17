@@ -3,6 +3,8 @@ import { DndContext, PointerSensor, closestCenter, useSensor, useSensors, type D
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { api, send, type Block, type BlocksMeta, type PageData } from './api';
+// Templates whose pages live at /<id>/ (PAGE_TEMPLATES in src/blocks/schema.ts).
+const SITE_PAGE = ['basic', 'wide', 'sidebar', 'docs'];
 import type { EditorHandle, EditorProps } from './App';
 import { BlockForm, blank, type PostRef } from './forms';
 import { useHistory } from './history';
@@ -214,12 +216,12 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; blocks: Bloc
           ? 'The header and footer every page shares.'
           : id === 'post'
             ? 'Blocks above and below the article on every post page.'
-            : page.template === 'basic'
+            : SITE_PAGE.includes(page.template)
               ? `A page at /${id}/. Link to it from the header to put it in the nav.`
               : `A page made of blocks, template "${page.template}".`}{' '}
         Click anything in the preview to edit it here; double-click plain text to edit it in place.
       </p>
-      {page.template === 'basic' && (
+      {SITE_PAGE.includes(page.template) && (
         <p className="row">
           <label className="chk">
             <input type="checkbox" checked={page.draft === true} onChange={(e) => change((p) => ({ ...p, draft: e.target.checked || undefined }))} /> draft

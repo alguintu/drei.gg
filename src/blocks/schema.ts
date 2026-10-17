@@ -472,6 +472,9 @@ export const TEMPLATES = {
   docs: ['nav', 'main'],
 } as const;
 
+// Templates whose pages live at /<id>/ (src/pages/[page].astro); the rest are built in.
+export const PAGE_TEMPLATES = ['basic', 'wide', 'sidebar', 'docs'] as const;
+
 // Page ids that would collide with the site's own routes.
 export const RESERVED = ['home', 'frame', 'post', 'log', 'blocks', 'desk', 'feed', '404', 'media', '_astro', 'tag', 'og', 'pagefind', 'sitemap', 'templates'];
 
