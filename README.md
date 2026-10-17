@@ -130,6 +130,10 @@ command = "node"
 args = ["/path/to/drei.gg/scripts/desk-mcp.mjs"]
 ```
 
+## Search, archive and tags
+
+`npm run build` runs Pagefind over the built site, so `/search/` works on any build (not in `npm run dev`). Only post articles and desk pages are indexed. `/log/` lists every post by year, `/log/tag/<tag>/` lists one tag, and `/sitemap.xml` covers all of it.
+
 ## Pages and blocks
 
 Pages are made of blocks. A block is an Astro component in `src/blocks/` whose slots (its text, lists and choices) are a zod schema in `src/blocks/schema.ts`. Blocks are atomic: they hold slots, never other blocks. A page is a JSON file in `src/content/pages/`: a template, and for each of the template's regions, a list of blocks with their slot values. `home.json` is the home page (regions `top`, `main`, `aside`); `frame.json` is the header and footer on every page. In rich text slots, `==text==` is highlighted and `*text*` is italic.
