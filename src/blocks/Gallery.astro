@@ -1,0 +1,13 @@
+---
+// TODO: gallery
+import type { BlockData } from './schema';
+import { blockAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'gallery'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section class="gallery" {...blockAttrs(path)}><p class="label">{block.type}</p></section>

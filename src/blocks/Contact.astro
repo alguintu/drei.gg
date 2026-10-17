@@ -1,0 +1,13 @@
+---
+// TODO: contact
+import type { BlockData } from './schema';
+import { blockAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'contact'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section class="contact" {...blockAttrs(path)}><p class="label">{block.type}</p></section>

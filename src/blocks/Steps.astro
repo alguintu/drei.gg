@@ -1,0 +1,13 @@
+---
+// TODO: steps
+import type { BlockData } from './schema';
+import { blockAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'steps'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section class="steps" {...blockAttrs(path)}><p class="label">{block.type}</p></section>

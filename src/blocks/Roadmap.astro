@@ -1,0 +1,29 @@
+---
+// Columns of now, next and later.
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'roadmap'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section class="roadmap" {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  <div class="cols" style={`--cols: ${Math.max(block.columns.length, 1)}`}>
+    {
+      block.columns.map((c, i) => (
+        <div class={`col c${i}`}>
+          <h3 {...slotAttrs(path, `columns.${i}.title`)}>{c.title}</h3>
+          <ul>
+            {c.items.map((item, j) => (
+              <li {...slotAttrs(path, `columns.${i}.items.${j}`)}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</section>

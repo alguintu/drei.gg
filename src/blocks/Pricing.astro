@@ -1,0 +1,13 @@
+---
+// TODO: pricing
+import type { BlockData } from './schema';
+import { blockAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'pricing'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section class="pricing" {...blockAttrs(path)}><p class="label">{block.type}</p></section>

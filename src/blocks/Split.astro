@@ -1,0 +1,13 @@
+---
+// TODO: split
+import type { BlockData } from './schema';
+import { blockAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'split'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section class="split" {...blockAttrs(path)}><p class="label">{block.type}</p></section>
