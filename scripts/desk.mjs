@@ -2,7 +2,8 @@
 // `astro dev` on :4321 for the live preview, and reads and writes the post
 // files in src/content/posts directly. Publishing commits and pushes them.
 // Local only: it listens on 127.0.0.1 and has no auth.
-import { createServer } from 'node:http';
+import { createServer, request } from 'node:http';
+import { connect } from 'node:net';
 import { spawn, execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { existsSync } from 'node:fs';
@@ -198,12 +199,65 @@ const routes = {
   },
 };
 
+// ---- Preview proxy ----
+// The split preview loads the site through the desk, so the editor can reach into
+// the frame: it keeps the scroll position and swaps in each new render only once
+// it has loaded, instead of letting Astro blank the page on every save. This
+// script, added to proxied pages, hands Astro's full-page reloads to the editor
+// when the page sits in its frame. The popup talks to Astro directly.
+const HOOK = `<script>if (parent !== window) { const W = window.WebSocket; window.WebSocket = class extends W {
+  addEventListener(type, fn, opts) {
+    super.addEventListener(type, type !== 'message' ? fn : (e) => {
+      try { if (JSON.parse(e.data).type === 'full-reload') return parent.postMessage({ desk: 'reload' }, location.origin); } catch {}
+      fn(e);
+    }, opts);
+  }
+}; }</script>`;
+
+function proxy(req, res) {
+  const up = request({ host: '127.0.0.1', port: SITE_PORT, path: req.url, method: req.method, headers: { ...req.headers, 'accept-encoding': 'identity' } }, (r) => {
+    if (!String(r.headers['content-type']).startsWith('text/html')) {
+      res.writeHead(r.statusCode, r.headers);
+      return r.pipe(res);
+    }
+    const chunks = [];
+    r.on('data', (c) => chunks.push(c));
+    r.on('end', () => {
+      const html = Buffer.concat(chunks).toString('utf8').replace(/<head[^>]*>/i, (m) => m + HOOK);
+      const headers = { ...r.headers };
+      delete headers['content-length'];
+      res.writeHead(r.statusCode, headers);
+      res.end(html);
+    });
+  });
+  up.on('error', () => {
+    res.writeHead(502, { 'content-type': 'text/plain' });
+    res.end('The preview is not running yet. It starts with the desk; give it a few seconds.');
+  });
+  req.pipe(up);
+}
+
+// Astro's hot reload runs over a WebSocket; pass it straight through.
+function tunnel(req, socket, head) {
+  const up = connect(SITE_PORT, '127.0.0.1', () => {
+    const lines = [`${req.method} ${req.url} HTTP/1.1`];
+    for (let i = 0; i < req.rawHeaders.length; i += 2) lines.push(`${req.rawHeaders[i]}: ${req.rawHeaders[i + 1]}`);
+    up.write(lines.join('\r\n') + '\r\n\r\n');
+    up.write(head);
+    socket.pipe(up).pipe(socket);
+  });
+  up.on('error', () => socket.destroy());
+  socket.on('error', () => up.destroy());
+}
+
 const TYPES = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif', '.avif': 'image/avif', '.svg': 'image/svg+xml' };
 
-createServer(async (req, res) => {
+const server = createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   try {
-    if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/index.html')) {
+    // The editor lives at /; the same path inside the preview frame is the site's home page.
+    const inFrame = req.headers['sec-fetch-dest'] === 'iframe';
+    if (req.method === 'GET' && !inFrame && (url.pathname === '/' || url.pathname === '/index.html')) {
       res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
       return res.end(await readFile(UI));
     }
@@ -216,6 +270,7 @@ createServer(async (req, res) => {
       res.writeHead(200, { 'content-type': TYPES[extname(p).toLowerCase()] ?? 'application/octet-stream' });
       return res.end(await readFile(p));
     }
+    if (!url.pathname.startsWith('/api/')) return proxy(req, res);
     const handler = routes[`${req.method} ${url.pathname}`];
     if (!handler) throw httpError(404, 'not found');
     const out = await handler(url.searchParams, req);
@@ -225,7 +280,9 @@ createServer(async (req, res) => {
     res.writeHead(e.status || (e.code === 'ENOENT' ? 404 : 500), { 'content-type': 'application/json' });
     res.end(JSON.stringify({ error: e.message }));
   }
-}).listen(DESK_PORT, '127.0.0.1', () => {
+});
+server.on('upgrade', tunnel);
+server.listen(DESK_PORT, '127.0.0.1', () => {
   console.log(`\n  desk     http://localhost:${DESK_PORT}\n  preview  http://localhost:${SITE_PORT}\n`);
 });
 

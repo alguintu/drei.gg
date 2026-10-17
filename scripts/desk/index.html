@@ -71,7 +71,8 @@
   .preview .bar { display: flex; align-items: center; gap: 8px; padding: 0 10px; border-bottom: 1px solid var(--line); font: 12px/1 var(--mono); color: var(--mute); }
   .preview .bar .url { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .preview .stage { overflow: auto; display: grid; justify-items: center; background: var(--panel); }
-  .preview iframe { border: 0; width: 100%; height: 100%; background: #fff; }
+  .preview iframe { grid-area: 1 / 1; border: 0; width: 100%; height: 100%; background: #fff; }
+  .preview iframe.next { visibility: hidden; }
   .preview.phone iframe { width: 390px; border-inline: 1px solid var(--line); }
 
   dialog { border: 1px solid var(--ink); background: var(--paper); color: var(--ink); max-width: 560px; width: 90vw; }
@@ -345,29 +346,66 @@ async function save() {
     renderLayouts();
     state('saved ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     loadList();
-    // Astro's dev server reloads the page itself on most saves; this catches the rest.
-    setTimeout(showPreview, 900);
+    // Astro reports the rebuilt page (see 'reload' below); this catches a save it doesn't.
+    clearTimeout(fallback);
+    fallback = setTimeout(() => refresh(), 2500);
   } catch (e) {
     state('save failed: ' + e.message, 'err');
   }
 }
 
 // ---- Preview ----
-const postUrl = () => cur ? `${META.site}/log/${cur.id}/` : META.site;
+// The split frame loads the site through the desk (same origin), so a new render
+// loads in a hidden frame behind the current one and swaps in at the same scroll
+// position once it's ready. No blank page between saves.
+const postPath = () => cur ? `/log/${cur.id}/` : '/';
+let fallback = null, pending = null;
 
 function showPreview() {
-  const url = postUrl();
-  $('#pvurl').textContent = url;
+  $('#pvurl').textContent = META.site + postPath();
   const mode = store.get('pv', 'split');
-  if (mode === 'split') $('#frame').src = url;
-  if (mode === 'popup' && popup && !popup.closed) popup.location = url;
+  if (mode === 'split') refresh();
+  if (mode === 'popup' && popup && !popup.closed) popup.location = META.site + postPath();
 }
+
+function refresh() {
+  clearTimeout(fallback);
+  if (store.get('pv', 'split') !== 'split') return;
+  const old = $('#frame');
+  const path = postPath();
+  pending?.remove();
+  const next = document.createElement('iframe');
+  next.title = 'Preview';
+  next.className = 'next';
+  pending = next;
+  next.addEventListener('load', () => {
+    if (pending !== next) return;
+    pending = null;
+    // Same page: keep the reader where they were.
+    try {
+      if (old.contentWindow.location.pathname === path) next.contentWindow.scrollTo(0, old.contentWindow.scrollY);
+    } catch {}
+    next.id = 'frame';
+    next.className = '';
+    old.remove();
+  }, { once: true });
+  next.src = path;
+  old.after(next);
+}
+
+// Astro rebuilt the page after a save: swap in the new render.
+window.addEventListener('message', (e) => {
+  // Both frames hear it while one is loading; let the burst settle into one refresh.
+  if (e.origin !== location.origin || e.data?.desk !== 'reload') return;
+  clearTimeout(fallback);
+  fallback = setTimeout(refresh, 100);
+});
 
 function setPreviewMode(mode) {
   store.set('pv', mode);
   document.querySelectorAll('[data-pv]').forEach((b) => b.classList.toggle('on', b.dataset.pv === mode));
   document.body.classList.toggle('pv-off', mode !== 'split');
-  if (mode === 'popup') popup = window.open(postUrl(), 'desk-preview', 'width=960,height=1000');
+  if (mode === 'popup') popup = window.open(META.site + postPath(), 'desk-preview', 'width=960,height=1000');
   showPreview();
 }
 function setWidth(w) {
@@ -377,7 +415,7 @@ function setWidth(w) {
 }
 document.querySelectorAll('[data-pv]').forEach((b) => b.addEventListener('click', () => setPreviewMode(b.dataset.pv)));
 document.querySelectorAll('[data-w]').forEach((b) => b.addEventListener('click', () => setWidth(b.dataset.w)));
-$('#reload').addEventListener('click', showPreview);
+$('#reload').addEventListener('click', () => refresh());
 $('#blocks').addEventListener('click', () => window.open(META.site + '/blocks/', 'desk-blocks'));
 
 // ---- Dialogs: new post, publish ----
