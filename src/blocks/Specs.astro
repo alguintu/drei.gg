@@ -1,0 +1,26 @@
+---
+// A spec sheet: name and value rows.
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+import Text from './Text.astro';
+
+interface Props {
+  block: BlockData<'specs'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section class="specs" {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  <dl>
+    {
+      block.rows.map((row, i) => (
+        <div>
+          <dt {...slotAttrs(path, `rows.${i}.key`)}>{row.key}</dt>
+          <dd><Text path={path} slot={`rows.${i}.value`} text={row.value} rich /></dd>
+        </div>
+      ))
+    }
+  </dl>
+</section>

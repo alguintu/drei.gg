@@ -1,0 +1,278 @@
+---
+// The template gallery and page preview tool. Every page template (src/blocks/starters.ts)
+// as a live page in a device frame: phone, tablet, laptop or desktop, light or dark.
+// Any other page on the site previews the same way: type its path. Not linked from the site.
+import Base from '../../layouts/Base.astro';
+import { STARTERS, STARTER_GROUPS } from '../../blocks/starters';
+
+const all = Object.entries(STARTERS).map(([id, s]) => ({ id, ...s }));
+const layouts: Record<string, string> = { basic: 'one column', wide: 'full width', sidebar: 'sidebar', docs: 'docs' };
+---
+
+<Base title="Page templates" noindex>
+  <main class="tpl" data-view="preview">
+    <div class="tpl-head wrap">
+      <div>
+        <p class="label">the kit · {all.length} page templates · {STARTER_GROUPS.length} groups</p>
+        <h1>Page templates</h1>
+        <p class="intro">Every kind of page, ready to fill. In the desk, <b>+ new page</b> starts from any of these; here you can try each one at every size.</p>
+      </div>
+      <div class="tpl-views" role="group" aria-label="View">
+        <button type="button" data-view-btn="preview" aria-pressed="true">preview</button>
+        <button type="button" data-view-btn="grid" aria-pressed="false">grid</button>
+      </div>
+    </div>
+
+    <section class="tpl-preview wrap" aria-label="Preview">
+      <nav class="tpl-list" aria-label="Templates">
+        <input class="tpl-filter" type="search" placeholder="Filter templates" aria-label="Filter templates" />
+        {
+          STARTER_GROUPS.map((g) => (
+            <div class="tpl-group">
+              <p class="label">{g}</p>
+              <ul>
+                {all
+                  .filter((s) => s.group === g)
+                  .map((s) => (
+                    <li data-name={`${s.title} ${s.id} ${s.description} ${g}`.toLowerCase()}>
+                      <a href={`#${s.id}`} data-id={s.id}>
+                        <b>{s.title}</b>
+                        <small>{layouts[s.template]}</small>
+                      </a>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          ))
+        }
+      </nav>
+
+      <div class="tpl-stage">
+        <div class="tpl-bar">
+          <div class="tpl-now">
+            <b data-now-title>—</b>
+            <span data-now-desc></span>
+          </div>
+          <div class="tpl-controls">
+            <div role="group" aria-label="Device">
+              <button type="button" data-w="390" title="Phone, 390px">phone</button>
+              <button type="button" data-w="820" title="Tablet, 820px">tablet</button>
+              <button type="button" data-w="1280" title="Laptop, 1280px" aria-pressed="true">laptop</button>
+              <button type="button" data-w="1680" title="Desktop, 1680px">desktop</button>
+            </div>
+            <div role="group" aria-label="Theme">
+              <button type="button" data-theme-btn="light" aria-pressed="true">light</button>
+              <button type="button" data-theme-btn="dark">dark</button>
+            </div>
+            <form class="tpl-path" aria-label="Preview any page">
+              <input name="path" placeholder="/any/page/" aria-label="Path" />
+            </form>
+            <a class="tpl-open" data-open href="#" target="_blank" rel="noopener">open ↗</a>
+          </div>
+        </div>
+        <div class="tpl-viewport">
+          <div class="tpl-device">
+            <iframe title="Template preview" data-frame></iframe>
+          </div>
+        </div>
+        <p class="tpl-size"><span data-size>1280px</span> · scaled to fit</p>
+      </div>
+    </section>
+
+    <section class="tpl-grid wrap" aria-label="All templates">
+      {
+        STARTER_GROUPS.map((g) => (
+          <div class="tpl-group-grid">
+            <h2>{g}</h2>
+            <div class="cards">
+              {all
+                .filter((s) => s.group === g)
+                .map((s) => (
+                  <a class="tpl-card" href={`#${s.id}`} data-id={s.id} data-name={`${s.title} ${s.id} ${s.description} ${g}`.toLowerCase()}>
+                    <div class="thumb">
+                      <iframe title={`${s.title} template`} data-src={`/templates/${s.id}/`} tabindex="-1" loading="lazy" />
+                    </div>
+                    <div class="meta">
+                      <b>{s.title}</b>
+                      <span class="chip">{layouts[s.template]}</span>
+                      <p>{s.description}</p>
+                    </div>
+                  </a>
+                ))}
+            </div>
+          </div>
+        ))
+      }
+    </section>
+  </main>
+
+  <script is:inline define:vars={{ starters: Object.fromEntries(all.map((s) => [s.id, { title: s.title, description: s.description }])) }}>
+    const root = document.querySelector('.tpl');
+    const frame = document.querySelector('[data-frame]');
+    const device = document.querySelector('.tpl-device');
+    const viewport = document.querySelector('.tpl-viewport');
+    const open = document.querySelector('[data-open]');
+    const sizeLabel = document.querySelector('[data-size]');
+    const nowTitle = document.querySelector('[data-now-title]');
+    const nowDesc = document.querySelector('[data-now-desc]');
+    const store = (k, v) => { try { v === undefined ? (v = localStorage.getItem('tpl.' + k)) : localStorage.setItem('tpl.' + k, v); } catch (e) {} return v; };
+    let width = Number(store('w')) || 1280;
+    let theme = store('theme') || 'light';
+    let src = '';
+
+    // The iframe is laid out at the device's real width, then scaled down to fit.
+    function fit() {
+      const avail = viewport.clientWidth - 2;
+      const scale = Math.min(1, avail / width);
+      device.style.width = width + 'px';
+      device.style.transform = `scale(${scale})`;
+      const h = Math.max(560, (window.innerHeight - viewport.getBoundingClientRect().top - 40) / scale);
+      device.style.height = h + 'px';
+      viewport.style.height = h * scale + 'px';
+      sizeLabel.textContent = `${width}px` + (scale < 1 ? ` · shown at ${Math.round(scale * 100)}%` : '');
+    }
+    function paintTheme() {
+      try { frame.contentDocument.documentElement.dataset.theme = theme; } catch (e) {}
+    }
+    function show(id) {
+      const path = starters[id] ? `/templates/${id}/` : id;
+      if (!path) return;
+      src = path;
+      frame.src = path;
+      open.href = path;
+      nowTitle.textContent = starters[id]?.title ?? path;
+      nowDesc.textContent = starters[id]?.description ?? 'A page on the site';
+      document.querySelectorAll('.tpl-list a').forEach((a) => a.toggleAttribute('aria-current', a.dataset.id === id));
+    }
+    frame.addEventListener('load', paintTheme);
+    document.querySelectorAll('[data-w]').forEach((b) => {
+      b.setAttribute('aria-pressed', String(Number(b.dataset.w) === width));
+      b.addEventListener('click', () => {
+        width = Number(b.dataset.w);
+        store('w', width);
+        document.querySelectorAll('[data-w]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        fit();
+      });
+    });
+    document.querySelectorAll('[data-theme-btn]').forEach((b) => {
+      b.setAttribute('aria-pressed', String(b.dataset.themeBtn === theme));
+      b.addEventListener('click', () => {
+        theme = b.dataset.themeBtn;
+        store('theme', theme);
+        document.querySelectorAll('[data-theme-btn]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        paintTheme();
+        document.querySelectorAll('.tpl-card iframe').forEach((f) => { try { f.contentDocument.documentElement.dataset.theme = theme; } catch (e) {} });
+      });
+    });
+    document.querySelector('.tpl-path').addEventListener('submit', (e) => {
+      e.preventDefault();
+      let p = e.target.path.value.trim();
+      if (!p) return;
+      if (!p.startsWith('/')) p = '/' + p;
+      location.hash = p;
+    });
+
+    // Views: one template in a device frame, or every template as a card.
+    function setView(v) {
+      root.dataset.view = v;
+      document.querySelectorAll('[data-view-btn]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.viewBtn === v)));
+      if (v === 'grid') loadThumbs();
+      else fit();
+    }
+    document.querySelectorAll('[data-view-btn]').forEach((b) => b.addEventListener('click', () => setView(b.dataset.viewBtn)));
+    let thumbs;
+    function loadThumbs() {
+      if (thumbs) return;
+      thumbs = new IntersectionObserver((entries) => entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        const f = e.target;
+        f.src = f.dataset.src;
+        f.addEventListener('load', () => { try { f.contentDocument.documentElement.dataset.theme = theme; } catch (err) {} });
+        thumbs.unobserve(f);
+      }), { rootMargin: '400px' });
+      document.querySelectorAll('.tpl-card iframe').forEach((f) => thumbs.observe(f));
+    }
+
+    // Filter both views by name, group or description.
+    document.querySelector('.tpl-filter').addEventListener('input', (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      document.querySelectorAll('[data-name]').forEach((el) => (el.hidden = q && !el.dataset.name.includes(q)));
+    });
+
+    // #<template> or #/<path> picks what's shown, so a preview can be linked.
+    function route() {
+      const h = decodeURIComponent(location.hash.slice(1));
+      if (root.dataset.view === 'grid' && h) setView('preview');
+      show(h || store('id') || 'launch');
+      if (h) store('id', h);
+    }
+    window.addEventListener('hashchange', route);
+    window.addEventListener('resize', fit);
+    route();
+    fit();
+  </script>
+
+  <style>
+    .tpl { padding-block: 40px 72px; }
+    /* Not the home page's two-column grid. */
+    main.tpl .wrap { display: block; padding-block: 0; }
+    main.tpl .tpl-head { display: flex; }
+    main.tpl .tpl-preview { display: grid; }
+    .tpl-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px 32px; margin-bottom: 28px; }
+    .tpl-head h1 { font: 900 clamp(36px, 6vw, 64px)/1 var(--display); font-stretch: 80%; letter-spacing: -.02em; margin: 6px 0 10px; }
+    .tpl-head .label { margin: 0; }
+    .tpl-head .intro { color: var(--mute); margin: 0; max-width: 62ch; }
+    .tpl button, .tpl-open {
+      font: 600 12px/1 var(--mono); padding: 8px 11px; background: var(--paper); color: var(--ink);
+      border: 1px solid var(--line); cursor: pointer; text-decoration: none;
+    }
+    .tpl button:hover, .tpl-open:hover { border-color: var(--ink); }
+    .tpl button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    [role="group"] { display: inline-flex; }
+    [role="group"] button + button { border-left: 0; }
+
+    main.tpl[data-view="preview"] .tpl-grid, main.tpl[data-view="grid"] .tpl-preview { display: none; }
+    .tpl[data-view="grid"] .tpl-list { display: none; }
+
+    .tpl-preview { grid-template-columns: 230px minmax(0, 1fr); gap: 24px; max-width: none; }
+    .tpl-list { position: sticky; top: 16px; align-self: start; max-height: calc(100vh - 32px); overflow: auto; padding-right: 4px; }
+    .tpl-filter { width: 100%; font: 13px/1 var(--mono); padding: 9px 10px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); margin-bottom: 16px; }
+    .tpl-group { margin-bottom: 18px; }
+    .tpl-group .label { margin-bottom: 6px; }
+    .tpl-group ul { list-style: none; margin: 0; padding: 0; }
+    .tpl-group a { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 6px 8px; color: var(--ink); text-decoration: none; border-left: 3px solid transparent; }
+    .tpl-group a:hover { background: var(--panel); }
+    .tpl-group a[aria-current] { border-left-color: var(--marker); background: var(--panel); }
+    .tpl-group a b { font-weight: 700; font-size: 15px; }
+    .tpl-group a small { font: 11px/1 var(--mono); color: var(--mute); white-space: nowrap; }
+
+    .tpl-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px 20px; margin-bottom: 12px; }
+    .tpl-now { min-width: 0; }
+    .tpl-now b { font: 800 22px/1.1 var(--display); font-stretch: 80%; margin-right: 10px; }
+    .tpl-now span { color: var(--mute); font-size: 14px; }
+    .tpl-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .tpl-path input { font: 12px/1 var(--mono); padding: 8px 10px; width: 140px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
+    .tpl-viewport { position: relative; overflow: hidden; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); background: var(--panel); }
+    .tpl-device { transform-origin: 0 0; background: var(--paper); margin-inline: auto; box-shadow: 0 0 0 1px var(--line); }
+    .tpl-device iframe { display: block; width: 100%; height: 100%; border: 0; }
+    .tpl-size { font: 12px/1 var(--mono); color: var(--mute); margin: 14px 0 0; }
+
+    .tpl-grid { max-width: none; }
+    .tpl-group-grid + .tpl-group-grid { margin-top: 40px; }
+    .tpl-group-grid h2 { font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .12em; color: var(--mute); margin: 0 0 14px; padding-bottom: 10px; border-bottom: 2px solid var(--ink); }
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .tpl-card { display: block; color: var(--ink); text-decoration: none; border: 2px solid var(--ink); background: var(--paper); transition: transform .08s, box-shadow .08s; }
+    .tpl-card:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+    .tpl-card .thumb { aspect-ratio: 4 / 3; overflow: hidden; border-bottom: 2px solid var(--ink); background: var(--panel); container-type: inline-size; }
+    .tpl-card .thumb iframe { width: 1280px; height: 960px; border: 0; transform-origin: 0 0; transform: scale(calc(100cqw / 1280px)); pointer-events: none; }
+    .tpl-card .meta { padding: 12px 14px 14px; }
+    .tpl-card .meta b { font: 800 19px/1.1 var(--display); font-stretch: 80%; }
+    .tpl-card .chip { font: 600 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; padding: 4px 6px; border: 1px solid var(--line); color: var(--team); margin-left: 6px; vertical-align: 3px; }
+    .tpl-card p { margin: 6px 0 0; color: var(--mute); font-size: 14px; line-height: 1.4; }
+
+    @media (max-width: 900px) {
+      main.tpl .tpl-preview { grid-template-columns: minmax(0, 1fr); }
+      .tpl-list { position: static; max-height: 240px; border: 1px solid var(--line); padding: 10px; }
+    }
+  </style>
+</Base>

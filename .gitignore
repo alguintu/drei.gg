@@ -4,3 +4,4 @@ dist/
 .env
 .DS_Store
 desk-e2e-failure.png
+.claude/worktrees/

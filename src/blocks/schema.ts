@@ -161,229 +161,229 @@ export const BLOCKS = {
     })
     .meta({ title: 'Project', description: 'A product’s name, status, pitch and links: the top of a project page.', ...page }),
 
-  // ---- Section blocks: what page templates are made of (src/templates) ----
-
-  features: z
+  links: z
     .object({
-      type: z.literal('features'),
+      type: z.literal('links'),
       label: text('Label'),
-      heading: text('Heading'),
-      columns: z.enum(['2', '3', '4']).meta({ title: 'Columns' }),
-      items: list('Features', z.object({ glyph: text('Glyph', 'A character or two: +, 01, ⚡, gg.'), title: text('Title'), text: rich('Text') })),
+      items: list('Links', z.object({ label: text('Label'), href: text('Link'), note: text('Note', 'A short line under the label. Optional.').optional() })),
     })
-    .meta({ title: 'Features', description: 'A grid of short points with a glyph each.', ...page }),
-
-  pricing: z
-    .object({
-      type: z.literal('pricing'),
-      label: text('Label'),
-      heading: text('Heading'),
-      note: rich('Note', 'Under the tiers: taxes, trials, fine print.'),
-      tiers: list(
-        'Tiers',
-        z.object({
-          name: text('Name'),
-          price: text('Price', 'As shown: $0, $9, ₱499, ask.'),
-          period: text('Period', '/mo, /yr, once.'),
-          pitch: text('Pitch'),
-          features: list('Includes', text('Line')),
-          cta: text('Button'),
-          href: text('Button link'),
-          featured: z.boolean().meta({ title: 'Featured', description: 'Drawn in the main color.' }),
-        }),
-      ),
-    })
-    .meta({ title: 'Pricing', description: 'Tiers with prices, what each includes, and a button.', ...page }),
-
-  faq: z
-    .object({
-      type: z.literal('faq'),
-      label: text('Label'),
-      heading: text('Heading'),
-      items: list('Questions', z.object({ q: text('Question'), a: long('Answer') })),
-    })
-    .meta({ title: 'FAQ', description: 'Questions that open to their answers.', ...page }),
-
-  timeline: z
-    .object({
-      type: z.literal('timeline'),
-      label: text('Label'),
-      heading: text('Heading'),
-      items: list(
-        'Entries',
-        z.object({
-          date: text('Date'),
-          version: text('Version'),
-          title: text('Title'),
-          text: long('Text'),
-          kind: z.enum(['ship', 'build', 'rant', 'dead', 'plain']).meta({ title: 'Kind', description: 'Colors the marker like the tags do.' }),
-        }),
-      ),
-    })
-    .meta({ title: 'Timeline', description: 'Dated entries down a line: a changelog, a history, a schedule.', ...page }),
+    .meta({ title: 'Link stack', description: 'Big stacked links, one per line: a links page, a launch’s calls to action.', ...page }),
 
   roadmap: z
     .object({
       type: z.literal('roadmap'),
       label: text('Label'),
-      heading: text('Heading'),
-      columns: list(
-        'Columns',
+      columns: list('Columns', z.object({ title: text('Title', 'Now, Next, Later…'), items: list('Items', text('Item')) })).max(4),
+    })
+    .meta({ title: 'Roadmap', description: 'Two to four columns of what’s now, next and later.', ...page }),
+
+  faq: z
+    .object({
+      type: z.literal('faq'),
+      label: text('Label'),
+      items: list('Questions', z.object({ q: text('Question'), a: rich('Answer') })),
+    })
+    .meta({ title: 'Questions', description: 'Questions and short answers; each opens on click.', ...page }),
+
+  masthead: z
+    .object({
+      type: z.literal('masthead'),
+      kicker: text('Kicker', 'Small line above the title. Optional.'),
+      title: rich('Title', '==marked== words get the yellow marker.'),
+      lede: rich('Lede', 'One or two sentences under the title. Optional.'),
+      image: z.string().optional().meta({ title: 'Image', description: 'Optional; sits beside the title. /media/file.png', widget: 'image' }),
+      image_alt: text('Image alt').optional(),
+      buttons: list('Buttons', z.object({ label: text('Label'), href: text('Link'), style: z.enum(['solid', 'ghost']).meta({ title: 'Style' }) })),
+      size: z.enum(['big', 'huge']).meta({ title: 'Size', description: 'huge is for landing pages.' }),
+    })
+    .meta({ title: 'Masthead', description: 'A page’s big opening: kicker, title, lede, buttons, an optional image.', ...page }),
+
+  features: z
+    .object({
+      type: z.literal('features'),
+      label: text('Label'),
+      columns: z.enum(['2', '3', '4']).meta({ title: 'Columns' }),
+      items: list('Features', z.object({ mark: text('Mark', 'A glyph, number or short word shown big: 01, ⌘, GG…'), title: text('Title'), text: rich('Text') })),
+    })
+    .meta({ title: 'Features', description: 'A grid of features or services, each with a mark, title and line.', ...page }),
+
+  pricing: z
+    .object({
+      type: z.literal('pricing'),
+      label: text('Label'),
+      tiers: list(
+        'Tiers',
         z.object({
-          name: text('Name', 'now, next, later; or shipped, building, someday.'),
-          items: list('Cards', z.object({ title: text('Title'), note: text('Note') })),
+          name: text('Name'),
+          price: text('Price', '$0, $9, “ask”…'),
+          period: text('Period', '/mo, once, forever… Optional.').optional(),
+          pitch: text('Pitch'),
+          features: list('Includes', text('Line')),
+          cta_label: text('Button'),
+          cta_href: text('Button link'),
+          featured: z.boolean().meta({ title: 'Featured', description: 'Highlighted in yellow.' }),
         }),
-      ),
+      ).max(4),
+      note: text('Note under the tiers', 'Optional.').optional(),
     })
-    .meta({ title: 'Roadmap', description: 'A board of columns of cards.', ...page }),
+    .meta({ title: 'Pricing', description: 'One to four price tiers side by side.', ...page }),
 
-  stats: z
+  testimonials: z
     .object({
-      type: z.literal('stats'),
+      type: z.literal('testimonials'),
       label: text('Label'),
-      items: list('Numbers', z.object({ number: text('Number'), label: text('Label'), note: text('Note') })),
+      items: list('Quotes', z.object({ quote: long('Quote'), name: text('Name'), role: text('Role or handle'), href: text('Link', 'Optional.').optional() })),
     })
-    .meta({ title: 'Stats', description: 'A row of big numbers.', ...page }),
-
-  cta: z
-    .object({
-      type: z.literal('cta'),
-      heading: text('Heading'),
-      text: rich('Text'),
-      button: text('Button'),
-      href: text('Button link'),
-      secondary: text('Second link'),
-      secondary_href: text('Second link to'),
-      style: z.enum(['marker', 'ink', 'aeris']).meta({ title: 'Color' }),
-    })
-    .meta({ title: 'Call to action', description: 'A band with a heading, a line and a button.', ...page }),
-
-  quotes: z
-    .object({
-      type: z.literal('quotes'),
-      label: text('Label'),
-      heading: text('Heading'),
-      items: list('Quotes', z.object({ quote: long('Quote'), who: text('Who'), role: text('Role') })),
-    })
-    .meta({ title: 'Quotes', description: 'What people said, in cards.', ...page }),
+    .meta({ title: 'Wall of quotes', description: 'Things people said, as a wall of cards.', ...page }),
 
   people: z
     .object({
       type: z.literal('people'),
       label: text('Label'),
-      heading: text('Heading'),
       items: list(
         'People',
         z.object({
           name: text('Name'),
           role: text('Role'),
-          bio: rich('Bio'),
-          href: text('Link'),
-          image: z.string().meta({ title: 'Photo', widget: 'image' }),
-          tag: text('Tag', 'A short chip: human, agent, machine.'),
+          image: z.string().optional().meta({ title: 'Photo', description: 'Optional; a monogram if left out.', widget: 'image' }),
+          href: text('Link', 'Optional.').optional(),
         }),
       ),
     })
-    .meta({ title: 'People', description: 'Cards for a team, a cast, the credits.', ...page }),
+    .meta({ title: 'People', description: 'Cards for a team, collaborators, agents or sponsors.', ...page }),
 
-  links: z
+  timeline: z
     .object({
-      type: z.literal('links'),
+      type: z.literal('timeline'),
       label: text('Label'),
-      heading: text('Heading'),
-      items: list('Links', z.object({ label: text('Label'), href: text('Link'), note: text('Note') })),
+      items: list('Entries', z.object({ date: text('When'), title: text('Title'), text: rich('Text') })),
     })
-    .meta({ title: 'Link list', description: 'Big stacked links, like a link-in-bio page.', ...page }),
+    .meta({ title: 'Timeline', description: 'Dated entries down a line: a history, a release log, a story.', ...page }),
+
+  stats: z
+    .object({
+      type: z.literal('stats'),
+      label: text('Label'),
+      items: list('Numbers', z.object({ number: text('Number'), label: text('What it counts') })).max(6),
+    })
+    .meta({ title: 'Stats', description: 'A row of big numbers.', ...page }),
 
   gallery: z
     .object({
       type: z.literal('gallery'),
       label: text('Label'),
-      heading: text('Heading'),
       columns: z.enum(['2', '3', '4']).meta({ title: 'Columns' }),
-      items: list('Images', z.object({ src: z.string().meta({ title: 'Image', widget: 'image' }), alt: text('Alt text'), caption: text('Caption'), href: text('Link') })),
+      images: list(
+        'Images',
+        z.object({
+          src: z.string().optional().meta({ title: 'Image', description: 'Optional; a grey placeholder if left out.', widget: 'image' }),
+          alt: text('Alt text'),
+          caption: text('Caption', 'Optional.').optional(),
+          href: text('Link', 'Optional.').optional(),
+        }),
+      ),
     })
-    .meta({ title: 'Gallery', description: 'A grid of images with captions.', ...page }),
+    .meta({ title: 'Gallery', description: 'A grid of images: work, screenshots, a press kit.', ...page }),
 
-  media: z
+  split: z
     .object({
-      type: z.literal('media'),
-      label: text('Label'),
-      heading: text('Heading'),
-      text: rich('Text'),
-      image: z.string().meta({ title: 'Image', widget: 'image' }),
-      alt: text('Alt text'),
-      side: z.enum(['right', 'left']).meta({ title: 'Image side' }),
-      button: text('Button'),
-      href: text('Button link'),
+      type: z.literal('split'),
+      kicker: text('Kicker'),
+      title: rich('Title'),
+      body: z.string().meta({ title: 'Text', description: 'Markdown.', widget: 'markdown' }),
+      image: z.string().optional().meta({ title: 'Image', description: 'Optional; a hatched panel if left out.', widget: 'image' }),
+      image_alt: text('Image alt').optional(),
+      side: z.enum(['left', 'right']).meta({ title: 'Image side' }),
+      cta_label: text('Button', 'Optional.').optional(),
+      cta_href: text('Button link').optional(),
     })
-    .meta({ title: 'Media and text', description: 'An image beside a heading, text and a button.', ...page }),
+    .meta({ title: 'Image and text', description: 'An image beside a block of text, either side.', ...page }),
 
-  archive: z
+  cta: z
     .object({
-      type: z.literal('archive'),
-      label: text('Label'),
-      tags: z.boolean().meta({ title: 'Tag links', description: 'Show the tags, with counts, above the list.' }),
+      type: z.literal('cta'),
+      kicker: text('Kicker'),
+      title: rich('Title'),
+      text: rich('Text', 'Optional.').optional(),
+      buttons: list('Buttons', z.object({ label: text('Label'), href: text('Link'), style: z.enum(['solid', 'ghost']).meta({ title: 'Style' }) })),
+      tone: z.enum(['marker', 'ink', 'paper']).meta({ title: 'Tone', description: 'marker is yellow, ink is black, paper is plain.' }),
     })
-    .meta({ title: 'Archive', description: 'Every post, grouped by year.', ...page }),
+    .meta({ title: 'Call to action', description: 'A banner that asks for one thing.', ...page }),
 
-  table: z
+  steps: z
     .object({
-      type: z.literal('table'),
+      type: z.literal('steps'),
       label: text('Label'),
-      heading: text('Heading'),
-      columns: text('Columns', 'Column names, separated by |.'),
-      rows: list('Rows', text('Row', 'Cells, separated by |.')),
+      items: list('Steps', z.object({ title: text('Title'), text: rich('Text') })),
     })
-    .meta({ title: 'Table', description: 'Rows and columns: specs, comparisons, a kit list.', ...page }),
+    .meta({ title: 'Steps', description: 'Numbered steps: how it works, how to start.', ...page }),
 
-  status: z
+  logos: z
     .object({
-      type: z.literal('status'),
+      type: z.literal('logos'),
       label: text('Label'),
-      heading: text('Heading'),
-      updated: text('Updated'),
-      items: list('Systems', z.object({ name: text('Name'), state: z.enum(['up', 'degraded', 'down', 'maintenance']).meta({ title: 'State' }), note: text('Note') })),
+      items: list(
+        'Names',
+        z.object({
+          name: text('Name'),
+          src: z.string().optional().meta({ title: 'Logo', description: 'Optional; the name is set in type if left out.', widget: 'image' }),
+          href: text('Link', 'Optional.').optional(),
+        }),
+      ),
     })
-    .meta({ title: 'Status board', description: 'Systems and whether they’re up.', ...page }),
+    .meta({ title: 'Logo strip', description: 'Names or logos in a row: clients, stack, “as seen in”.', ...page }),
 
   countdown: z
     .object({
       type: z.literal('countdown'),
       label: text('Label'),
-      heading: text('Heading'),
-      target: z.string().meta({ title: 'Counting down to', description: 'YYYY-MM-DDTHH:MM, Manila time.' }),
+      until: z.string().regex(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/).meta({ title: 'Counting down to', description: 'YYYY-MM-DD or YYYY-MM-DDTHH:MM (Manila time).' }),
       done: text('When it hits zero'),
     })
-    .meta({ title: 'Countdown', description: 'Days, hours, minutes and seconds to a moment.', ...page }),
+    .meta({ title: 'Countdown', description: 'Days, hours, minutes to a date: a launch, an event.', ...page }),
 
   contact: z
     .object({
       type: z.literal('contact'),
       label: text('Label'),
-      heading: text('Heading'),
-      text: rich('Text'),
-      email: text('Email'),
-      items: list('Elsewhere', z.object({ label: text('Label'), value: text('Handle'), href: text('Link') })),
+      email: text('Email', 'Shown big, as a mailto link. Optional.').optional(),
+      note: rich('Note', 'Optional.').optional(),
+      items: list('Elsewhere', z.object({ label: text('Where'), value: text('Handle'), href: text('Link') })),
     })
-    .meta({ title: 'Contact', description: 'An email to copy, and where else to find you.', ...page }),
+    .meta({ title: 'Contact', description: 'An email set big, and handles elsewhere.', ...page }),
 
-  downloads: z
+  specs: z
     .object({
-      type: z.literal('downloads'),
+      type: z.literal('specs'),
       label: text('Label'),
-      heading: text('Heading'),
-      items: list('Files', z.object({ name: text('Name'), href: text('File'), size: text('Size'), note: text('Note') })),
+      rows: list('Rows', z.object({ key: text('Name'), value: rich('Value') })),
     })
-    .meta({ title: 'Downloads', description: 'Files to grab: logos, a press kit, releases.', ...page }),
+    .meta({ title: 'Spec sheet', description: 'Name and value rows: hardware, facts, terms.', ...page }),
 
-  divider: z
+  listing: z
     .object({
-      type: z.literal('divider'),
-      style: z.enum(['line', 'dots', 'zigzag', 'tape', 'gg']).meta({ title: 'Style' }),
-      text: text('Text', 'For tape: the words on it.'),
+      type: z.literal('listing'),
+      label: text('Label'),
+      items: list(
+        'Entries',
+        z.object({
+          meta: text('Meta', 'Date, type or place, in the left column.'),
+          title: text('Title'),
+          detail: text('Detail', 'Optional.').optional(),
+          tag: text('Tag', 'A small chip on the right: remote, sold out, new… Optional.').optional(),
+          href: text('Link', 'Optional.').optional(),
+        }),
+      ),
     })
-    .meta({ title: 'Divider', description: 'A break between sections.', ...page }),
+    .meta({ title: 'Listing', description: 'Rows with a meta column: events, jobs, talks, press, downloads.', ...page }),
+
+  toc: z
+    .object({
+      type: z.literal('toc'),
+      label: text('Label'),
+      items: list('Links', z.object({ label: text('Label'), href: text('Link', '#section or /page/') })),
+    })
+    .meta({ title: 'Contents', description: 'A compact list of links: a page’s contents, a docs sidebar.', ...page }),
 
   search: z
     .object({
@@ -464,10 +464,19 @@ export const TEMPLATES = {
   basic: ['main'],
   // Every post page: blocks above the article and below it.
   post: ['top', 'bottom'],
+  // A full-width page at /<id>/: sections run edge to edge, for landing pages.
+  wide: ['main'],
+  // A page at /<id>/ with a sidebar: about, uses, a project.
+  sidebar: ['main', 'aside'],
+  // A docs page at /<id>/: a sticky contents column on the left.
+  docs: ['nav', 'main'],
 } as const;
 
+// Templates whose pages live at /<id>/ (src/pages/[page].astro); the rest are built in.
+export const PAGE_TEMPLATES = ['basic', 'wide', 'sidebar', 'docs'] as const;
+
 // Page ids that would collide with the site's own routes.
-export const RESERVED = ['home', 'frame', 'post', 'log', 'blocks', 'desk', 'feed', '404', 'media', '_astro', 'tag', 'og', 'pagefind', 'sitemap'];
+export const RESERVED = ['home', 'frame', 'post', 'log', 'blocks', 'desk', 'feed', '404', 'media', '_astro', 'tag', 'og', 'pagefind', 'sitemap', 'templates'];
 
 export const Page = z.object({
   title: z.string(),

@@ -141,7 +141,7 @@ Give two or more posts the same `series:` (case and spacing don't matter) and th
 
 Pages are made of blocks. A block is an Astro component in `src/blocks/` whose slots (its text, lists and choices) are a zod schema in `src/blocks/schema.ts`. Blocks are atomic: they hold slots, never other blocks. A page is a JSON file in `src/content/pages/`: a template, and for each of the template's regions, a list of blocks with their slot values. `home.json` is the home page (regions `top`, `main`, `aside`); `frame.json` is the header and footer on every page. In rich text slots, `==text==` is highlighted and `*text*` is italic.
 
-Templates: `home` (regions `top`, `main`, `aside`), `frame` (`header`, `footer`), `post` (`top` and `bottom`, around the article on every post page; `post.json`), and `basic`, one column at `/<id>/`. Project pages: **+ new page** with kind *project* starts with a Project block (name, status, pitch, links), text, and a post list of the posts filed under it; a post joins a project with the **project** field in the desk (`project: <page id>` in its front matter). Point an inventory slot's link at the page. **+ new page** in the desk makes a basic page from a title (About → `/about/`) starting with a Heading and a Text block; Text blocks take Markdown with the same fenced blocks and frames as posts. Link a new page from the header to put it in the nav. Images for pages upload to `public/media/` and are served at `/media/<file>`; image slots in the desk pick from those, or from a post's own images in a post, with an upload button.
+Templates: `home` (regions `top`, `main`, `aside`), `frame` (`header`, `footer`), `post` (`top` and `bottom`, around the article on every post page; `post.json`), and the page layouts `basic`, `wide`, `sidebar` and `docs` at `/<id>/` (see Page templates). Project pages: **+ new page** with kind *project* starts with a Project block (name, status, pitch, links), text, and a post list of the posts filed under it; a post joins a project with the **project** field in the desk (`project: <page id>` in its front matter). Point an inventory slot's link at the page. **+ new page** in the desk makes a basic page from a title (About → `/about/`) starting with a Heading and a Text block; Text blocks take Markdown with the same fenced blocks and frames as posts. Link a new page from the header to put it in the nav. Images for pages upload to `public/media/` and are served at `/media/<file>`; image slots in the desk pick from those, or from a post's own images in a post, with an upload button.
 
 To add a block type: write its schema in `BLOCKS`, its component in `src/blocks/`, and map it in `src/blocks/Blocks.astro`. The desk builds its form from the schema. In dev, blocks and slots carry `data-desk-*` attributes so the desk can map clicks in the preview to fields; production builds have none.
 
@@ -149,15 +149,23 @@ There are two kinds. Page blocks (header, footer, hero, killfeed, post log, inve
 
 In the desk, click a post block in a post's preview (or put the cursor in one and press **edit ✎**) and it opens in a form above the body; the form writes the Markdown back as you type. Styles are in `src/styles/global.css`; colors are tokens at the top (ink, ribbon red, marker yellow, with blue only for links, numbers and tags).
 
+## Page templates
+
+**+ new page** in the desk (and the MCP `new_page` tool) starts a page from one of 38 page templates in `src/blocks/starters.ts`, each with finished sample copy to rewrite:
+
+- **Essentials:** plain, about, now, uses, contact, links, colophon, manifesto
+- **Product:** project, launch, product, pricing, changelog, roadmap, coming soon, press kit
+- **Work and people:** portfolio, case study, work with me, team, wall of love, careers, sponsors, speaking
+- **Writing and docs:** docs, guide, help center, graveyard, funeral, open stats, history, reading list
+- **Utility:** events, status, privacy, terms, thank you, lost and found
+
+They use four page layouts: `basic` (one column), `wide` (full-bleed sections, for landing pages), `sidebar` (`main` and `aside`) and `docs` (a sticky `nav` column and `main`), all served at `/<id>/`. They're built from these section blocks: masthead, features, pricing, wall of quotes, people, timeline, stats, gallery, image and text, call to action, steps, logo strip, countdown, contact, spec sheet, listing, contents, link stack, roadmap and questions.
+
+`/templates/` (dev and build, never linked, noindex) is the gallery and page preview tool. Every template is live in a device frame at phone, tablet, laptop or desktop width, in light or dark, with a grid view of all of them. Type any path (`/now/`) to preview any page the same way. `npm test` checks every template against the block schemas. To add one, add an entry to `STARTERS`.
+
 ## Scheduled posts and draft pages
 
 A post dated in the future is *scheduled*: the desk marks it, it shows in the preview, and the live site leaves it out until a build on or after that date. `.github/workflows/scheduled.yml` checks every morning (00:10 UTC) for a post dated today and asks DigitalOcean to redeploy; it needs the repository secrets `DIGITALOCEAN_TOKEN` and `DIGITALOCEAN_APP_ID`, and says so if they're missing. Pages have a **draft** box too: a draft page shows in the preview, never on the site. `/now/` and `/uses/` start as drafts with the shape filled in and the details left for you.
-
-## Page templates
-
-`src/templates/` holds 21 page templates, each a JSON file (name, group, description, and the page with sample content): About, Team/credits, Contact, Press kit, Links (link-in-bio), Product landing, Pricing, Changelog, Roadmap, FAQ, Launch/coming soon, Event/talk, Funeral (for dead projects), Case study, Manifesto, Portfolio, Now, Uses, Archive, Legal and Status. They're built from section blocks in `src/blocks/sections/` (features, pricing, FAQ, timeline, roadmap, stats, call to action, quotes, people, link list, gallery, media and text, archive, table, status board, countdown, contact, downloads, divider), styled in `src/styles/sections.css`.
-
-In the desk, **templates** (under Pages) shows a live gallery of every template in the preview; **use this** on one, or **+ new page** and pick it under *start from*, makes a draft page from it with the template in the preview while you name it. The preview has desktop, tablet and phone widths. `scripts/make-templates.py` regenerates the set; editing the JSON directly works too. MCP agents get `list_templates` and `new_page` with a template.
 
 ## Search
 

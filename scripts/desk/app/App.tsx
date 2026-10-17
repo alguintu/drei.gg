@@ -37,13 +37,9 @@ export default function App() {
   const [open, setOpen] = useState<Open>(null);
   const [status, setStatus] = useState({ text: 'loading', cls: '' });
   const [pv, setPv] = useState(store.get('pv', 'split'));
-  // Preview width: desk (the pane's own), tablet (820px) or phone (390px).
-  const [width, setWidthState] = useState(store.get('w', 'desk'));
-  const setWidth = (w: string) => (store.set('w', w), setWidthState(w));
-  // The template gallery, or one template, shown in the preview instead of what's open.
-  const [gallery, setGallery] = useState<string | null>(null);
-  // A template picked in the gallery, for the new-page dialog to start from.
-  const [startFrom, setStartFrom] = useState('');
+  // Preview width: desk (full), tablet (820px) or phone (390px).
+  const [width, setWidth] = useState<string>(store.get('w', 'desk'));
+  const pickWidth = (w: string) => (store.set('w', w), setWidth(w));
   const [catalog, setCatalog] = useState(false);
   const [path, setPath] = useState('/');
   const [dialog, setDialog] = useState<null | 'new' | 'page' | 'publish' | 'history'>(null);
@@ -72,7 +68,6 @@ export default function App() {
 
   useEffect(() => {
     if (!open) return;
-    setGallery(null);
     store.set('open', open.kind === 'page' ? 'page:' + open.id : open.id);
     if (open.kind !== 'post') setCatalog(false);
   }, [open?.kind, open?.id]);
@@ -179,8 +174,7 @@ export default function App() {
     { kind: 'edit', label: 'Discard changes', run: discard },
     { kind: 'edit', label: 'History', run: () => setDialog('history') },
     ...['split', 'popup', 'off'].map((m) => ({ kind: 'view', label: `Preview: ${m}`, run: () => setPreviewMode(m) })),
-    ...['desk', 'tablet', 'phone'].map((w) => ({ kind: 'view', label: `Preview at ${w === 'desk' ? 'desktop' : w} width`, run: () => setWidth(w) })),
-    { kind: 'view', label: 'Browse page templates', run: () => setGallery('/desk/templates/') },
+    ...(['desk', 'tablet', 'phone'] as const).map((w) => ({ kind: 'view', label: `Preview at ${w === 'desk' ? 'desktop' : w} width`, run: () => pickWidth(w) })),
     { kind: 'site', label: 'Retake all social cards', run: () => api('/api/cards', { method: 'POST' }).then(() => onState('cards retaken')) },
     { kind: 'site', label: 'Publish', run: () => setDialog('publish') },
   ];
@@ -237,14 +231,12 @@ export default function App() {
 
       <aside>
         <p className="group">Pages</p>
-        <p className="row two">
-          <button className="new" onClick={() => (setStartFrom(''), setDialog('page'))}>
-            + new page
-          </button>
-          <button className={`new${gallery ? ' on' : ''}`} title="Every page template, live in the preview" onClick={() => (setGallery(gallery ? null : '/desk/templates/'), pv === 'off' && setPreviewMode('split'))}>
-            templates
-          </button>
-        </p>
+        <button className="new" onClick={() => setDialog('page')}>
+          + new page
+        </button>
+        <a className="new" href="/templates/" target="_blank" rel="noopener" title="Every page template, at every size">
+          templates ↗
+        </a>
         <nav>
           {[...pages].sort((a, b) => rank(a) - rank(b)).map((p) => (
             <a key={p.id} className={isCur('page', p.id) ? 'cur' : ''} onClick={() => go({ kind: 'page', id: p.id })}>
@@ -299,27 +291,18 @@ export default function App() {
       ) : open.kind === 'theme' ? (
         <ThemeEditor key="theme" ref={editor} onState={onState} onSaved={onSaved} />
       ) : open.kind === 'post' ? (
-        <PostEditor key={open.id} ref={editor} id={open.id} meta={meta} blocks={blocks} projects={pages.filter((p) => p.template === 'basic')} catalog={catalog} setPath={setPath} onState={onState} onSaved={onSaved} />
+        <PostEditor key={open.id} ref={editor} id={open.id} meta={meta} blocks={blocks} projects={pages.filter((p) => ['basic', 'wide', 'sidebar', 'docs'].includes(p.template ?? ''))} catalog={catalog} setPath={setPath} onState={onState} onSaved={onSaved} />
       ) : (
         <PageEditor key={open.id} ref={editor} id={open.id} blocks={blocks} posts={posts} setPath={setPath} onState={onState} onSaved={onSaved} onPick={(p) => preview.current?.mark(p)} onDeleted={() => (lists(), setOpen({ kind: 'page', id: 'home' }))} />
       )}
 
       <section className="preview">
         <div className="bar">
-          <span className="url">{meta ? meta.site + (gallery ?? path) : ''}</span>
-          {gallery && (
-            <button title="Back to what's open" onClick={() => setGallery(null)}>
-              × templates
-            </button>
-          )}
+          <span className="url">{meta ? meta.site + path : ''}</span>
           <span className="seg">
-            {[
-              ['desk', 'desktop'],
-              ['tablet', 'tablet'],
-              ['phone', 'phone'],
-            ].map(([w, label]) => (
-              <button key={w} className={width === w ? 'on' : ''} onClick={() => setWidth(w)}>
-                {label}
+            {(['desk', 'tablet', 'phone'] as const).map((w) => (
+              <button key={w} className={width === w ? 'on' : ''} onClick={() => pickWidth(w)}>
+                {w === 'desk' ? 'desktop' : w}
               </button>
             ))}
           </span>
@@ -330,19 +313,15 @@ export default function App() {
         {pv === 'split' && (
           <Preview
             ref={preview}
-            path={gallery ?? path}
+            path={path}
             width={width}
-            editable={!catalog && !gallery}
+            editable={!catalog}
             onSelect={(target) => onPreview(target, (e) => e.select?.(target))}
             onInline={(target, value) => onPreview(target, (e) => e.apply?.(target, value))}
             onCatalog={(msg) => {
               if (msg.tab) store.set('catTab', msg.tab);
               if (msg.insert) editor.current?.insert?.(msg.insert);
               if (msg.pick) editor.current?.pickCover?.(msg.pick);
-              if (msg.template) {
-                setStartFrom(msg.template);
-                setDialog('page');
-              }
             }}
           />
         )}
@@ -360,14 +339,7 @@ export default function App() {
         />
       )}
       {palette && <Palette commands={commands} onClose={() => setPalette(false)} />}
-      {dialog === 'page' && (
-        <NewPage
-          start={startFrom}
-          onPreview={(p) => setGallery(p)}
-          onClose={() => setDialog(null)}
-          onCreate={(id) => (setGallery(null), lists(), go({ kind: 'page', id }))}
-        />
-      )}
+      {dialog === 'page' && <NewPage onClose={() => setDialog(null)} onCreate={(id) => (lists(), go({ kind: 'page', id }))} />}
       {dialog === 'new' && meta && <NewPost meta={meta} onClose={() => setDialog(null)} onCreate={(id) => (lists(), go({ kind: 'post', id }))} />}
       {dialog === 'publish' && (
         <Publish
@@ -493,19 +465,16 @@ function Palette({ commands, onClose }: { commands: { kind: string; label: strin
   );
 }
 
-function NewPage({ start, onPreview, onClose, onCreate }: { start: string; onPreview: (path: string | null) => void; onClose: () => void; onCreate: (id: string) => void }) {
+type Starter = { id: string; title: string; group: string; description: string; template: string };
+
+function NewPage({ onClose, onCreate }: { onClose: () => void; onCreate: (id: string) => void }) {
   const [title, setTitle] = useState('');
-  // plain, project, or a template id (src/templates).
-  const [kind, setKind] = useState(start || 'plain');
-  const [list, setList] = useState<{ id: string; name: string; group: string; description: string; title: string }[]>([]);
-  useEffect(() => void api('/api/templates').then(setList), []);
-  const tpl = list.find((t) => t.id === kind);
-  // Picking a template shows it in the preview.
+  const [kind, setKind] = useState('plain');
+  const [list, setList] = useState<{ groups: string[]; starters: Starter[] } | null>(null);
   useEffect(() => {
-    if (tpl) onPreview(`/desk/template/${tpl.id}/`);
-    if (tpl && !title) setTitle(tpl.title);
-  }, [kind, list.length]);
-  const groups = [...new Set(list.map((t) => t.group))];
+    api('/api/starters').then(setList);
+  }, []);
+  const cur = list?.starters.find((s) => s.id === kind);
   return (
     <Dialog
       title="New page"
@@ -513,7 +482,7 @@ function NewPage({ start, onPreview, onClose, onCreate }: { start: string; onPre
       onClose={onClose}
       onOk={async () => {
         if (!title.trim()) return;
-        const { id } = await send('/api/pages', 'POST', tpl ? { title, template: tpl.id } : { title, kind });
+        const { id } = await send('/api/pages', 'POST', { title, kind });
         onClose();
         onCreate(id);
       }}
@@ -521,32 +490,32 @@ function NewPage({ start, onPreview, onClose, onCreate }: { start: string; onPre
       <div className="row">
         <label className="grow">
           title
-          <input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="About" />
+          <input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder={cur && cur.id !== 'plain' ? cur.title : 'About'} />
         </label>
         <label>
-          start from
+          template
           <select value={kind} onChange={(e) => setKind(e.target.value)}>
-            <option value="plain">a plain page</option>
-            <option value="project">a project</option>
-            {groups.map((g) => (
-              <optgroup key={g} label={`Templates: ${g}`}>
-                {list
-                  .filter((t) => t.group === g)
-                  .map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name}
+            {list?.groups.map((g) => (
+              <optgroup key={g} label={g}>
+                {list.starters
+                  .filter((s) => s.group === g)
+                  .map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.title}
                     </option>
                   ))}
               </optgroup>
-            ))}
+            )) ?? <option value="plain">Plain page</option>}
           </select>
         </label>
       </div>
       <p className="hint">
-        {tpl
-          ? `${tpl.description} It's in the preview now. It starts as a draft with sample content to replace.`
-          : 'A plain page starts with a heading and text; a project starts with its name, status and pitch, text, and a log of the posts you file under it.'}{' '}
-        The address comes from the title (About → /about/).
+        {cur ? `${cur.description} (${cur.template} layout) ` : ''}
+        <a href={`/templates/#${kind}`} target="_blank" rel="noopener">
+          preview it ↗
+        </a>
+        <br />
+        Its address comes from the title (About → /about/).
       </p>
     </Dialog>
   );

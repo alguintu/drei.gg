@@ -8,12 +8,10 @@ import type { BlockData } from './schema';
 interface Props {
   page: { id: string; data: { regions: Record<string, BlockData[]> } };
   name: string;
-  // A template preview: drawn like a page, but nothing in it is editable.
-  inert?: boolean;
 }
-const { page, name, inert = false } = Astro.props;
+const { page, name } = Astro.props;
 const blocks = page.data.regions[name] ?? [];
-const path = import.meta.env.DEV && !inert ? `${page.id}:regions.${name}` : undefined;
+const path = import.meta.env.DEV ? `${page.id}:regions.${name}` : undefined;
 ---
 
 {

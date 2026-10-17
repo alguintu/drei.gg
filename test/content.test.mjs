@@ -5,7 +5,8 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { EXAMPLES, IMAGE, POST_BLOCKS, markdown } from '../src/lib/post-blocks.mjs';
 import { parse, stringify } from '../scripts/desk/frontmatter.mjs';
-import { BLOCKS, Page, TEMPLATES } from '../src/blocks/schema.ts';
+import { BLOCKS, Page, TEMPLATES, PAGE_TEMPLATES } from '../src/blocks/schema.ts';
+import { STARTERS, STARTER_GROUPS, fromStarter } from '../src/blocks/starters.ts';
 import { THEME, themeCss } from '../src/lib/theme.ts';
 import { z } from 'astro/zod';
 
@@ -52,6 +53,17 @@ test('the pages in the repo match the block schemas', () => {
   }
 });
 
+test('every page template makes a page that matches the block schemas', () => {
+  for (const [key, s] of Object.entries(STARTERS)) {
+    const page = fromStarter(key, 'Sample page', 'sample-page');
+    const check = Page.safeParse(page);
+    assert.ok(check.success, `${key}: ${check.error?.issues.map((i) => i.path.join('.') + ' ' + i.message).join('; ')}`);
+    assert.ok(PAGE_TEMPLATES.includes(page.template), `${key}: ${page.template} isn't served at /<id>/`);
+    assert.deepEqual(Object.keys(page.regions).sort(), [...TEMPLATES[page.template]].sort(), `${key}: fills every region of ${page.template}, and only those`);
+    assert.ok(STARTER_GROUPS.includes(s.group), `${key}: group`);
+  }
+});
+
 test('every block schema turns into a form schema', () => {
   for (const [type, schema] of Object.entries(BLOCKS)) {
     const json = z.toJSONSchema(schema, { target: 'draft-7' });
@@ -74,15 +86,4 @@ test('the built site carries no desk markup', { skip: !existsSync('dist/index.ht
   assert.ok(files.length > 3);
   for (const f of files) assert.doesNotMatch(readFileSync(f, 'utf8'), /data-desk|desk\/catalog|desk\/og/, f);
   assert.ok(!existsSync('dist/desk'), 'no desk pages in the build');
-});
-
-test('every page template matches the block schemas', () => {
-  const files = readdirSync('src/templates').filter((f) => f.endsWith('.json'));
-  assert.ok(files.length >= 20, 'a full set of templates');
-  for (const f of files) {
-    const t = JSON.parse(readFileSync(`src/templates/${f}`, 'utf8'));
-    assert.ok(t.name && t.group && t.description, `${f} has a name, group and description`);
-    const check = Page.safeParse(t.page);
-    assert.ok(check.success, `${f}: ${check.error?.issues.map((i) => i.path.join('.') + ' ' + i.message).join('; ')}`);
-  }
 });

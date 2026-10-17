@@ -1,13 +1,14 @@
 ---
-// Pages made in the desk: every page in src/content/pages with the basic
-// template, at /<id>/.
+// Pages made in the desk: every page in src/content/pages with a page template
+// (basic, wide, sidebar, docs), at /<id>/.
 import { getCollection, type CollectionEntry } from 'astro:content';
 import CodeCopy from '../components/CodeCopy.astro';
+import PageBody from '../components/PageBody.astro';
 import Base from '../layouts/Base.astro';
-import Region from '../blocks/Region.astro';
+import { PAGE_TEMPLATES } from '../blocks/schema';
 
 export async function getStaticPaths() {
-  const pages = await getCollection('pages', ({ data }) => data.template === 'basic' && (import.meta.env.DEV || !data.draft));
+  const pages = await getCollection('pages', ({ data }) => (PAGE_TEMPLATES as readonly string[]).includes(data.template) && (import.meta.env.DEV || !data.draft));
   return pages.map((page) => ({ params: { page: page.id }, props: { page } }));
 }
 
@@ -15,10 +16,6 @@ const { page } = Astro.props as { page: CollectionEntry<'pages'> };
 ---
 
 <Base title={page.data.title}>
-  <main class="single page">
-    <div class="wrap" data-pagefind-body>
-      <Region page={page} name="main" />
-    </div>
-  </main>
+  <PageBody page={page} />
   <CodeCopy />
 </Base>

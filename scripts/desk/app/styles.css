@@ -32,6 +32,8 @@ button.go { background: var(--marker); color: #15171d; border-color: #15171d; }
 
 aside { border-right: 1px solid var(--line); overflow: auto; padding: 12px; }
 aside .new { width: 100%; margin-bottom: 12px; }
+aside a.new { display: block; box-sizing: border-box; text-align: center; background: var(--panel); border: 1px solid var(--line); padding: 6px 10px; font: 600 12px/1 var(--mono); color: inherit; text-decoration: none; margin-top: -6px; }
+aside a.new:hover { border-color: var(--ink); }
 aside a { display: block; padding: 8px; border-left: 3px solid transparent; color: inherit; text-decoration: none; cursor: pointer; }
 aside a:hover { background: var(--panel); }
 aside a.cur { border-left-color: var(--marker); background: var(--panel); }
@@ -74,8 +76,8 @@ button:disabled { opacity: .45; cursor: default; }
 .preview .stage { overflow: auto; display: grid; justify-items: center; background: var(--panel); }
 .preview iframe { grid-area: 1 / 1; border: 0; width: 100%; height: 100%; background: #fff; }
 .preview iframe.next { visibility: hidden; }
-.stage.w-phone iframe { width: 390px; border-inline: 1px solid var(--line); }
-.stage.w-tablet iframe { width: 820px; max-width: 100%; border-inline: 1px solid var(--line); }
+.stage.phone iframe { width: 390px; border-inline: 1px solid var(--line); }
+.stage.tablet iframe { width: 820px; max-width: 100%; border-inline: 1px solid var(--line); }
 
 dialog { border: 1px solid var(--ink); background: var(--paper); color: var(--ink); max-width: 560px; width: 90vw; }
 dialog pre { white-space: pre-wrap; font: 12px/1.5 var(--mono); background: var(--panel); padding: 10px; max-height: 40vh; overflow: auto; }
@@ -163,6 +165,3 @@ ul.history .msg { flex: 1; font-size: 14px; }
 ul.history small { color: var(--team); }
 
 aside a .s { color: var(--team); }
-
-aside .row.two { display: flex; gap: 6px; margin: 0 0 12px; }
-aside .row.two .new { margin: 0; }

@@ -1,0 +1,35 @@
+---
+// A grid of 4:3 images with optional captions; grey boxes where there's no image.
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'gallery'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section class="gallery" {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  <ul class={`cols-${block.columns}`}>
+    {
+      block.images.map((im, i) => {
+        const pic = im.src ? <img src={im.src} alt={im.alt} loading="lazy" /> : <span class="ph" role="img" aria-label={im.alt} />;
+        return (
+          <li>
+            <figure>
+              {im.href ? <a href={im.href}>{pic}</a> : pic}
+              {im.caption && (
+                <figcaption>
+                  <span class="n">{String(i + 1).padStart(2, '0')}</span>
+                  <span {...slotAttrs(path, `images.${i}.caption`)}>{im.caption}</span>
+                </figcaption>
+              )}
+            </figure>
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>

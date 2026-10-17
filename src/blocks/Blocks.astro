@@ -18,25 +18,27 @@ import PostList from './PostList.astro';
 import Embed from './Embed.astro';
 import Search from './Search.astro';
 import Project from './Project.astro';
-import Features from './sections/Features.astro';
-import Pricing from './sections/Pricing.astro';
-import Faq from './sections/Faq.astro';
-import Timeline from './sections/Timeline.astro';
-import Roadmap from './sections/Roadmap.astro';
-import Stats from './sections/Stats.astro';
-import Cta from './sections/Cta.astro';
-import Quotes from './sections/Quotes.astro';
-import People from './sections/People.astro';
-import Links from './sections/Links.astro';
-import Gallery from './sections/Gallery.astro';
-import Media from './sections/Media.astro';
-import Archive from './sections/Archive.astro';
-import Table from './sections/Table.astro';
-import Status from './sections/Status.astro';
-import Countdown from './sections/Countdown.astro';
-import Contact from './sections/Contact.astro';
-import Downloads from './sections/Downloads.astro';
-import Divider from './sections/Divider.astro';
+import Links from './Links.astro';
+import Roadmap from './Roadmap.astro';
+import Faq from './Faq.astro';
+import Masthead from './Masthead.astro';
+import Features from './Features.astro';
+import Pricing from './Pricing.astro';
+import Testimonials from './Testimonials.astro';
+import People from './People.astro';
+import Timeline from './Timeline.astro';
+import Stats from './Stats.astro';
+import Gallery from './Gallery.astro';
+import Split from './Split.astro';
+import Cta from './Cta.astro';
+import Steps from './Steps.astro';
+import Logos from './Logos.astro';
+import Countdown from './Countdown.astro';
+import Contact from './Contact.astro';
+import Specs from './Specs.astro';
+import Listing from './Listing.astro';
+import Toc from './Toc.astro';
+import '../styles/sections.css';
 
 export const COMPONENTS: Record<BlockType, any> = {
   header: Header,
@@ -54,26 +56,26 @@ export const COMPONENTS: Record<BlockType, any> = {
   embed: Embed,
   search: Search,
   project: Project,
-  // Section blocks (src/blocks/sections), what page templates are made of.
+  links: Links,
+  roadmap: Roadmap,
+  faq: Faq,
+  masthead: Masthead,
   features: Features,
   pricing: Pricing,
-  faq: Faq,
-  timeline: Timeline,
-  roadmap: Roadmap,
-  stats: Stats,
-  cta: Cta,
-  quotes: Quotes,
+  testimonials: Testimonials,
   people: People,
-  links: Links,
+  timeline: Timeline,
+  stats: Stats,
   gallery: Gallery,
-  media: Media,
-  archive: Archive,
-  table: Table,
-  status: Status,
+  split: Split,
+  cta: Cta,
+  steps: Steps,
+  logos: Logos,
   countdown: Countdown,
   contact: Contact,
-  downloads: Downloads,
-  divider: Divider,
+  specs: Specs,
+  listing: Listing,
+  toc: Toc,
   // Post blocks draw the same way they do inside posts.
   callout: PostBlock,
   aeris: PostBlock,

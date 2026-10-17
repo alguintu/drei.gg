@@ -1,0 +1,41 @@
+---
+// An email set big, a note, and handles elsewhere as rows.
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+import Text from './Text.astro';
+
+interface Props {
+  block: BlockData<'contact'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+// Break points after the @ and before each dot, so a long address wraps cleanly.
+const parts = block.email ? block.email.split(/(?<=@)|(?=\.)/) : [];
+---
+
+<section class="contact" {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  {
+    block.email && (
+      <a class="mail" href={`mailto:${block.email}`} {...slotAttrs(path, 'email')}>
+        {parts.map((p, i) => (i ? [<wbr />, p] : p))}
+      </a>
+    )
+  }
+  {block.note && <p class="note"><Text path={path} slot="note" text={block.note} rich /></p>}
+  {
+    block.items.length > 0 && (
+      <ul>
+        {block.items.map((item, i) => (
+          <li>
+            <a href={item.href}>
+              <span class="where" {...slotAttrs(path, `items.${i}.label`)}>{item.label}</span>
+              <span class="handle" {...slotAttrs(path, `items.${i}.value`)}>{item.value}</span>
+              <span class="go" aria-hidden="true">↗</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</section>
