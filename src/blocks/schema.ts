@@ -247,6 +247,8 @@ export const RESERVED = ['home', 'frame', 'post', 'log', 'blocks', 'desk', 'feed
 
 export const Page = z.object({
   title: z.string(),
+  // A draft page shows in the desk's preview, never on the live site.
+  draft: z.boolean().optional(),
   template: z.enum(Object.keys(TEMPLATES) as [keyof typeof TEMPLATES]),
   regions: z.record(z.string(), z.array(Block)),
 });

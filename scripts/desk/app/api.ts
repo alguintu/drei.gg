@@ -50,7 +50,7 @@ export type JSONSchema = {
 export type BlocksMeta = { schemas: Record<string, JSONSchema>; templates: Record<string, string[]> };
 
 export type Block = { type: string; [slot: string]: unknown };
-export type PageData = { title: string; template: string; regions: Record<string, Block[]> };
+export type PageData = { title: string; template: string; draft?: boolean; regions: Record<string, Block[]> };
 
 // What's open: a post, a page, or nothing yet.
 export type Open = { kind: 'post'; id: string } | { kind: 'page'; id: string } | { kind: 'theme'; id: 'theme' } | null;

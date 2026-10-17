@@ -236,7 +236,15 @@ export default function App() {
           {[...pages].sort((a, b) => rank(a) - rank(b)).map((p) => (
             <a key={p.id} className={isCur('page', p.id) ? 'cur' : ''} onClick={() => go({ kind: 'page', id: p.id })}>
               <div className="t">{p.id === 'frame' ? 'Header & footer' : p.title}</div>
-              <div className="m">{p.id === 'frame' ? 'on every page' : p.id === 'post' ? 'around every post' : p.id === 'home' ? '/' : `/${p.id}/`}</div>
+              <div className="m">
+                {p.id === 'frame' ? 'on every page' : p.id === 'post' ? 'around every post' : p.id === 'home' ? '/' : `/${p.id}/`}
+                {p.draft && (
+                  <>
+                    {' · '}
+                    <span className="d">draft</span>
+                  </>
+                )}
+              </div>
             </a>
           ))}
           <a className={open?.kind === 'theme' ? 'cur' : ''} onClick={() => go({ kind: 'theme', id: 'theme' })}>
@@ -254,11 +262,18 @@ export default function App() {
               <div className="t">{p.title}</div>
               <div className="m">
                 {p.date} · {p.tag}
-                {p.draft && (
+                {p.draft ? (
                   <>
                     {' · '}
                     <span className="d">draft</span>
                   </>
+                ) : (
+                  (p.date ?? '') > new Date().toISOString().slice(0, 10) && (
+                    <>
+                      {' · '}
+                      <span className="s" title="Goes live with the first build on or after its date">scheduled</span>
+                    </>
+                  )
                 )}
               </div>
             </a>

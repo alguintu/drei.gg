@@ -6,7 +6,7 @@ import Base from '../layouts/Base.astro';
 import Region from '../blocks/Region.astro';
 
 export async function getStaticPaths() {
-  const pages = await getCollection('pages', ({ data }) => data.template === 'basic');
+  const pages = await getCollection('pages', ({ data }) => data.template === 'basic' && (import.meta.env.DEV || !data.draft));
   return pages.map((page) => ({ params: { page: page.id }, props: { page } }));
 }
 

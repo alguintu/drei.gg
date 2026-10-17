@@ -1,0 +1,18 @@
+{
+  "title": "Uses",
+  "draft": true,
+  "template": "basic",
+  "regions": {
+    "main": [
+      {
+        "type": "heading",
+        "kicker": "The kit",
+        "title": "Uses"
+      },
+      {
+        "type": "prose",
+        "markdown": "What drei.gg is built with and on.\n\n## Aeris, the workstation\n\n_Specs, OS (Fedora, KDE), the desk, the chair._\n\n## Software\n\n- **Editors:** _..._\n- **Agents:** Anya (Claude) and Eris (Codex)\n- **Terminal and shell:** _..._\n\n## This site\n\n- Astro, static, on DigitalOcean\n- A local editor (the desk) where every page is blocks\n- An MCP server so the agents can write here too\n\n```aeris\nOn Aeris\nAnything machine-specific worth bragging about.\n```"
+      }
+    ]
+  }
+}

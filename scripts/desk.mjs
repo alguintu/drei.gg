@@ -228,7 +228,7 @@ const routes = {
     const out = [];
     for (const f of (await readdir(PAGES)).filter((f) => f.endsWith('.json')).sort()) {
       const data = JSON.parse(await readFile(join(PAGES, f), 'utf8'));
-      out.push({ id: f.slice(0, -5), title: data.title, template: data.template });
+      out.push({ id: f.slice(0, -5), title: data.title, template: data.template, draft: data.draft === true });
     }
     return out;
   },

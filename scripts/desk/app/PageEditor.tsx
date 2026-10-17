@@ -221,6 +221,9 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; blocks: Bloc
       </p>
       {page.template === 'basic' && (
         <p className="row">
+          <label className="chk">
+            <input type="checkbox" checked={page.draft === true} onChange={(e) => change((p) => ({ ...p, draft: e.target.checked || undefined }))} /> draft
+          </label>
           <button
             type="button"
             onClick={async () => {
