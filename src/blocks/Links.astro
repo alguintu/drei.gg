@@ -1,0 +1,28 @@
+---
+// Big stacked links, one per line.
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'links'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section class="linkstack" {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  <ul>
+    {
+      block.items.map((l, i) => (
+        <li>
+          <a href={l.href}>
+            <b {...slotAttrs(path, `items.${i}.label`)}>{l.label}</b>
+            {l.note && <small {...slotAttrs(path, `items.${i}.note`)}>{l.note}</small>}
+            <span class="go" aria-hidden="true">→</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>

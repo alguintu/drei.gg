@@ -160,10 +160,20 @@ server.registerTool(
   {
     title: 'New page',
     description:
-      'Makes a page at /<slug>/ from a title (About → /about/) and returns its id. kind "plain" starts with a Heading and a Text block; "project" with a Project block (name, status, pitch, links), text, and a Post list of the posts filed under it (posts set `project: <page id>` in their front matter). Link it from the frame\'s header block, or an inventory slot, to put it in front of people.',
-    inputSchema: { title: z.string(), kind: z.enum(['plain', 'project']).default('plain') },
+      'Makes a page at /<slug>/ from a title (About → /about/) and a page template, and returns its id. Templates (`kind`): plain, about, now, uses, contact, links, colophon, project, launch, product, pricing, changelog, roadmap, coming-soon, press-kit, portfolio, case-study, services, team, testimonials, careers, sponsors, speaking, docs, guide, help, graveyard, stats, history, library, events, privacy, terms, thanks, lost. Each starts with finished sample content to rewrite; list_templates describes them, and /templates/ on the dev site shows them. "project" pages log the posts filed under them (posts set `project: <page id>`). Link a page from the frame\'s header block, or an inventory slot, to put it in front of people.',
+    inputSchema: { title: z.string(), kind: z.string().default('plain') },
   },
   tool(async ({ title, kind }) => text(await post('/api/pages', { title, kind }))),
+);
+
+server.registerTool(
+  'list_templates',
+  {
+    title: 'List page templates',
+    description: 'Every page template new_page can start from: id, group, layout and what it is for.',
+    inputSchema: {},
+  },
+  tool(async () => text(await api('/api/starters'))),
 );
 
 server.registerTool(

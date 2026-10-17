@@ -1,11 +1,12 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
+import { PAGE_TEMPLATES } from '../blocks/schema';
 import { getPosts, getSeries, postUrl, LABELS } from '../lib/posts';
 
 // Every public page: home, archive, tags, series, posts and pages made in the desk.
 export const GET: APIRoute = async ({ site }) => {
   const posts = await getPosts();
-  const pages = await getCollection('pages', ({ data }) => data.template === 'basic');
+  const pages = await getCollection('pages', ({ data }) => (PAGE_TEMPLATES as readonly string[]).includes(data.template) && !data.draft);
   const urls: [string, Date?][] = [
     ['/', posts[0]?.data.date],
     ['/log/', posts[0]?.data.date],

@@ -1,0 +1,34 @@
+---
+// Numbered steps joined by a rule: across on wide screens, down on phones.
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+import Text from './Text.astro';
+
+interface Props {
+  block: BlockData<'steps'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+// Four to a row at most.
+const n = Math.min(Math.max(block.items.length, 1), 4);
+---
+
+<section class="steps" {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  <ol class={`n${n}`}>
+    {
+      block.items.map((s, i) => (
+        <li>
+          <span class="num" aria-hidden="true">
+            <b>{String(i + 1).padStart(2, '0')}</b>
+            <i />
+          </span>
+          <h3 {...slotAttrs(path, `items.${i}.title`)}>{s.title}</h3>
+          <p>
+            <Text path={path} slot={`items.${i}.text`} text={s.text} rich />
+          </p>
+        </li>
+      ))
+    }
+  </ol>
+</section>

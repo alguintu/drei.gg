@@ -1,0 +1,35 @@
+---
+// Rows with a meta column: events, jobs, talks, downloads. A row with a link is one link.
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'listing'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section class="listing" {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  <ul>
+    {
+      block.items.map((item, i) => {
+        const Row = item.href ? 'a' : 'div';
+        return (
+          <li>
+            <Row class:list={['row', { link: item.href }]} href={item.href || undefined}>
+              <span class="k" {...slotAttrs(path, `items.${i}.meta`)}>{item.meta}</span>
+              <span class="what">
+                <b {...slotAttrs(path, `items.${i}.title`)}>{item.title}</b>
+                {item.detail && <small {...slotAttrs(path, `items.${i}.detail`)}>{item.detail}</small>}
+              </span>
+              {item.tag && <span class="tag" {...slotAttrs(path, `items.${i}.tag`)}>{item.tag}</span>}
+              {item.href && <span class="go" aria-hidden="true">→</span>}
+            </Row>
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>

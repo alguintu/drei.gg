@@ -1,0 +1,20 @@
+---
+// One page template, rendered as a full page with its sample content. Not linked
+// from the site; the gallery at /templates/ frames these.
+import CodeCopy from '../../components/CodeCopy.astro';
+import PageBody from '../../components/PageBody.astro';
+import Base from '../../layouts/Base.astro';
+import { STARTERS, fromStarter } from '../../blocks/starters';
+
+export function getStaticPaths() {
+  return Object.keys(STARTERS).map((id) => ({ params: { id } }));
+}
+
+const { id } = Astro.params;
+const data = fromStarter(id!, STARTERS[id!].title, id!);
+---
+
+<Base title={`${data.title} template`} noindex>
+  <PageBody page={{ id: `template-${id}`, data }} />
+  <CodeCopy />
+</Base>

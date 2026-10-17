@@ -1,0 +1,34 @@
+---
+// A wall of quote cards, in columns.
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'testimonials'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section class="quotes" {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  <div class="wall">
+    {
+      block.items.map((q, i) => (
+        <figure>
+          <blockquote {...slotAttrs(path, `items.${i}.quote`)}>{q.quote}</blockquote>
+          <figcaption>
+            <b {...slotAttrs(path, `items.${i}.name`)}>{q.name}</b>
+            {q.href ? (
+              <a href={q.href} {...slotAttrs(path, `items.${i}.role`)}>
+                {q.role}
+              </a>
+            ) : (
+              <span {...slotAttrs(path, `items.${i}.role`)}>{q.role}</span>
+            )}
+          </figcaption>
+        </figure>
+      ))
+    }
+  </div>
+</section>

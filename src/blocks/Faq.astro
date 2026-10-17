@@ -1,0 +1,24 @@
+---
+// Questions and answers, each a <details> that opens on click.
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+import Text from './Text.astro';
+
+interface Props {
+  block: BlockData<'faq'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section class="faq" {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  {
+    block.items.map((item, i) => (
+      <details>
+        <summary {...slotAttrs(path, `items.${i}.q`)}>{item.q}</summary>
+        <p><Text path={path} slot={`items.${i}.a`} text={item.a} rich /></p>
+      </details>
+    ))
+  }
+</section>

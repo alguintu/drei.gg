@@ -5,7 +5,8 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { EXAMPLES, IMAGE, POST_BLOCKS, markdown } from '../src/lib/post-blocks.mjs';
 import { parse, stringify } from '../scripts/desk/frontmatter.mjs';
-import { BLOCKS, Page, TEMPLATES } from '../src/blocks/schema.ts';
+import { BLOCKS, Page, TEMPLATES, PAGE_TEMPLATES } from '../src/blocks/schema.ts';
+import { STARTERS, STARTER_GROUPS, fromStarter } from '../src/blocks/starters.ts';
 import { THEME, themeCss } from '../src/lib/theme.ts';
 import { z } from 'astro/zod';
 
@@ -49,6 +50,17 @@ test('the pages in the repo match the block schemas', () => {
     const check = Page.safeParse(page);
     assert.ok(check.success, `${f}: ${check.error?.issues.map((i) => i.path.join('.') + ' ' + i.message).join('; ')}`);
     for (const region of Object.keys(page.regions)) assert.ok(TEMPLATES[page.template].includes(region), `${f}: unknown region ${region}`);
+  }
+});
+
+test('every page template makes a page that matches the block schemas', () => {
+  for (const [key, s] of Object.entries(STARTERS)) {
+    const page = fromStarter(key, 'Sample page', 'sample-page');
+    const check = Page.safeParse(page);
+    assert.ok(check.success, `${key}: ${check.error?.issues.map((i) => i.path.join('.') + ' ' + i.message).join('; ')}`);
+    assert.ok(PAGE_TEMPLATES.includes(page.template), `${key}: ${page.template} isn't served at /<id>/`);
+    assert.deepEqual(Object.keys(page.regions).sort(), [...TEMPLATES[page.template]].sort(), `${key}: fills every region of ${page.template}, and only those`);
+    assert.ok(STARTER_GROUPS.includes(s.group), `${key}: group`);
   }
 });
 

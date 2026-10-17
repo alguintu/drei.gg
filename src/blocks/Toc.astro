@@ -1,0 +1,27 @@
+---
+// A compact contents list; it sticks in place inside a sidebar or nav column.
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'toc'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<nav class="toc" aria-label={block.label || 'Contents'} {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  <ol>
+    {
+      block.items.map((item, i) => (
+        <li>
+          <a href={item.href}>
+            <span class="n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <span {...slotAttrs(path, `items.${i}.label`)}>{item.label}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>

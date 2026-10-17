@@ -375,3 +375,68 @@ main.single .wrap { display: block; padding-block: 48px 72px; }
   font: inherit; color: var(--ink); background: none; border: 1px solid var(--line); padding: 5px 8px; cursor: pointer;
 }
 .code-bar button:hover { background: var(--marker); border-color: var(--marker); color: #15171d; }
+
+/* Link stack: big stacked links */
+.linkstack { margin-block: 24px; max-width: 560px; }
+.linkstack ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.linkstack a {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px 16px;
+  padding: 16px 18px; border: 2px solid var(--ink); color: var(--ink); text-decoration: none; background: var(--paper);
+  box-shadow: 4px 4px 0 var(--ink); transition: transform .08s, box-shadow .08s;
+}
+.linkstack a:hover { background: var(--marker); color: #15171d; transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
+.linkstack b { font: 800 20px/1.15 var(--display); font-stretch: 80%; }
+.linkstack small { grid-column: 1; font: 13px/1.4 var(--mono); color: var(--mute); }
+.linkstack a:hover small { color: #15171d; }
+.linkstack .go { grid-row: 1 / span 2; grid-column: 2; font: 700 20px/1 var(--mono); }
+
+/* Roadmap: now / next / later */
+.roadmap { margin-block: 28px; }
+.roadmap .cols { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 16px; }
+.roadmap .col { border: 1px solid var(--line); border-top: 4px solid var(--line); padding: 14px 16px 16px; background: var(--panel); }
+.roadmap .col.c0 { border-top-color: var(--marker); }
+.roadmap .col.c1 { border-top-color: var(--team); }
+.roadmap h3 { font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .12em; margin: 0 0 12px; }
+.roadmap ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.45; display: grid; gap: 6px; }
+.roadmap li::marker { color: var(--team); }
+@media (max-width: 720px) { .roadmap .cols { grid-template-columns: minmax(0, 1fr); } }
+
+/* Questions */
+.faq { margin-block: 28px; max-width: 760px; }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq details:first-of-type { border-top: 2px solid var(--ink); }
+.faq summary {
+  cursor: pointer; list-style: none; padding: 14px 32px 14px 0; position: relative;
+  font: 800 19px/1.25 var(--display); font-stretch: 85%;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; position: absolute; right: 4px; top: 12px; font: 700 20px/1 var(--mono); color: var(--team); }
+.faq details[open] summary::after { content: "–"; }
+.faq summary:focus-visible { outline: 2px solid var(--team); outline-offset: 2px; }
+.faq details p { margin: 0 0 16px; color: var(--ink); max-width: 64ch; }
+.faq details p mark { background: var(--marker); color: #15171d; padding: 0 .15em; }
+
+/* Page templates: wide (full-bleed sections), sidebar, docs */
+.page-wide > *, .page-wide > [data-desk-region] > * {
+  margin: 0; max-width: none;
+  padding-block: clamp(40px, 6vw, 72px);
+  padding-inline: max(20px, calc((100% - 1080px) / 2));
+}
+.page-wide > * + *, .page-wide > [data-desk-region] > * + * { border-top: 1px solid var(--line); }
+.page-wide .prose, .page-wide .blk, .page-wide .frm { max-width: none; }
+.page-wide .prose > * { max-width: 760px; }
+main.page-sidebar .wrap, main.page-docs .wrap { display: grid; gap: 56px; }
+main.page-sidebar .wrap { grid-template-columns: minmax(0, 1fr) 300px; }
+main.page-docs .wrap { grid-template-columns: 220px minmax(0, 1fr); }
+.page-aside > *:first-child, .page-nav > *:first-child { margin-top: 0; }
+.page-nav { position: sticky; top: 24px; align-self: start; max-height: calc(100vh - 48px); overflow: auto; }
+@media (max-width: 900px) {
+  main.page-sidebar .wrap, main.page-docs .wrap { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .page-nav { position: static; max-height: none; }
+}
+/* Bands that run edge to edge in a wide page drop their side borders and shadow. */
+main.page-wide > .cta, main.page-wide > [data-desk-region] > .cta { box-shadow: none; border-left: 0; border-right: 0; }
+/* Sidebars are narrow: spec rows and contact rows stack. */
+main .page-aside .specs dl > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+main .page-aside .contact li a { grid-template-columns: minmax(0, 1fr) auto; }
+main .page-aside .contact .where { grid-column: 1 / -1; }

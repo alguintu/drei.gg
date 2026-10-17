@@ -1,0 +1,37 @@
+---
+// Cards for people: a photo or a monogram, a name, a role.
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'people'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+
+// "Anya Forger" → "AF", "eris" → "ER".
+const initials = (name: string) => {
+  const w = name.trim().split(/\s+/).filter(Boolean);
+  return (w.length > 1 ? w[0][0] + w[w.length - 1][0] : (w[0] ?? '?').slice(0, 2)).toUpperCase();
+};
+---
+
+<section class="people" {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  <ul>
+    {
+      block.items.map((p, i) => {
+        const Tag = p.href ? 'a' : 'div';
+        return (
+          <li>
+            <Tag class="card" href={p.href}>
+              {p.image ? <img src={p.image} alt={p.name} loading="lazy" /> : <span class="mono" aria-hidden="true">{initials(p.name)}</span>}
+              <b {...slotAttrs(path, `items.${i}.name`)}>{p.name}</b>
+              <small {...slotAttrs(path, `items.${i}.role`)}>{p.role}</small>
+            </Tag>
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>

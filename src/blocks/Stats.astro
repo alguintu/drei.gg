@@ -1,0 +1,25 @@
+---
+// A row of big numbers.
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'stats'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section class="stats-row" {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  <dl style={`--n: ${Math.max(block.items.length, 1)}`}>
+    {
+      block.items.map((s, i) => (
+        <div class="stat">
+          <dt {...slotAttrs(path, `items.${i}.label`)}>{s.label}</dt>
+          <dd {...slotAttrs(path, `items.${i}.number`)}>{s.number}</dd>
+        </div>
+      ))
+    }
+  </dl>
+</section>

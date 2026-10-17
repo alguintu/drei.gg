@@ -1,0 +1,29 @@
+---
+// Dated entries down a vertical rule, newest on top.
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+import Text from './Text.astro';
+
+interface Props {
+  block: BlockData<'timeline'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section class="timeline" {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  <ol>
+    {
+      block.items.map((item, i) => (
+        <li>
+          <span class="when" {...slotAttrs(path, `items.${i}.date`)}>{item.date}</span>
+          <div class="body">
+            <h3 {...slotAttrs(path, `items.${i}.title`)}>{item.title}</h3>
+            {item.text && <p><Text path={path} slot={`items.${i}.text`} text={item.text} rich /></p>}
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>
