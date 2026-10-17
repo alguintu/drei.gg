@@ -1,8 +1,8 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
-import { getPosts, postUrl, LABELS } from '../lib/posts';
+import { getPosts, getSeries, postUrl, LABELS } from '../lib/posts';
 
-// Every public page: home, archive, tags, posts and pages made in the desk.
+// Every public page: home, archive, tags, series, posts and pages made in the desk.
 export const GET: APIRoute = async ({ site }) => {
   const posts = await getPosts();
   const pages = await getCollection('pages', ({ data }) => data.template === 'basic');
@@ -10,6 +10,7 @@ export const GET: APIRoute = async ({ site }) => {
     ['/', posts[0]?.data.date],
     ['/log/', posts[0]?.data.date],
     ...Object.keys(LABELS).map((t): [string] => [`/tag/${t}/`]),
+    ...getSeries(posts).flatMap((s): [string, Date][] => [[s.url, s.posts.at(-1)!.data.date]]),
     ...posts.map((p): [string, Date] => [postUrl(p), p.data.date]),
     ...pages.map((p): [string] => [`/${p.id}/`]),
   ];

@@ -1,0 +1,41 @@
+---
+// One series, part 1 first.
+import Base from '../../../layouts/Base.astro';
+import { getPosts, getSeries, formatDate, postUrl, type Series } from '../../../lib/posts';
+import '../../../styles/extras.css';
+
+export async function getStaticPaths() {
+  return getSeries(await getPosts()).map((series) => ({ params: { series: series.slug }, props: { series } }));
+}
+
+interface Props {
+  series: Series;
+}
+const { series } = Astro.props;
+const first = series.posts[0].data.date;
+const last = series.posts.at(-1)!.data.date;
+---
+
+<Base title={series.name} description={`${series.name}: a drei.gg series in ${series.posts.length} parts.`}>
+  <main class="single archive">
+    <div class="wrap">
+      <a class="back" href="/log/series/">← all series</a>
+      <p class="series-kicker">series · {series.posts.length} {series.posts.length === 1 ? 'part' : 'parts'} · {formatDate(first)}{last > first && ` – ${formatDate(last)}`}</p>
+      <h1>{series.name}</h1>
+      <ol class="rows parts">
+        {
+          series.posts.map((p, i) => (
+            <li>
+              <span class="num">{String(i + 1).padStart(2, '0')}</span>
+              <time datetime={p.data.date.toISOString().slice(0, 10)}>{formatDate(p.data.date)}</time>
+              <span class="what">
+                <a href={postUrl(p)}>{p.data.title}</a>
+                {p.data.summary && <span class="sum">{p.data.summary}</span>}
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </main>
+</Base>

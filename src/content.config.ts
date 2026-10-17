@@ -16,6 +16,8 @@ const posts = defineCollection({
       // Shown in the meta column: a version for ship posts, anything short otherwise.
       label: z.string().optional(),
       summary: z.string().optional(),
+      // Posts with the same series name read as parts of one story, oldest first.
+      series: z.string().trim().min(1).optional(),
       // Cover poster. Leave these out and the slug picks them.
       layout: z.enum(ALL_LAYOUTS).optional(),
       palette: z.enum(PALETTES).optional(),

@@ -31,3 +31,22 @@
   .rows .what { grid-column: 1 / -1; }
 }
 .archive .empty { color: var(--mute); font: 14px/1.5 var(--mono); }
+
+/* Series: the box on a post, and the series pages. */
+.series {
+  margin: 0 0 32px; padding: 16px 20px; border: 1px solid var(--line); border-left: 4px solid var(--marker);
+  background: var(--panel); max-width: 680px;
+}
+.series-head { margin: 0 0 8px; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+.series-head .part { font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--team); }
+.series-head a { font-weight: 800; color: var(--ink); }
+.series ol { margin: 0; padding-left: 22px; font-size: 15px; line-height: 1.5; }
+.series li::marker { font: 13px var(--mono); color: var(--team); }
+.series li[aria-current] { font-weight: 700; }
+.series li[aria-current]::after { content: "  ← you are here"; font: 12px var(--mono); color: var(--mute); font-weight: 400; }
+.series-kicker { font: 600 12px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--team); margin: 0 0 8px; }
+.rows .num { font: 600 13px/1.4 var(--mono); color: var(--team); }
+.rows.parts li { grid-template-columns: 32px 110px minmax(0, 1fr); }
+@media (max-width: 560px) {
+  .rows.parts li { grid-template-columns: auto 1fr; }
+}

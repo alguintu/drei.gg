@@ -75,7 +75,7 @@ server.registerTool(
   'read_post',
   {
     title: 'Read a post',
-    description: 'A post: its front matter (title, date, tag, label, summary, draft, layout, palette, cover text, image), Markdown body, images in its folder, and the cover layout "auto" resolves to.',
+    description: 'A post: its front matter (title, date, tag, label, summary, series, draft, layout, palette, cover text, image), Markdown body, images in its folder, and the cover layout "auto" resolves to.',
     inputSchema: { id: z.string().describe('The post id (its folder or file name), from desk_status.') },
   },
   tool(async ({ id }) => text(await api('/api/post?id=' + encodeURIComponent(id)))),

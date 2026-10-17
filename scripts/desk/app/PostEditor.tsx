@@ -57,6 +57,11 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; 
   const [blk, setBlk] = useState<Found | null>(null);
   const [here, setHere] = useState<Found | null>(null);
   const [cardV, setCardV] = useState(() => Date.now());
+  // Series names other posts use, offered as you type one.
+  const [series, setSeries] = useState<string[]>([]);
+  useEffect(() => {
+    api('/api/posts').then((all: { series?: string }[]) => setSeries([...new Set(all.map((p) => p.series).filter((s): s is string => !!s))]));
+  }, []);
   const flushNow = async () => {
     if (timer.current) await save();
   };
@@ -91,7 +96,7 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; 
     if (!p) return;
     const data = { ...p.data };
     data.cover = Object.fromEntries(Object.entries(p.data.cover).filter(([, x]) => String(x).trim()));
-    for (const k of ['title', 'label', 'summary', 'layout', 'palette', 'image_alt']) if (typeof data[k] === 'string') data[k] = data[k].trim();
+    for (const k of ['title', 'label', 'summary', 'series', 'layout', 'palette', 'image_alt']) if (typeof data[k] === 'string') data[k] = data[k].trim();
     if (!data.image) {
       delete data.image;
       delete data.image_alt;
@@ -242,6 +247,11 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; 
         <label className="grow">
           summary
           <input value={d.summary ?? ''} placeholder="One line for RSS and link previews" onChange={(e) => set('summary', e.target.value)} />
+        </label>
+        <label>
+          series
+          <input value={d.series ?? ''} placeholder="none" size={14} list="desk-series" onChange={(e) => set('series', e.target.value)} />
+          <datalist id="desk-series">{series.map((s) => <option key={s} value={s} />)}</datalist>
         </label>
         {projects.length > 0 && (
           <label>
