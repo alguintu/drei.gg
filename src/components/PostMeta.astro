@@ -1,0 +1,15 @@
+---
+import { formatDate, LABELS, type Post } from '../lib/posts';
+
+interface Props {
+  post: Post;
+}
+const { post } = Astro.props;
+const { tag, label, date } = post.data;
+---
+
+<div class="meta">
+  <span class="ver">{label ?? LABELS[tag]}</span>
+  <time datetime={date.toISOString()}>{formatDate(date)}</time>
+  <br /><span class={`chip ${tag}`}>{tag}</span>
+</div>

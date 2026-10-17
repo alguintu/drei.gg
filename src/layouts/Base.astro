@@ -1,0 +1,94 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = 'A devlog. We build things and post about them. No funnel, no launch week.',
+} = Astro.props;
+const pageTitle = title ? `${title} · drei.gg` : 'drei.gg';
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const isHome = Astro.url.pathname === '/';
+const nav = (hash: string) => (isHome ? `#${hash}` : `/#${hash}`);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="drei.gg" href="/feed.xml" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="theme-color" content="#15171d" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,400..900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap"
+    />
+    <script is:inline>
+      // Apply a saved theme before first paint so there's no flash.
+      try {
+        var saved = localStorage.getItem('drei-theme');
+        if (saved) document.documentElement.dataset.theme = saved;
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <header class="hud">
+      <div class="wrap">
+        <a class="brand" href="/"><span class="dot"></span>drei.gg</a>
+        <nav aria-label="Site">
+          <a href={nav('log')}>log</a>
+          <a href={nav('inventory')}>inventory</a>
+          <a href={nav('rules')}>rules</a>
+          <a href="/feed.xml">rss</a>
+        </nav>
+        <div class="right">
+          <span>build 0.0.1 · region PH · ping fine</span>
+          <button type="button" class="theme" id="theme-toggle" aria-label="Switch color theme"
+            ><span class="sw"></span><span id="theme-label">dark mode</span></button
+          >
+        </div>
+      </div>
+    </header>
+
+    <slot />
+
+    <footer>
+      <div class="wrap">
+        <span class="big">drei.gg</span>
+        <span>rss · <a href="/feed.xml">drei.gg/feed.xml</a><br />no newsletter. on purpose.</span>
+        <span>© {new Date().getFullYear()} Drei</span>
+      </div>
+    </footer>
+
+    <script is:inline>
+      (function () {
+        var root = document.documentElement;
+        var label = document.getElementById('theme-label');
+        var mq = window.matchMedia('(prefers-color-scheme: dark)');
+        function current() { return root.dataset.theme || (mq.matches ? 'dark' : 'light'); }
+        function paint() { label.textContent = current() === 'dark' ? 'light mode' : 'dark mode'; }
+        paint();
+        if (mq.addEventListener) mq.addEventListener('change', paint);
+        document.getElementById('theme-toggle').addEventListener('click', function () {
+          var next = current() === 'dark' ? 'light' : 'dark';
+          root.dataset.theme = next;
+          try { localStorage.setItem('drei-theme', next); } catch (e) {}
+          paint();
+        });
+      })();
+    </script>
+  </body>
+</html>

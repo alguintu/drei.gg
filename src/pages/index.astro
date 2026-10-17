@@ -1,0 +1,138 @@
+---
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PostMeta from '../components/PostMeta.astro';
+import { getPosts, postUrl } from '../lib/posts';
+import { domainBought, inventory, killfeed, rules } from '../data/site';
+
+const posts = await getPosts();
+const rendered = await Promise.all(posts.map(async (post) => ({ post, ...(await render(post)) })));
+const tags = ['all', 'ship', 'build', 'rant', 'dead'];
+const count = (tag: string) => posts.filter((p) => p.data.tag === tag).length;
+const daysSinceDomain = Math.max(0, Math.floor((Date.now() - domainBought.valueOf()) / 86_400_000));
+---
+
+<Base>
+  <section class="hero" id="top">
+    <div class="wrap">
+      <h1 class="gg">drei<span class="tld"><span class="dotc">.</span>gg</span></h1>
+      <div>
+        <p class="thesis">We build things and post about them. <mark>No funnel.</mark> No launch week. Just the log.</p>
+      </div>
+      <div class="gloss" aria-label="Definition of gg">
+        <div class="head"><b>.gg</b> &nbsp;/ˌdʒiːˈdʒiː/ &nbsp;interj., n.</div>
+        <ol>
+          <li><span class="tag">gaming</span>Good game. Said at the end of a match, win or lose.</li>
+          <li><span class="tag">name</span>Drei's middle initial and last name. The domain was sitting there.</li>
+          <li>
+            <span class="tag">PH</span><em>Good luck, you're screwed.</em> Said to the other team when it's already
+            over. Also how it feels to build software in the year of the AI doompost.
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <div class="feed" aria-label="Recent activity">
+    <div class="wrap">
+      {
+        killfeed.map((k) => (
+          <span class="kill">
+            <b>{k.who}</b> <span class={k.style === 'bad' ? 'x' : 'v'}>[{k.verb}]</span> {k.what}
+          </span>
+        ))
+      }
+    </div>
+  </div>
+
+  <main>
+    <div class="wrap">
+      <section id="log" aria-label="Devlog">
+        <p class="label">Log · newest first</p>
+        <div class="filters" role="group" aria-label="Filter posts">
+          {
+            tags.map((t) => (
+              <button type="button" id={`f-${t}`} data-f={t} aria-pressed={t === 'all' ? 'true' : 'false'}>
+                {t}
+              </button>
+            ))
+          }
+        </div>
+
+        <div class="log">
+          {rendered.length === 0 && <p class="empty-log">Nothing posted yet. Add a Markdown file to src/content/posts.</p>}
+          {
+            rendered.map(({ post, Content }) => (
+              <article class="post" data-tag={post.data.tag}>
+                <PostMeta post={post} />
+                <div class="prose">
+                  <h2 class="title">
+                    <a href={postUrl(post)}>{post.data.title}</a>
+                  </h2>
+                  <Content />
+                </div>
+              </article>
+            ))
+          }
+        </div>
+      </section>
+
+      <aside>
+        <section id="inventory" aria-label="Products">
+          <p class="label">Inventory</p>
+          <div class="slots">
+            {
+              inventory.map((item, i) => (
+                <div class={`slot ${item.status}`}>
+                  <span class="n">{String(i + 1).padStart(2, '0')}</span>
+                  <div>
+                    <b>{'href' in item ? <a href={item.href} style="color:inherit;text-decoration:none">{item.name}</a> : item.name}</b>
+                    <small>{item.note}</small>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </section>
+
+        <section id="rules" aria-label="House rules">
+          <p class="label">House rules</p>
+          <ul class="rules">
+            {
+              rules.map((rule, i) => (
+                <li>
+                  <span class="k">{String(i + 1).padStart(2, '0')}</span>
+                  <span>{rule}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+
+        <section aria-label="Scoreboard">
+          <p class="label">Scoreboard</p>
+          <dl class="stats">
+            <dt>posts</dt><dd>{posts.length}</dd>
+            <dt>shipped</dt><dd>{count('ship')}</dd>
+            <dt>killed</dt><dd>{count('dead')}</dd>
+            <dt>days since domain</dt><dd>{daysSinceDomain}</dd>
+          </dl>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <script is:inline>
+    (function () {
+      var buttons = document.querySelectorAll('.filters button');
+      var posts = document.querySelectorAll('.post');
+      buttons.forEach(function (b) {
+        b.addEventListener('click', function () {
+          var f = b.dataset.f;
+          buttons.forEach(function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
+          posts.forEach(function (p) { p.hidden = !(f === 'all' || p.dataset.tag === f); });
+        });
+      });
+    })();
+  </script>
+</Base>

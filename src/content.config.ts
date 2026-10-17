@@ -1,0 +1,22 @@
+import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
+
+// One Markdown file per post. A post with images can be a folder:
+// src/content/posts/my-post/index.md with its images beside it.
+const posts = defineCollection({
+  loader: glob({ base: './src/content/posts', pattern: '**/*.md' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      date: z.coerce.date(),
+      tag: z.enum(['ship', 'build', 'rant', 'dead']),
+      // Shown in the meta column: a version for ship posts, anything short otherwise.
+      label: z.string().optional(),
+      summary: z.string().optional(),
+      cover: image().optional(),
+      draft: z.boolean().default(false),
+    }),
+});
+
+export const collections = { posts };
