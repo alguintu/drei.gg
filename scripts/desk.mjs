@@ -288,9 +288,10 @@ server.listen(DESK_PORT, '127.0.0.1', () => {
 
 // The preview is the real site in dev mode, so drafts show and saves hot-reload.
 // Outside a terminal Astro may move its dev server to the background, so on the
-// way out we also ask it to stop.
+// way out we also ask it to stop. It binds 127.0.0.1 because the preview proxy
+// connects there; on its own, localhost can resolve to ::1 only.
 if (!process.env.DESK_NO_SITE) {
-  const site = spawn('npx', ['astro', 'dev', '--port', String(SITE_PORT)], { cwd: ROOT, stdio: 'inherit' });
+  const site = spawn('npx', ['astro', 'dev', '--host', '127.0.0.1', '--port', String(SITE_PORT)], { cwd: ROOT, stdio: 'inherit' });
   let quitting = false;
   const stop = async () => {
     quitting = true;
