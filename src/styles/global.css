@@ -136,6 +136,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--team); outline-
 .kill b { color: var(--ink); font-weight: 600; }
 .kill .v { color: var(--team); }
 .kill .x { color: var(--dead); }
+/* Scrolling feed: two copies slide left by one copy's width, then repeat. */
+.feed.scroll .wrap { overflow: hidden; }
+.feed .track { display: flex; width: max-content; animation: feed var(--feed-time, 40s) linear infinite; }
+.feed .set { display: flex; gap: 28px; padding-right: 28px; }
+.feed.scroll:hover .track, .feed.scroll:focus-within .track { animation-play-state: paused; }
+@keyframes feed { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .feed .track { animation: none; }
+  .feed .set[aria-hidden] { display: none; }
+  .feed.scroll .wrap { overflow-x: auto; }
+}
 
 /* Main grid */
 main .wrap {
@@ -186,6 +197,8 @@ main .wrap {
   margin-top: 8px;
   border: 1px solid currentColor;
 }
+a.chip { color: inherit; text-decoration: none; }
+a.chip:hover { background: var(--panel); }
 .chip.ship { color: var(--team); }
 .chip.rant { color: var(--ink); background: var(--marker); border-color: var(--marker); color: #15171d; }
 .chip.build { color: var(--mute); }
@@ -300,3 +313,51 @@ main.single .wrap { display: block; padding-block: 48px 72px; }
 .cover-link { display: block; margin-bottom: 18px; }
 .cover-link:focus-visible { outline-offset: 4px; }
 .cover-full { margin: 0 0 28px; }
+
+/* Pages made of blocks (src/pages/[page].astro) */
+.page .page-head { margin-bottom: 28px; }
+.page .page-head .label { margin-bottom: 8px; }
+.page .page-head h1 { margin: 0; }
+.page .prose, .page .blk, .page .frm { max-width: 760px; }
+.single .wrap > .blk, .single .wrap > .frm, .single .wrap > .prose { margin-block: 24px; }
+
+/* Post list block */
+.postlist { margin-block: 24px; }
+.postlist ul { list-style: none; margin: 0; padding: 0; }
+.postlist li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.postlist li time { font: 12px/1 var(--mono); color: var(--mute); min-width: 92px; }
+.postlist li .chip { margin: 0; }
+.postlist li a { font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: 20px; line-height: 1.15; }
+.postlist .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 18px; }
+.postlist .item { color: inherit; text-decoration: none; display: grid; gap: 8px; }
+.postlist .item .t { font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: 18px; line-height: 1.15; }
+
+/* Embed block */
+.embed { margin: 24px 0; max-width: 760px; }
+.embed .video { aspect-ratio: 16 / 9; background: #000; }
+.embed .video iframe { width: 100%; height: 100%; border: 0; }
+.embed .linkcard { display: grid; gap: 4px; padding: 16px 18px; border: 1px solid var(--line); border-left: 4px solid var(--marker); color: inherit; text-decoration: none; }
+.embed .linkcard .host { font: 600 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--mute); }
+.embed .linkcard b { font: 800 20px/1.2 var(--display); font-stretch: 80%; overflow-wrap: anywhere; }
+.embed figcaption { font: 13px/1.5 var(--mono); color: var(--mute); margin-top: 8px; }
+
+/* Search block (Pagefind's UI, in the site's colors) */
+.search { margin-block: 24px; max-width: 760px;
+  --pagefind-ui-scale: .9; --pagefind-ui-primary: var(--team); --pagefind-ui-text: var(--ink); --pagefind-ui-background: var(--paper);
+  --pagefind-ui-border: var(--line); --pagefind-ui-tag: var(--panel); --pagefind-ui-border-width: 1px; --pagefind-ui-border-radius: 0;
+  --pagefind-ui-font: var(--body); }
+.search .pagefind-ui__search-input { font-family: var(--mono); }
+.search .pagefind-ui__result-title { font-family: var(--display); font-stretch: 80%; font-weight: 800; }
+.search .pagefind-ui__result-excerpt mark { background: var(--marker); color: #15171d; }
+.search-off { font: 13px/1.5 var(--mono); color: var(--mute); border: 1px dashed var(--line); padding: 12px 14px; }
+
+/* Project block: the top of a project page */
+.project { margin-bottom: 28px; max-width: 760px; }
+.project h1 { margin: 6px 0 12px; }
+.project .status { display: inline-block; font: 600 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; padding: 5px 7px 4px; border: 1px solid currentColor; }
+.project.st-live .status { color: var(--team); }
+.project.st-building .status { background: var(--marker); border-color: var(--marker); color: #15171d; }
+.project.st-dead .status { color: var(--dead); }
+.project .pitch { font-size: 20px; line-height: 1.45; margin: 0 0 14px; }
+.project .pitch mark { background: var(--marker); color: #15171d; padding: 0 .15em; }
+.project .links { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 600 14px/1.4 var(--mono); margin: 0; }

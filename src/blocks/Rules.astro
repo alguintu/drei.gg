@@ -1,0 +1,24 @@
+---
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'rules'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section id="rules" aria-label="House rules" {...blockAttrs(path)}>
+  <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>
+  <ul class="rules">
+    {
+      block.items.map((rule, i) => (
+        <li>
+          <span class="k">{String(i + 1).padStart(2, '0')}</span>
+          <span {...slotAttrs(path, `items.${i}`)}>{rule}</span>
+        </li>
+      ))
+    }
+  </ul>
+</section>

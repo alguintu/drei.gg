@@ -1,0 +1,46 @@
+{
+  "title": "Frame",
+  "template": "frame",
+  "regions": {
+    "header": [
+      {
+        "type": "header",
+        "brand": "drei.gg",
+        "nav": [
+          {
+            "label": "log",
+            "href": "#log"
+          },
+          {
+            "label": "inventory",
+            "href": "#inventory"
+          },
+          {
+            "label": "rules",
+            "href": "#rules"
+          },
+          {
+            "label": "search",
+            "href": "/search/"
+          },
+          {
+            "label": "rss",
+            "href": "/feed.xml"
+          }
+        ],
+        "status": "build 0.0.1 · region PH · ping fine"
+      }
+    ],
+    "footer": [
+      {
+        "type": "footer",
+        "big": "drei.gg",
+        "feed_label": "rss",
+        "feed_href": "/feed.xml",
+        "feed_text": "drei.gg/feed.xml",
+        "tagline": "no newsletter. on purpose.",
+        "owner": "Drei"
+      }
+    ]
+  }
+}

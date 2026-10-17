@@ -1,0 +1,15 @@
+---
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'heading'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<header class="page-head" {...blockAttrs(path)}>
+  {block.kicker && <p class="label" {...slotAttrs(path, 'kicker')}>{block.kicker}</p>}
+  <h1 {...slotAttrs(path, 'title')}>{block.title}</h1>
+</header>

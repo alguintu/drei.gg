@@ -1,0 +1,42 @@
+# Scheduled posts: a post dated in the future stays off the site until a build on
+# or after its date. Each morning (00:10 UTC, 08:10 in Manila) this checks for a
+# post dated today and, if there is one, asks DigitalOcean to redeploy.
+#
+# Needs two repository secrets: DIGITALOCEAN_TOKEN (an API token that can deploy
+# the app) and DIGITALOCEAN_APP_ID (from `doctl apps list`). Without them it says
+# so and stops.
+name: scheduled
+
+on:
+  schedule:
+    - cron: '10 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  deploy-if-due:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - id: due
+        run: |
+          posts=$(node scripts/due.mjs)
+          echo "posts: ${posts:-none}"
+          echo "due=$([ -n "$posts" ] && echo yes || echo no)" >> "$GITHUB_OUTPUT"
+      - if: steps.due.outputs.due == 'yes'
+        env:
+          TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          APP: ${{ secrets.DIGITALOCEAN_APP_ID }}
+        run: |
+          if [ -z "$TOKEN" ] || [ -z "$APP" ]; then
+            echo "::warning::A post is due, but DIGITALOCEAN_TOKEN / DIGITALOCEAN_APP_ID aren't set, so nothing was deployed."
+            exit 0
+          fi
+          curl -fsS -X POST "https://api.digitalocean.com/v2/apps/$APP/deployments" \
+            -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+            -d '{"force_build": true}' > /dev/null
+          echo "Redeploy requested."

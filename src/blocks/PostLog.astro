@@ -1,0 +1,64 @@
+---
+import { render } from 'astro:content';
+import PostMeta from '../components/PostMeta.astro';
+import PostCover from '../components/PostCover.astro';
+import { getPosts, postUrl } from '../lib/posts';
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'postlog'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+const posts = await getPosts();
+const rendered = await Promise.all(posts.map(async (post) => ({ post, ...(await render(post)) })));
+const tags = ['all', 'ship', 'build', 'rant', 'dead'];
+---
+
+<section id="log" aria-label="Devlog" {...blockAttrs(path)}>
+  <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>
+  <div class="filters" role="group" aria-label="Filter posts">
+    {
+      tags.map((t) => (
+        <button type="button" id={`f-${t}`} data-f={t} aria-pressed={t === 'all' ? 'true' : 'false'}>
+          {t}
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="log">
+    {rendered.length === 0 && <p class="empty-log" {...slotAttrs(path, 'empty')}>{block.empty}</p>}
+    {
+      rendered.map(({ post, Content }) => (
+        <article class="post" data-tag={post.data.tag}>
+          <PostMeta post={post} />
+          <div class="prose">
+            <a class="cover-link" href={postUrl(post)} tabindex="-1" aria-hidden="true">
+              <PostCover post={post} size="card" />
+            </a>
+            <h2 class="title">
+              <a href={postUrl(post)}>{post.data.title}</a>
+            </h2>
+            <Content />
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    var buttons = document.querySelectorAll('.filters button');
+    var posts = document.querySelectorAll('.post');
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var f = b.dataset.f;
+        buttons.forEach(function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
+        posts.forEach(function (p) { p.hidden = !(f === 'all' || p.dataset.tag === f); });
+      });
+    });
+  })();
+</script>

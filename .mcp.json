@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "drei-desk": {
+      "command": "node",
+      "args": ["scripts/desk-mcp.mjs"]
+    }
+  }
+}

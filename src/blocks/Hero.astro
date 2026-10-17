@@ -1,0 +1,33 @@
+---
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+import Text from './Text.astro';
+
+interface Props {
+  block: BlockData<'hero'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<section class="hero" id="top" aria-label="drei.gg" {...blockAttrs(path)}>
+  <div class="wrap">
+    <h1 class="gg"><Text path={path} slot="name" text={block.name} /><span class="tld"><span class="dotc">.</span><Text path={path} slot="tld" text={block.tld} /></span></h1>
+    <div>
+      <p class="thesis"><Text path={path} slot="thesis" text={block.thesis} rich /></p>
+    </div>
+    <div class="gloss" aria-label="Definition of gg">
+      <div class="head"><b {...slotAttrs(path, 'word')}>{block.word}</b> &nbsp;<Text path={path} slot="ipa" text={block.ipa} /> &nbsp;<Text path={path} slot="pos" text={block.pos} /></div>
+      <ol>
+        {
+          block.senses.map((g, i) => (
+            <li>
+              <span class="tag" {...slotAttrs(path, `senses.${i}.tag`)}>{g.tag}</span>
+              <Text path={path} slot={`senses.${i}.text`} text={g.text} rich />
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</section>

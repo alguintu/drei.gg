@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Cover from '../components/Cover.astro';
-import { LAYOUTS, TYPE_LAYOUTS, PALETTES } from '../lib/cover';
+import { LAYOUTS, TYPE_LAYOUTS, PALETTES, SLOTS } from '../lib/cover';
 import { Content as Blocks } from '../demo/blocks.md';
 import hero from '../demo/sample-hero.jpg';
 import log from '../demo/sample-log.jpg';
@@ -28,6 +28,7 @@ const kickers: Record<string, string> = {
   glow: 'SOON', duo: 'LIVE', tips: '1', xband: 'SHIPPED', marquee: 'DEVLOG', orb: 'V0.1', glyph: '?', pill: 'NEW',
   poster: 'V0.1', tower: 'BUILD',
 };
+const text = (layout: string) => (layout === 'glyph' ? { glyph: '?' } : { kicker: kickers[layout] });
 ---
 
 <Base title="Blocks" noindex>
@@ -36,8 +37,8 @@ const kickers: Record<string, string> = {
       <a class="back" href="/">← home</a>
       <h1>Post blocks</h1>
       <p class="intro">
-        Every post gets a cover. Set <code>image</code>, <code>layout</code>, <code>palette</code> and
-        <code>kicker</code> in a post's front matter; leave layout and palette out and the post's filename picks them, from
+        Every post gets a cover. Set <code>image</code>, <code>layout</code> and <code>palette</code> in a post's front matter, and
+        the cover's words under <code>cover:</code>, one per slot (each layout's slots are listed under it); leave layout and palette out and the post's filename picks them, from
         every layout when the post has an image and from the type layouts when it doesn't.
         {LAYOUTS.length + TYPE_LAYOUTS.length} layouts × {PALETTES.length} palettes. Grey boxes stand in for the post image.
       </p>
@@ -48,11 +49,12 @@ const kickers: Record<string, string> = {
           <section class="layout-row">
             <h2>
               <code>layout: {layout}</code>
+              <span class="slots">cover: {Object.keys(SLOTS[layout]).join(' · ') || 'title only'}</span>
             </h2>
             <div class="swatches">
               {PALETTES.map((palette, j) => (
                 <div>
-                  <Cover layout={layout} palette={palette} kicker={kickers[layout]} {...sample} image={images[j % images.length]} imageAlt="" size="card" />
+                  <Cover layout={layout} palette={palette} tag="build" text={text(layout)} {...sample} image={images[j % images.length]} imageAlt="" size="card" />
                   <p class="cap">
                     <code>palette: {palette}</code>
                   </p>
@@ -69,11 +71,12 @@ const kickers: Record<string, string> = {
           <section class="layout-row">
             <h2>
               <code>layout: {layout}</code>
+              <span class="slots">cover: {Object.keys(SLOTS[layout]).join(' · ') || 'title only'}</span>
             </h2>
             <div class="swatches">
               {PALETTES.map((palette) => (
                 <div>
-                  <Cover layout={layout} palette={palette} kicker={kickers[layout]} {...sample} size="card" />
+                  <Cover layout={layout} palette={palette} tag="build" text={text(layout)} {...sample} size="card" />
                   <p class="cap">
                     <code>palette: {palette}</code>
                   </p>
@@ -90,11 +93,12 @@ const kickers: Record<string, string> = {
           <section class="layout-row">
             <h2>
               <code>layout: {layout} + image</code>
+              <span class="slots">cover: {Object.keys(SLOTS[layout]).join(' · ') || 'title only'}</span>
             </h2>
             <div class="swatches">
               {PALETTES.map((palette, j) => (
                 <div>
-                  <Cover layout={layout} palette={palette} kicker={kickers[layout]} {...sample} image={images[j % images.length]} imageAlt="" size="card" />
+                  <Cover layout={layout} palette={palette} tag="build" text={text(layout)} {...sample} image={images[j % images.length]} imageAlt="" size="card" />
                   <p class="cap">
                     <code>palette: {palette}</code>
                   </p>
@@ -111,7 +115,7 @@ const kickers: Record<string, string> = {
         <div class="swatches">
           {
             ['giveaway', 'caption', 'split'].map((layout) => (
-              <Cover layout={layout as any} palette="marker" kicker={kickers[layout]} {...sample} size="card" />
+              <Cover layout={layout as any} palette="marker" tag="build" text={text(layout)} {...sample} size="card" />
             ))
           }
         </div>
@@ -134,6 +138,7 @@ const kickers: Record<string, string> = {
   .intro { color: var(--mute); max-width: 70ch; margin: 0 0 24px; }
   .layout-row { border-top: 1px solid var(--line); padding-block: 24px; }
   .layout-row h2 { font: 600 14px/1 var(--mono); margin: 0 0 16px; }
+  .layout-row h2 .slots { font-weight: 400; color: var(--mute); margin-left: 12px; }
   h2.group { font: 800 28px/1 var(--display); margin: 56px 0 8px; }
   h2.group span { font: 600 14px/1 var(--mono); color: var(--team); vertical-align: middle; }
   .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 18px; }

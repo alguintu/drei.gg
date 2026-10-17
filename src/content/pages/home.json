@@ -1,0 +1,117 @@
+{
+  "title": "Home",
+  "template": "home",
+  "regions": {
+    "top": [
+      {
+        "type": "hero",
+        "name": "drei",
+        "tld": "gg",
+        "thesis": "We build things and post about them. ==No funnel.== No launch week. Just the log. ",
+        "word": ".gg",
+        "ipa": "/ˌdʒiːˈdʒiː/",
+        "pos": "interj., n.",
+        "senses": [
+          {
+            "tag": "gaming",
+            "text": "Good game. Said at the end of a match, win or lose."
+          },
+          {
+            "tag": "name",
+            "text": "Drei's middle initial and last name. The domain was sitting there."
+          },
+          {
+            "tag": "PH",
+            "text": "*Good luck, you're screwed.* Said to the other team when it's already over. Also how it feels to build software in the year of the AI doompost."
+          }
+        ]
+      },
+      {
+        "type": "killfeed",
+        "items": [
+          {
+            "who": "drei",
+            "verb": "bought",
+            "what": "drei.gg",
+            "style": "good"
+          },
+          {
+            "who": "drei",
+            "verb": "shipped",
+            "what": "this site",
+            "style": "good"
+          },
+          {
+            "who": "marketing",
+            "verb": "was kicked",
+            "what": "from the lobby",
+            "style": "bad"
+          },
+          {
+            "who": "the models",
+            "verb": "got",
+            "what": "better again",
+            "style": "good"
+          },
+          {
+            "who": "you",
+            "verb": "joined",
+            "what": "the server",
+            "style": "good"
+          }
+        ],
+        "motion": "scroll"
+      }
+    ],
+    "main": [
+      {
+        "type": "postlog",
+        "label": "Log · newest first",
+        "empty": "Nothing posted yet. Add a Markdown file to src/content/posts."
+      }
+    ],
+    "aside": [
+      {
+        "type": "inventory",
+        "label": "Inventory",
+        "items": [
+          {
+            "name": "drei.gg",
+            "note": "this site · live",
+            "status": "live",
+            "href": "/"
+          },
+          {
+            "name": "empty slot",
+            "note": "first product goes here",
+            "status": "empty"
+          },
+          {
+            "name": "empty slot",
+            "note": "reserved",
+            "status": "empty"
+          }
+        ]
+      },
+      {
+        "type": "rules",
+        "label": "House rules",
+        "items": [
+          "We build, then we post. Never the other way around.",
+          "Say what we actually think.",
+          "Dead projects get a funeral, not a cover-up.",
+          "Marketing happens somewhere else."
+        ]
+      },
+      {
+        "type": "scoreboard",
+        "label": "Scoreboard",
+        "since": "2026-10-16",
+        "posts": "posts",
+        "shipped": "shipped",
+        "killed": "killed",
+        "days": "days since domain"
+      }
+    ]
+  }
+}

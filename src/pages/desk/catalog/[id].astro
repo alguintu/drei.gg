@@ -1,0 +1,156 @@
+---
+// The desk's catalog: every cover layout drawn with one post's own title, image
+// and text, and every block a post can use. It opens in the desk's preview frame;
+// clicking a cover or a block hands it to the editor. Dev only: nothing here is
+// built for the live site.
+import { getCollection } from 'astro:content';
+import { createMarkdownProcessor } from '@astrojs/markdown-remark';
+import Base from '../../../layouts/Base.astro';
+import Cover from '../../../components/Cover.astro';
+import { LAYOUTS, TYPE_LAYOUTS, PALETTES, pickCover } from '../../../lib/cover';
+import { BLOCKS } from '../../../lib/blocks';
+import rehypeNotes from '../../../lib/rehype-notes.mjs';
+import sample from '../../../demo/sample-hero.jpg';
+import type { Post } from '../../../lib/posts';
+
+export async function getStaticPaths() {
+  if (!import.meta.env.DEV) return [];
+  return (await getCollection('posts')).map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props as { post: Post };
+const d = post.data;
+const { palette } = pickCover({ id: post.id, palette: d.palette, hasImage: !!d.image });
+const cover = { tag: d.tag, text: d.cover, title: d.title, summary: d.summary, date: d.date, label: d.label, image: d.image, imageAlt: '', size: 'card' as const };
+
+// Blocks render through the same rehype plugin as posts. Frames get a sample photo.
+const md = await createMarkdownProcessor({ syntaxHighlight: false, rehypePlugins: [rehypeNotes] });
+const blocks = await Promise.all(
+  BLOCKS.map(async (b) => ({ ...b, html: (await md.render(b.md.replace('./image.png', sample.src))).code })),
+);
+const groups = [
+  { title: 'Image layouts', note: d.image ? '' : 'This post has no image yet, so the photo slot shows as hatching.', layouts: LAYOUTS },
+  { title: 'Type layouts', note: '', layouts: TYPE_LAYOUTS },
+];
+---
+
+<Base title="Catalog" noindex>
+  <main class="catalog" data-palette={palette}>
+    <div class="wrap">
+      <nav class="tabs" role="tablist">
+        <button type="button" role="tab" data-tab="heroes" aria-selected="true">heroes</button>
+        <button type="button" role="tab" data-tab="blocks" aria-selected="false">blocks</button>
+        <span class="sp"></span>
+        <span class="pals" data-show="heroes">
+          {PALETTES.map((p) => <button type="button" data-pal={p} aria-pressed={p === palette ? 'true' : 'false'}>{p}</button>)}
+        </span>
+      </nav>
+
+      <section data-panel="heroes">
+        <p class="hint">Every cover, drawn with this post’s own words and image. Click one to use it.</p>
+        {
+          groups.map((g) => (
+            <>
+              <h2>
+                {g.title} <span>{g.layouts.length}</span>
+              </h2>
+              {g.note && <p class="hint">{g.note}</p>}
+              <div class="grid">
+                {g.layouts.map((layout) => (
+                  <div class="pick" role="button" tabindex="0" data-layout={layout}>
+                    <Cover layout={layout} palette={palette} {...cover} />
+                    <code>{layout}</code>
+                  </div>
+                ))}
+              </div>
+            </>
+          ))
+        }
+      </section>
+
+      <section data-panel="blocks" hidden>
+        <p class="hint">Click a block to insert it at the cursor in the post.</p>
+        {
+          blocks.map((b) => (
+            <div class="blk-card" role="button" tabindex="0" data-md={b.md}>
+              <code>
+                {b.group === 'frame' ? `image · ${b.name}` : b.name}
+              </code>
+              <div class="prose" set:html={b.html} />
+            </div>
+          ))
+        }
+      </section>
+    </div>
+  </main>
+</Base>
+
+<script>
+  const send = (msg: object) => parent !== window && parent.postMessage({ desk: 'catalog', ...msg }, location.origin);
+  const q = new URLSearchParams(location.search);
+  const main = document.querySelector<HTMLElement>('.catalog')!;
+  // Picking a cover sets the palette too only if one was chosen, here or in the post.
+  let palChosen = !!q.get('palette');
+
+  function tab(name: string) {
+    document.querySelectorAll<HTMLElement>('[data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
+    document.querySelectorAll<HTMLElement>('[data-panel]').forEach((p) => (p.hidden = p.dataset.panel !== name));
+    document.querySelectorAll<HTMLElement>('[data-show]').forEach((p) => (p.hidden = p.dataset.show !== name));
+    send({ tab: name });
+  }
+
+  function palette(name: string) {
+    main.dataset.palette = name;
+    document.querySelectorAll('.pick .cv').forEach((cv) => cv.className = cv.className.replace(/\bpal-\w+/, `pal-${name}`));
+    document.querySelectorAll<HTMLElement>('[data-pal]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pal === name)));
+  }
+
+  function current(layout: string | null) {
+    document.querySelectorAll<HTMLElement>('.pick').forEach((c) => c.classList.toggle('cur', c.dataset.layout === layout));
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-tab]').forEach((b) => b.addEventListener('click', () => tab(b.dataset.tab!)));
+  document.querySelectorAll<HTMLElement>('[data-pal]').forEach((b) =>
+    b.addEventListener('click', () => {
+      palChosen = true;
+      palette(b.dataset.pal!);
+    }),
+  );
+  document.querySelectorAll<HTMLElement>('.pick').forEach((c) =>
+    c.addEventListener('click', () => {
+      current(c.dataset.layout!);
+      send({ pick: { layout: c.dataset.layout, palette: palChosen ? main.dataset.palette : undefined } });
+    }),
+  );
+  document.querySelectorAll<HTMLElement>('.blk-card').forEach((b) => b.addEventListener('click', () => send({ insert: b.dataset.md })));
+  // The cards are role="button" divs (a cover is a figure, which a <button> can't hold).
+  document.querySelectorAll<HTMLElement>('[role="button"]').forEach((el) =>
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+    }),
+  );
+
+  if (q.get('palette')) palette(q.get('palette')!);
+  current(q.get('layout'));
+  tab(q.get('tab') === 'blocks' ? 'blocks' : 'heroes');
+</script>
+
+<style>
+  .catalog { padding-block: 16px 48px; }
+  .tabs { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 0; background: var(--paper); border-bottom: 1px solid var(--line); }
+  .tabs button { font: 600 13px/1 var(--mono); padding: 7px 12px; border: 1px solid var(--line); background: none; color: var(--ink); cursor: pointer; }
+  .tabs button[aria-selected='true'], .tabs button[aria-pressed='true'] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .tabs .sp { flex: 1; }
+  .pals { display: inline-flex; gap: 4px; }
+  .hint { color: var(--mute); font: 13px/1.5 var(--mono); margin: 14px 0; }
+  h2 { font: 800 22px/1 var(--display); margin: 28px 0 12px; }
+  h2 span { font: 600 13px/1 var(--mono); color: var(--team); vertical-align: middle; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 14px; }
+  .pick, .blk-card { display: block; padding: 6px; border: 2px solid transparent; cursor: pointer; }
+  .pick:focus-visible, .blk-card:focus-visible { outline: 2px solid var(--team); outline-offset: 2px; }
+  .pick:hover, .blk-card:hover { border-color: var(--line); }
+  .pick.cur { border-color: var(--team); }
+  .pick code, .blk-card > code { display: block; margin-top: 6px; font: 600 12px/1 var(--mono); color: var(--mute); }
+  .blk-card { margin-bottom: 14px; border-top: 1px solid var(--line); padding-top: 14px; }
+  .blk-card > code { margin: 0 0 10px; }
+</style>

@@ -1,0 +1,19 @@
+---
+// A post block (callout, pull quote, framed image...) on a page. Drawn by the
+// same code that draws it inside posts (src/lib/post-blocks.mjs).
+import { toHtml } from 'hast-util-to-html';
+import { IMAGE, POST_BLOCKS } from '../lib/post-blocks.mjs';
+import type { BlockData } from './schema';
+import type { Path } from './desk';
+
+interface Props {
+  block: BlockData;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+const { type, ...data } = block as Record<string, any>;
+const tree = type === 'image' ? IMAGE.hast(data) : POST_BLOCKS[type].hast(data);
+if (import.meta.env.DEV && path) tree.properties.dataDeskBlock = path;
+---
+
+<Fragment set:html={toHtml(tree)} />

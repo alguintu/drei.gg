@@ -1,0 +1,44 @@
+---
+// The newest posts, optionally of one tag: rows of titles, or a grid of covers.
+import PostCover from '../components/PostCover.astro';
+import { formatDate, getPosts, postUrl } from '../lib/posts';
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'postlist'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+const posts = (await getPosts())
+  .filter((p) => (!block.tag || p.data.tag === block.tag) && (!block.project || p.data.project === block.project))
+  .slice(0, block.count);
+---
+
+<section class={`postlist ${block.style}`} {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  {
+    block.style === 'cards' ? (
+      <div class="grid">
+        {posts.map((p) => (
+          <a href={postUrl(p)} class="item">
+            <PostCover post={p} size="card" />
+            <span class="t">{p.data.title}</span>
+          </a>
+        ))}
+      </div>
+    ) : !posts.length ? (
+      <p class="empty-log">Nothing posted here yet.</p>
+    ) : (
+      <ul>
+        {posts.map((p) => (
+          <li>
+            <time datetime={p.data.date.toISOString()}>{formatDate(p.data.date)}</time>
+            <span class={`chip ${p.data.tag}`}>{p.data.tag}</span>
+            <a href={postUrl(p)}>{p.data.title}</a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</section>

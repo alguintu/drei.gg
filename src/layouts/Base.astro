@@ -1,11 +1,19 @@
 ---
 import '../styles/global.css';
 import '../styles/cover.css';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { getEntry } from 'astro:content';
+import Region from '../blocks/Region.astro';
+import { themeCss } from '../lib/theme';
+import theme from '../data/theme.json';
 
 interface Props {
   title?: string;
   description?: string;
   noindex?: boolean;
+  // A social card under public/, e.g. /og/my-post.jpg. Defaults to the site's card.
+  image?: string;
 }
 
 const {
@@ -13,10 +21,15 @@ const {
   description = 'A devlog. We build things and post about them. No funnel, no launch week.',
   noindex = false,
 } = Astro.props;
+// Social cards are made by the desk (public/og); use one only if it's there.
+const card = [Astro.props.image, '/og/site.jpg'].find((p) => p && existsSync(join(process.cwd(), 'public', p)));
+const cardUrl = card && new URL(card, Astro.site);
 const pageTitle = title ? `${title} · drei.gg` : 'drei.gg';
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const isHome = Astro.url.pathname === '/';
-const nav = (hash: string) => (isHome ? `#${hash}` : `/#${hash}`);
+// The header and footer every page shares: the `frame` page (src/content/pages/frame.json).
+const frame = (await getEntry('pages', 'frame'))!;
+// Colors changed in the desk's Theme (src/data/theme.json); empty when none are.
+const themed = themeCss(theme);
 ---
 
 <!doctype html>
@@ -30,9 +43,14 @@ const nav = (hash: string) => (isHome ? `#${hash}` : `/#${hash}`);
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title="drei.gg" href="/feed.xml" />
+    {themed && <style is:inline set:html={themed} />}
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    {cardUrl && <meta property="og:image" content={cardUrl} />}
+    {cardUrl && <meta property="og:image:width" content="1200" />}
+    {cardUrl && <meta property="og:image:height" content="675" />}
+    {cardUrl && <meta name="twitter:card" content="summary_large_image" />}
     <meta name="theme-color" content="#15171d" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -49,33 +67,11 @@ const nav = (hash: string) => (isHome ? `#${hash}` : `/#${hash}`);
     </script>
   </head>
   <body>
-    <header class="hud">
-      <div class="wrap">
-        <a class="brand" href="/"><span class="dot"></span>drei.gg</a>
-        <nav aria-label="Site">
-          <a href={nav('log')}>log</a>
-          <a href={nav('inventory')}>inventory</a>
-          <a href={nav('rules')}>rules</a>
-          <a href="/feed.xml">rss</a>
-        </nav>
-        <div class="right">
-          <span>build 0.0.1 · region PH · ping fine</span>
-          <button type="button" class="theme" id="theme-toggle" aria-label="Switch color theme"
-            ><span class="sw"></span><span id="theme-label">dark mode</span></button
-          >
-        </div>
-      </div>
-    </header>
+    <Region page={frame} name="header" />
 
     <slot />
 
-    <footer>
-      <div class="wrap">
-        <span class="big">drei.gg</span>
-        <span>rss · <a href="/feed.xml">drei.gg/feed.xml</a><br />no newsletter. on purpose.</span>
-        <span>© {new Date().getFullYear()} Drei</span>
-      </div>
-    </footer>
+    <Region page={frame} name="footer" />
 
     <script is:inline>
       (function () {

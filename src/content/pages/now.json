@@ -1,0 +1,25 @@
+{
+  "title": "Now",
+  "draft": true,
+  "template": "basic",
+  "regions": {
+    "main": [
+      {
+        "type": "heading",
+        "kicker": "What I'm doing now",
+        "title": "Now"
+      },
+      {
+        "type": "prose",
+        "markdown": "A [now page](https://nownownow.com/about): what has my attention this month, not a résumé.\n\n- **Building:** _what's on Aeris this week_\n- **Shipping next:** _the next thing in the inventory_\n- **Playing:** _the game, if there's time_\n- **Reading / watching:** _one or two things_\n\n```tape\nUpdated: write the month here\n```"
+      },
+      {
+        "type": "postlist",
+        "label": "Latest from the log",
+        "tag": "",
+        "count": 3,
+        "style": "rows"
+      }
+    ]
+  }
+}

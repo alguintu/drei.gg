@@ -52,6 +52,75 @@ const KICKERS: Record<string, string> = {
   dead: 'rip',
 };
 
+// ---- Text slots ----
+// Every word on a cover is a slot, the title and summary included, so a cover
+// can carry a shorter line than the post itself.
+// A post fills them under `cover:` in its front matter; an empty slot uses the
+// default here. Defaults and post values can use these tokens:
+//   {date} 16 Oct 2026   {dd} 16   {mm} 10   {label} " · v0.1" or nothing
+//   {title} {summary} the post's own   {tag} ship   {kicker} the cover's kicker   {script} the kicker as one lowercase word
+//   {initial} the kicker's first character
+// Order matters: the desk lists slots in this order.
+const FOOT = 'drei.gg/log · {date}{label}';
+const SEAL = { ring: 'DREI.GG · DEVLOG · BUILD · POST · ', seal: 'drei.gg' };
+const K = { kicker: '{tag}' };
+
+const OWN: Record<Layout, Record<string, string>> = {
+  giveaway: { ...K, ...SEAL, foot: FOOT },
+  streetwear: { ...SEAL, foot: FOOT },
+  everyday: { foot: FOOT },
+  offset: { foot: FOOT },
+  bracket: { foot: FOOT },
+  tiles: { ...K, foot: FOOT },
+  caption: { ...K, foot: FOOT },
+  quarter: { foot: FOOT },
+  spread: { ...K },
+  lshape: { ...K },
+  split: { ...K, foot: FOOT },
+  circle: { foot: FOOT },
+  twin: { ...K, foot: FOOT },
+  ushape: { ...K, script: '#{script}', foot: FOOT },
+  bleed: { ...K, foot: FOOT },
+  arch: { foot: FOOT },
+  polaroid: { script: '{script}', foot: FOOT },
+  filmstrip: { foot: FOOT },
+  browser: { bar: 'drei.gg/log', ...K, foot: FOOT },
+  bubbles: { foot: FOOT },
+  porthole: { more: 'read more', foot: FOOT },
+  triptych: { foot: FOOT },
+  slab: { more: 'read →' },
+  quadrant: { foot: FOOT },
+  banner: { more: 'read it' },
+  tilt: { ...K },
+  glow: { ...K, more: '{date}' },
+  duo: { pre: 'drei.gg presents', ...K, tag1: 'drei', tag2: '{date}', burst: 'ep.', num: '{dd}', foot: FOOT },
+  repeat: { ...K },
+  arc: { num: '{dd}', num2: '{mm}', ...K, foot: FOOT },
+  stripes: { ...K, foot: FOOT },
+  bignum: { kicker: '80%', foot: FOOT },
+  collection: { foot: FOOT },
+  clearance: { ...K, foot: FOOT },
+  wild: { script: '#{script}', foot: FOOT },
+  promo: { ...K, pre: 'new post', sub: 'drei.gg/log', foot: FOOT },
+  quote: { sign: '— drei · {date}' },
+  term: { bar: 'drei@aeris: ~/log', cmd: '$ drei log --tag {tag}', foot: FOOT },
+  tips: { kicker: '1', foot: FOOT },
+  xband: { ...K, more: 'read it' },
+  marquee: { ...K, ...SEAL, foot: FOOT },
+  orb: { ...K, foot: FOOT },
+  glyph: { glyph: '{initial}', foot: FOOT },
+  pill: { foot: FOOT },
+  poster: { ...K, foot: FOOT },
+  tower: { ...K, foot: FOOT },
+};
+
+// Layouts that print the summary (or the title again when there is none).
+const WITH_SUMMARY = new Set<string>(['everyday', 'quarter', 'collection', 'quote', 'arch', 'porthole', 'slab', 'quadrant', 'banner', 'tips']);
+
+export const SLOTS = Object.fromEntries(
+  ALL_LAYOUTS.map((l) => [l, { title: '{title}', ...(WITH_SUMMARY.has(l) ? { summary: '{summary}' } : {}), ...OWN[l] }]),
+) as Record<Layout, Record<string, string>>;
+
 function hash(text: string) {
   let h = 2166136261;
   for (let i = 0; i < text.length; i++) {
@@ -63,12 +132,35 @@ function hash(text: string) {
 
 // Type layouts also take an image, so a post with one draws from every layout;
 // a post without one draws from the type layouts.
-export function pickCover(opts: { id: string; tag: string; layout?: Layout; palette?: Palette; kicker?: string; hasImage?: boolean }) {
+export function pickCover(opts: { id: string; layout?: Layout; palette?: Palette; hasImage?: boolean }) {
   const h = hash(opts.id);
   const pool: readonly Layout[] = opts.hasImage ? ALL_LAYOUTS : TYPE_LAYOUTS;
   return {
     layout: opts.layout ?? pool[h % pool.length],
     palette: opts.palette ?? PALETTES[(h >>> 8) % PALETTES.length],
-    kicker: (opts.kicker ?? KICKERS[opts.tag] ?? opts.tag).toUpperCase(),
   };
+}
+
+// The words for one cover: the post's own values over the layout's defaults, tokens filled in.
+// The kicker is resolved first so the other slots can use it.
+export function coverText(layout: Layout, opts: { tag: string; title: string; summary?: string; date: Date; label?: string; text?: Record<string, string> }) {
+  const utc = { timeZone: 'UTC' } as const;
+  const ctx: Record<string, string> = {
+    date: opts.date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', ...utc }),
+    dd: opts.date.toLocaleDateString('en-GB', { day: '2-digit', ...utc }),
+    mm: opts.date.toLocaleDateString('en-GB', { month: '2-digit', ...utc }),
+    label: opts.label ? ` · ${opts.label}` : '',
+    tag: KICKERS[opts.tag] ?? opts.tag,
+    title: opts.title,
+    summary: opts.summary ?? '',
+  };
+  const fill = (s: string) => s.replace(/\{(\w+)\}/g, (m, k) => ctx[k] ?? m);
+  const given = opts.text ?? {};
+  const pick = (k: string, fallback = '') => fill(given[k]?.trim() || SLOTS[layout]?.[k] || fallback);
+  ctx.kicker = pick('kicker', '{tag}').toUpperCase();
+  ctx.script = ctx.kicker.toLowerCase().replace(/\s+/g, '');
+  ctx.initial = [...ctx.kicker][0] ?? '';
+  const out: Record<string, string> = { kicker: ctx.kicker, title: pick('title', '{title}'), summary: pick('summary', '{summary}') };
+  for (const k of Object.keys(SLOTS[layout] ?? {})) if (!(k in out)) out[k] = pick(k);
+  return out;
 }

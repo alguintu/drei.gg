@@ -1,0 +1,21 @@
+# Every push and pull request must build. DigitalOcean deploys main on push, so
+# this is the check that a change can't break the live site, desk or no desk.
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm test

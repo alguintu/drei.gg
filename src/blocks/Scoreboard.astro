@@ -1,0 +1,24 @@
+---
+import { getPosts } from '../lib/posts';
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'scoreboard'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+const posts = await getPosts();
+const count = (tag: string) => posts.filter((p) => p.data.tag === tag).length;
+const days = Math.max(0, Math.floor((Date.now() - new Date(block.since).valueOf()) / 86_400_000));
+---
+
+<section aria-label="Scoreboard" {...blockAttrs(path)}>
+  <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>
+  <dl class="stats">
+    <dt {...slotAttrs(path, 'posts')}>{block.posts}</dt><dd>{posts.length}</dd>
+    <dt {...slotAttrs(path, 'shipped')}>{block.shipped}</dt><dd>{count('ship')}</dd>
+    <dt {...slotAttrs(path, 'killed')}>{block.killed}</dt><dd>{count('dead')}</dd>
+    <dt {...slotAttrs(path, 'days')}>{block.days}</dt><dd>{days}</dd>
+  </dl>
+</section>

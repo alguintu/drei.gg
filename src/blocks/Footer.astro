@@ -1,0 +1,19 @@
+---
+import type { BlockData } from './schema';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+import Text from './Text.astro';
+
+interface Props {
+  block: BlockData<'footer'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+---
+
+<footer {...blockAttrs(path)}>
+  <div class="wrap">
+    <span class="big" {...slotAttrs(path, 'big')}>{block.big}</span>
+    <span><Text path={path} slot="feed_label" text={block.feed_label} /> · <a href={block.feed_href} {...slotAttrs(path, 'feed_text')}>{block.feed_text}</a><br /><Text path={path} slot="tagline" text={block.tagline} /></span>
+    <span>© {new Date().getFullYear()} <Text path={path} slot="owner" text={block.owner} /></span>
+  </div>
+</footer>

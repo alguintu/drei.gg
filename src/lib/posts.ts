@@ -2,9 +2,11 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 
 export type Post = CollectionEntry<'posts'>;
 
-// Published posts, newest first. Drafts show up in `npm run dev` only.
+// Published posts, newest first. Drafts, and posts dated in the future (scheduled),
+// show up in `npm run dev` only; a build on or after a post's date publishes it.
 export async function getPosts(): Promise<Post[]> {
-  const posts = await getCollection('posts', ({ data }) => import.meta.env.DEV || !data.draft);
+  const now = Date.now();
+  const posts = await getCollection('posts', ({ data }) => import.meta.env.DEV || (!data.draft && data.date.valueOf() <= now));
   return posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 }
 

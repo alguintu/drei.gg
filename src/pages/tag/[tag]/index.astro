@@ -1,0 +1,27 @@
+---
+// Every post with one tag, at /tag/<tag>/, with its own feed.
+import Base from '../../../layouts/Base.astro';
+import PostList from '../../../blocks/PostList.astro';
+
+const TAGS = { ship: 'Shipped', build: 'Build notes', rant: 'Rants', dead: 'Funerals' } as const;
+
+// getStaticPaths runs on its own, before TAGS exists, so it lists the tags itself.
+export function getStaticPaths() {
+  return ['ship', 'build', 'rant', 'dead'].map((tag) => ({ params: { tag } }));
+}
+
+const tag = Astro.params.tag as keyof typeof TAGS;
+---
+
+<Base title={TAGS[tag]} description={`drei.gg posts tagged ${tag}.`}>
+  <main class="single page">
+    <div class="wrap">
+      <a class="back" href="/#log">← back to the log</a>
+      <header class="page-head">
+        <p class="label"><span class={`chip ${tag}`}>{tag}</span> · <a href={`/tag/${tag}/feed.xml`}>rss</a></p>
+        <h1>{TAGS[tag]}</h1>
+      </header>
+      <PostList block={{ type: 'postlist', label: '', tag, count: 50, style: 'rows' }} />
+    </div>
+  </main>
+</Base>
