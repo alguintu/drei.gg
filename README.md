@@ -120,7 +120,9 @@ Pages are made of blocks. A block is an Astro component in `src/blocks/` whose s
 
 To add a block type: write its schema in `BLOCKS`, its component in `src/blocks/`, and map it in `src/blocks/Blocks.astro`. The desk builds its form from the schema. In dev, blocks and slots carry `data-desk-*` attributes so the desk can map clicks in the preview to fields; production builds have none.
 
-The blocks a post's Markdown can use are listed in `src/lib/blocks.ts`. Styles are in `src/styles/global.css`; colors are tokens at the top (ink, ribbon red, marker yellow, with blue only for links, numbers and tags).
+There are two kinds. Page blocks (header, footer, hero, killfeed, post log, inventory, rules, scoreboard, and **cover**, which shows any post's cover and links to it) live on pages. Post blocks (callout, aeris, pull, bignum, shout, tape, notes, and the framed image) are what a post's Markdown fences write, and pages can use them too. Each post block is defined once in `src/lib/post-blocks.mjs`: how to read it from its fence, write it back as Markdown, and draw it. The Markdown renderer, page blocks, the desk's toolbar and the catalog all use that one definition.
+
+In the desk, click a post block in a post's preview (or put the cursor in one and press **edit ✎**) and it opens in a form above the body; the form writes the Markdown back as you type. Styles are in `src/styles/global.css`; colors are tokens at the top (ink, ribbon red, marker yellow, with blue only for links, numbers and tags).
 
 ## Deploy
 

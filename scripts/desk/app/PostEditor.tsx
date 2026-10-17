@@ -1,6 +1,37 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { api, send, type Meta } from './api';
+import { api, send, type BlocksMeta, type Meta } from './api';
+import { BlockForm } from './forms';
+import { IMAGE, POST_BLOCKS, markdown } from '../../../src/lib/post-blocks.mjs';
 import type { EditorHandle, EditorProps } from './App';
+
+// A post block in the Markdown body: its type, its lines (0-based, inclusive) and slot data.
+type Found = { type: string; start: number; end: number; data: any };
+
+// The post block on a line of the body, if there is one: a ```fence around it,
+// or a framed image on it.
+function blockAt(body: string, line: number): Found | null {
+  const lines = body.split('\n');
+  const img = lines[line]?.match(/^!\[([^\]]*)\]\((\S+)\s+"([^"]*)"\)\s*$/);
+  const frame = img && IMAGE.parse(img[3]);
+  if (img && frame) return { type: 'image', start: line, end: line, data: { src: img[2], alt: img[1], ...frame } };
+  let open = -1;
+  let type = '';
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(/^```(\w*)\s*$/);
+    if (!m) continue;
+    if (open < 0) {
+      open = i;
+      type = m[1];
+      continue;
+    }
+    if (open <= line && line <= i && type in POST_BLOCKS) return { type, start: open, end: i, data: (POST_BLOCKS as any)[type].parse(lines.slice(open + 1, i)) };
+    if (i > line) return null;
+    open = -1;
+  }
+  return null;
+}
+
+const toMarkdown = (b: Found) => (b.type === 'image' ? IMAGE.markdown(b.data) : markdown(b.type, b.data));
 
 type Post = {
   id: string;
@@ -12,8 +43,8 @@ type Post = {
 
 // One post: front matter, cover, and the Markdown body. Saves itself 700ms after
 // the last change.
-export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; catalog: boolean; setPath: (p: string) => void }>(function PostEditor(
-  { id, meta, catalog, setPath, onState, onSaved },
+export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; blocks: BlocksMeta; catalog: boolean; setPath: (p: string) => void }>(function PostEditor(
+  { id, meta, blocks, catalog, setPath, onState, onSaved },
   ref,
 ) {
   const [post, setPost] = useState<Post | null>(null);
@@ -21,6 +52,9 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; 
   const current = useRef<Post | null>(null);
   current.current = post;
   const body = useRef<HTMLTextAreaElement>(null);
+  // The post block open in the form above the body, and the one the caret is in.
+  const [blk, setBlk] = useState<Found | null>(null);
+  const [here, setHere] = useState<Found | null>(null);
 
   useEffect(() => {
     let live = true;
@@ -101,7 +135,43 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; 
     return r.name as string;
   }
 
+  // Show a block's lines in the body and open it in the form.
+  function openBlock(found: Found | null) {
+    setBlk(found);
+    if (!found) return;
+    const ta = body.current!;
+    const lines = ta.value.split('\n');
+    const from = lines.slice(0, found.start).join('\n').length + (found.start ? 1 : 0);
+    const to = from + lines.slice(found.start, found.end + 1).join('\n').length;
+    ta.setSelectionRange(from, to);
+    ta.blur();
+    ta.focus({ preventScroll: true });
+    ta.scrollTop = Math.max(0, (found.start - 3) * parseFloat(getComputedStyle(ta).lineHeight));
+  }
+
+  // The form changed a block: write its Markdown back over its lines.
+  function editBlock(data: any) {
+    setBlk((b) => {
+      if (!b) return b;
+      const next = { ...b, data };
+      const text = toMarkdown(next).split('\n');
+      change((p) => {
+        const lines = p.body.split('\n');
+        lines.splice(b.start, b.end - b.start + 1, ...text);
+        return { ...p, body: lines.join('\n') };
+      });
+      return { ...next, end: b.start + text.length - 1 };
+    });
+  }
+
+  const caretLine = () => {
+    const ta = body.current!;
+    return ta.value.slice(0, ta.selectionStart).split('\n').length - 1;
+  };
+
   useImperativeHandle(ref, () => ({
+    // Lines from the preview are 1-based lines of the body.
+    selectMd: (line) => openBlock(blockAt(current.current?.body ?? '', line - 1)),
     flush: async () => {
       if (timer.current) await save();
     },
@@ -212,7 +282,25 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; 
             {k}
           </button>
         ))}
+        {here && !blk && (
+          <button type="button" className="on" onClick={() => openBlock(here)} title="Edit the block the cursor is in">
+            edit {blocks.schemas[here.type]?.title?.toLowerCase() ?? here.type} ✎
+          </button>
+        )}
       </div>
+      {blk && blocks.schemas[blk.type] && (
+        <fieldset className="bpanel">
+          <legend>
+            {blocks.schemas[blk.type].title} · lines {blk.start + 1}–{blk.end + 1}
+          </legend>
+          <button type="button" className="close" onClick={() => setBlk(null)} title="Close">
+            ×
+          </button>
+          <div className="bform">
+            <BlockForm key={`${blk.type}:${blk.start}`} schema={blocks.schemas[blk.type]} data={{ ...blk.data, type: blk.type }} idPrefix="pb" onChange={({ type, ...data }) => editBlock(data)} />
+          </div>
+        </fieldset>
+      )}
       <textarea
         ref={body}
         className="body"
@@ -220,8 +308,11 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; 
         value={post.body}
         onChange={(e) => {
           const v = e.target.value;
+          // Typing in the body itself closes the block form, whose lines may have moved.
+          setBlk(null);
           change((p) => ({ ...p, body: v }));
         }}
+        onSelect={() => setHere(blockAt(body.current!.value, caretLine()))}
         onDragOver={(e) => {
           e.preventDefault();
           e.currentTarget.classList.add('drop');

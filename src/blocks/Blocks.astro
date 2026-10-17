@@ -10,6 +10,8 @@ import PostLog from './PostLog.astro';
 import Inventory from './Inventory.astro';
 import Rules from './Rules.astro';
 import Scoreboard from './Scoreboard.astro';
+import CoverBlock from './CoverBlock.astro';
+import PostBlock from './PostBlock.astro';
 
 export const COMPONENTS: Record<BlockType, any> = {
   header: Header,
@@ -20,6 +22,16 @@ export const COMPONENTS: Record<BlockType, any> = {
   inventory: Inventory,
   rules: Rules,
   scoreboard: Scoreboard,
+  cover: CoverBlock,
+  // Post blocks draw the same way they do inside posts.
+  callout: PostBlock,
+  aeris: PostBlock,
+  pull: PostBlock,
+  bignum: PostBlock,
+  shout: PostBlock,
+  tape: PostBlock,
+  notes: PostBlock,
+  image: PostBlock,
 };
 
 interface Props {

@@ -119,3 +119,8 @@ main { overflow-x: hidden; }
 .bform .glyphicon-arrow-down::before { content: "↓"; }
 .bform .glyphicon-copy::before { content: "⧉"; }
 .bform .row { margin: 0; }
+
+/* The form for a post block, above the body */
+fieldset.bpanel { position: relative; border-color: var(--team); margin: 8px 0 10px; }
+fieldset.bpanel .close { position: absolute; top: -12px; right: 8px; padding: 2px 8px; }
+fieldset.bpanel .bform { border: 0; padding: 4px 0 0; }

@@ -20,7 +20,7 @@ type Props = {
 };
 
 const STYLE = `
-[data-desk-block], [data-desk-slot] { cursor: pointer; }
+[data-desk-block], [data-desk-slot], [data-desk-md] { cursor: pointer; }
 .desk-hover { outline: 2px dashed #2b3cf0 !important; outline-offset: 2px; }
 .desk-sel { outline: 2px solid #2b3cf0 !important; outline-offset: 2px; }
 [contenteditable].desk-editing { outline: 2px solid #ffd23f !important; outline-offset: 2px; cursor: text; }
@@ -75,7 +75,7 @@ export default forwardRef<PreviewHandle, Props>(function Preview({ path, phone, 
     style.textContent = STYLE;
     doc.head.append(style);
     let hovered: Element | null = null;
-    const target = (e: Event) => (e.target as Element).closest?.('[data-desk-slot], [data-desk-block]') ?? null;
+    const target = (e: Event) => (e.target as Element).closest?.('[data-desk-slot], [data-desk-block], [data-desk-md]') ?? null;
     doc.addEventListener('mouseover', (e) => {
       if (!latest.current.editable) return;
       hovered?.classList.remove('desk-hover');
@@ -89,7 +89,9 @@ export default forwardRef<PreviewHandle, Props>(function Preview({ path, phone, 
         const el = target(e);
         if (!latest.current.editable || !el || (el as HTMLElement).isContentEditable) return;
         e.preventDefault();
-        latest.current.onSelect(el.getAttribute('data-desk-slot') ?? el.getAttribute('data-desk-block')!);
+        // A post block names its lines in the post's Markdown: md:<first>-<last>.
+        const md = el.getAttribute('data-desk-md');
+        latest.current.onSelect(el.getAttribute('data-desk-slot') ?? el.getAttribute('data-desk-block') ?? `md:${md}`);
       },
       true,
     );

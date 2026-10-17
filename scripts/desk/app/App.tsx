@@ -10,6 +10,7 @@ export type EditorHandle = {
   insert?: (md: string) => void;
   pickCover?: (pick: { layout: string; palette?: string }) => void;
   select?: (path: string) => void;
+  selectMd?: (line: number) => void;
   apply?: (path: string, value: string) => void;
 };
 export type EditorProps = { onState: (text: string, cls?: string) => void; onSaved: () => void };
@@ -82,6 +83,8 @@ export default function App() {
 
   // A block or slot clicked or edited in the preview: open its page if needed, then act.
   async function onPreview(target: string, act: (e: EditorHandle) => void) {
+    // A block in the open post's Markdown.
+    if (target.startsWith('md:')) return editor.current?.selectMd?.(Number(target.slice(3).split('-')[0]));
     const pid = target.split(':')[0];
     if (open?.kind === 'page' && open.id === pid && editor.current) return act(editor.current);
     queued.current = act;
@@ -178,9 +181,9 @@ export default function App() {
       {!open || !meta || !blocks ? (
         <main className="empty">pick a page or a post</main>
       ) : open.kind === 'post' ? (
-        <PostEditor key={open.id} ref={editor} id={open.id} meta={meta} catalog={catalog} setPath={setPath} onState={onState} onSaved={onSaved} />
+        <PostEditor key={open.id} ref={editor} id={open.id} meta={meta} blocks={blocks} catalog={catalog} setPath={setPath} onState={onState} onSaved={onSaved} />
       ) : (
-        <PageEditor key={open.id} ref={editor} id={open.id} blocks={blocks} setPath={setPath} onState={onState} onSaved={onSaved} onPick={(p) => preview.current?.mark(p)} />
+        <PageEditor key={open.id} ref={editor} id={open.id} blocks={blocks} posts={posts} setPath={setPath} onState={onState} onSaved={onSaved} onPick={(p) => preview.current?.mark(p)} />
       )}
 
       <section className="preview">

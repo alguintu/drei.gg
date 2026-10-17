@@ -1,42 +1,16 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import Form from '@rjsf/core';
-import validator from '@rjsf/validator-ajv8';
-import type { UiSchema } from '@rjsf/utils';
 import { DndContext, PointerSensor, closestCenter, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { api, send, type Block, type BlocksMeta, type JSONSchema, type PageData } from './api';
+import { api, send, type Block, type BlocksMeta, type PageData } from './api';
 import type { EditorHandle, EditorProps } from './App';
+import { BlockForm, blank, type PostRef } from './forms';
+import { EXAMPLES } from '../../../src/lib/post-blocks.mjs';
 
 // A page made of blocks (src/content/pages/<id>.json). Each region of the
 // page's template is a list of blocks: drag to reorder, add from the block
 // types, remove, and edit the selected block's slots in a form built from its
 // schema (src/blocks/schema.ts).
-
-// A fresh block of a type: empty text, empty lists, the first choice.
-function blank(schema: JSONSchema): any {
-  if (schema.const !== undefined) return schema.const;
-  if (schema.enum) return schema.enum[0];
-  if (schema.type === 'array') return [];
-  if ((schema as any).pattern === '^\\d{4}-\\d{2}-\\d{2}$') return new Date().toISOString().slice(0, 10);
-  if (schema.type === 'object') {
-    const out: Record<string, unknown> = {};
-    for (const [k, s] of Object.entries(schema.properties ?? {})) if (schema.required?.includes(k)) out[k] = blank(s);
-    return out;
-  }
-  return '';
-}
-
-// Form layout from the schema: hide `type`, give rich text a textarea.
-function ui(schema: JSONSchema): UiSchema {
-  const out: UiSchema = { 'ui:submitButtonOptions': { norender: true } };
-  for (const [k, s] of Object.entries(schema.properties ?? {})) {
-    if (k === 'type') out[k] = { 'ui:widget': 'hidden' };
-    else if (s.widget === 'rich') out[k] = { 'ui:widget': 'textarea', 'ui:options': { rows: 2 }, 'ui:help': '==mark== *italic*' };
-    else if (s.type === 'array' && s.items?.type === 'object') out[k] = { items: ui(s.items) };
-  }
-  return out;
-}
 
 // A one-line summary of a block for its card: its first bit of text.
 function gist(block: Block) {
@@ -71,8 +45,8 @@ function Card({ id, title, gist, selected, onSelect, onRemove, regions, region, 
   );
 }
 
-export default forwardRef<EditorHandle, EditorProps & { id: string; blocks: BlocksMeta; setPath: (p: string) => void; onPick: (path: string | null) => void }>(function PageEditor(
-  { id, blocks, setPath, onState, onSaved, onPick },
+export default forwardRef<EditorHandle, EditorProps & { id: string; blocks: BlocksMeta; posts: PostRef[]; setPath: (p: string) => void; onPick: (path: string | null) => void }>(function PageEditor(
+  { id, blocks, posts, setPath, onState, onSaved, onPick },
   ref,
 ) {
   const [page, setPage] = useState<PageData | null>(null);
@@ -220,18 +194,17 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; blocks: Bloc
                         }}
                       >
                         {schema && (
-                          <Form
-                            schema={schema as any}
-                            uiSchema={ui(schema)}
-                            formData={block}
-                            validator={validator}
+                          <BlockForm
+                            schema={schema}
+                            data={block}
                             idPrefix={idFor(region, i)}
-                            noValidate
-                            showErrorList={false}
-                            onChange={(e) => change((p) => {
-                              p.regions[region][i] = e.formData;
-                              return p;
-                            })}
+                            posts={posts}
+                            onChange={(data) =>
+                              change((p) => {
+                                p.regions[region][i] = data;
+                                return p;
+                              })
+                            }
                           />
                         )}
                       </Card>
@@ -246,19 +219,30 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; blocks: Bloc
               onChange={(e) => {
                 const type = e.target.value;
                 if (!type) return;
+                // Post blocks start with example text; others start empty.
+                const fresh = { ...blank(blocks.schemas[type]), ...((EXAMPLES as any)[type] ?? {}), type };
                 change((p) => {
-                  (p.regions[region] ??= []).push(blank(blocks.schemas[type]));
+                  (p.regions[region] ??= []).push(fresh);
                   return p;
                 });
                 setSel({ region, index: list.length });
               }}
             >
               <option value="">+ add a block…</option>
-              {types.map(([type, s]) => (
-                <option key={type} value={type}>
-                  {s.title ?? type}
-                  {s.description ? ` · ${s.description}` : ''}
-                </option>
+              {[
+                ['page', 'Page blocks'],
+                ['post', 'Post blocks'],
+              ].map(([group, label]) => (
+                <optgroup key={group} label={label}>
+                  {types
+                    .filter(([, s]) => ((s as any).group ?? 'page') === group)
+                    .map(([type, s]) => (
+                      <option key={type} value={type}>
+                        {s.title ?? type}
+                        {s.description ? ` · ${s.description}` : ''}
+                      </option>
+                    ))}
+                </optgroup>
               ))}
             </select>
           </fieldset>

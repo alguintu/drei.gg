@@ -1,0 +1,36 @@
+---
+// A post's cover on a page, linking to the post.
+import { getEntry } from 'astro:content';
+import PostCover from '../components/PostCover.astro';
+import { postUrl } from '../lib/posts';
+import type { BlockData } from './schema';
+import { blockAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'cover'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+const post = block.post ? await getEntry('posts', block.post) : undefined;
+// The block's own layout and palette, over the post's.
+const shown = post && {
+  ...post,
+  data: { ...post.data, ...(block.layout ? { layout: block.layout } : {}), ...(block.palette ? { palette: block.palette } : {}) },
+};
+---
+
+{
+  shown ? (
+    block.link ? (
+      <a class="cover-link" href={postUrl(post!)} aria-label={post!.data.title} {...blockAttrs(path)}>
+        <PostCover post={shown as any} size={block.size} />
+      </a>
+    ) : (
+      <div {...blockAttrs(path)}>
+        <PostCover post={shown as any} size={block.size} />
+      </div>
+    )
+  ) : (
+    import.meta.env.DEV && <p class="empty-log" {...blockAttrs(path)}>Pick a post for this cover.</p>
+  )
+}
