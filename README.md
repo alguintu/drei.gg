@@ -18,7 +18,7 @@ Node 22.12 or newer.
 npm run desk
 ```
 
-Open http://localhost:4320. The desk is a local editor: post list on the left, a form for the front matter and cover (image, layout, palette, kicker), the Markdown body with buttons for every block, and the real site running in `astro dev` as a live preview, split beside the editor or in a popup, at desktop or phone width. Every change saves straight to `src/content/posts` and the preview reloads. Drop an image on the body to upload it beside the post and insert it with a frame. **publish** commits the post and pushes the current branch; the live site redeploys when `main` changes. It only listens on localhost.
+Open http://localhost:4320. The desk is a local editor: post list on the left, a form for the front matter and cover (image, layout, palette, and one box per text slot on the chosen layout), the Markdown body with buttons for every block, and the real site running in `astro dev` as a live preview, split beside the editor or in a popup, at desktop or phone width. Every change saves straight to `src/content/posts` and the preview reloads. Drop an image on the body to upload it beside the post and insert it with a frame. **publish** commits the post and pushes the current branch; the live site redeploys when `main` changes. It only listens on localhost.
 
 ## Write a post
 
@@ -40,7 +40,7 @@ Front matter:
 | `draft`   | no       | `true` hides the post from the built site                 |
 | `layout`  | no       | Cover layout (see below). Picked from the filename if unset |
 | `palette` | no       | `marker` (white and yellow), `aeris` (white and teal) or `ink` (black and yellow). Picked from the filename if unset |
-| `kicker`  | no       | Short word on the cover, up to 14 characters. Defaults to the tag |
+| `cover`   | no       | The cover's words, one per text slot (see below). Blank slots use the layout's default |
 | `image`   | no       | The cover image (`./shot.png`). Posts with one get an image layout |
 | `image_alt` | no     | Alt text for `image`                                      |
 
@@ -63,7 +63,21 @@ Image layouts (28): `giveaway`, `streetwear`, `everyday`, `offset`, `bracket`, `
 
 Type layouts (18): `repeat`, `arc`, `stripes`, `bignum`, `collection`, `clearance`, `wild`, `promo`, `quote`, `term`, `tips`, `xband`, `marquee`, `orb`, `glyph`, `pill`, `poster`, `tower`.
 
-Each comes in 3 palettes. Leave `layout` and `palette` out and the post's filename picks them, from all 46 when the post has an image and from the 18 type layouts when it doesn't, which keeps neighbouring posts from looking alike. For `bignum` and `tips`, set `kicker` to the number (`kicker: "80%"`, `kicker: "3"`); `glyph` shows the kicker's first character, so `kicker: "?"` works. Run `npm run dev` and open `/blocks` to see every combination.
+Each comes in 3 palettes. Leave `layout` and `palette` out and the post's filename picks them, from all 46 when the post has an image and from the 18 type layouts when it doesn't, which keeps neighbouring posts from looking alike. Run `npm run dev` and open `/blocks` to see every combination.
+
+### Cover text
+
+Every word on a cover other than the title and summary is a text slot: the kicker, the footer line, "read it", "new post", the stamp ring, the terminal command and so on. Each layout lists its slots and their defaults in `SLOTS` in `src/lib/cover.ts`, and `/blocks` prints them under each layout. Fill the ones you want under `cover:`; the rest keep their defaults.
+
+```yaml
+layout: promo
+cover:
+  kicker: v0.2
+  pre: hot take
+  foot: "filed {date} from aeris"
+```
+
+Defaults and your own values can use tokens: `{date}` (16 Oct 2026), `{dd}`, `{mm}`, `{label}` (" · v0.1", or nothing), `{tag}` (shipped, build, rant, rip), `{kicker}`, `{script}` (the kicker as one lowercase word) and `{initial}` (its first character). The kicker defaults to the tag; for `bignum` and `tips` set it to a number (`kicker: "80%"`), and for `glyph` set `glyph: "?"`. Quote a value that starts with `{`.
 
 Inside a post, fenced blocks turn into designed blocks:
 

@@ -130,9 +130,10 @@
       <label>layout<select name="layout"></select></label>
       <button type="button" id="shuffle" title="Random layout">shuffle</button>
       <label>palette<select name="palette"></select></label>
-      <label>kicker<input name="kicker" maxlength="14" size="12" placeholder="from the tag" /></label>
     </div>
     <p class="hint" id="pickHint"></p>
+    <div class="row slots" id="slots"></div>
+    <p class="hint">Cover text: blank uses the layout's default. Tokens: {date} {dd} {mm} {label} {tag} {kicker} {script} {initial}.</p>
   </fieldset>
 
   <div class="tools" id="tools"></div>
@@ -205,13 +206,19 @@ async function open(id) {
   f('draft').checked = d.draft === true;
   f('image_alt').value = d.image_alt ?? '';
   f('palette').innerHTML = opt('', 'auto', d.palette ?? '') + META.palettes.map((p) => opt(p, p, d.palette)).join('');
-  f('kicker').value = d.kicker ?? '';
+  d.cover = { ...(d.cover ?? {}) };
   f('body').value = cur.body;
   renderLayouts();
   renderThumbs();
   $('#tools').innerHTML = Object.keys(SNIPPETS).map((k) => `<button type="button" data-snip="${k}">${k}</button>`).join('');
-  main.addEventListener('input', changed);
-  main.addEventListener('change', changed);
+  main.addEventListener('input', (e) => {
+    if (e.target.dataset.slot) cur.data.cover[e.target.dataset.slot] = e.target.value;
+    changed();
+  });
+  main.addEventListener('change', (e) => {
+    if (e.target.name === 'layout') renderLayouts();
+    changed();
+  });
   wireMain(main);
   await loadList();
   showPreview();
@@ -226,9 +233,23 @@ function renderLayouts() {
   sel.innerHTML = opt('', 'auto', v)
     + `<optgroup label="image layouts${hasImg ? '' : ' (need an image)'}">${META.image.map((l) => opt(l, l, v)).join('')}</optgroup>`
     + `<optgroup label="type layouts">${META.type.map((l) => opt(l, l, v)).join('')}</optgroup>`;
+  const auto = hasImg ? cur.auto.image : cur.auto.none;
   $('#pickHint').textContent = v ? '' : hasImg
-    ? `auto: the filename picks from all ${META.image.length + META.type.length} layouts.`
-    : `auto: no image, so the filename picks from the ${META.type.length} type layouts.`;
+    ? `auto: the filename picks from all ${META.image.length + META.type.length} layouts (${auto}).`
+    : `auto: no image, so the filename picks from the ${META.type.length} type layouts (${auto}).`;
+  renderSlots(v || auto);
+}
+
+// One input per text slot on the chosen layout. Values for slots the layout
+// doesn't have stay in the post, so switching layouts back and forth loses nothing.
+function renderSlots(layout) {
+  const box = $('#slots');
+  if (box.dataset.layout === layout) return;
+  box.dataset.layout = layout;
+  const slots = META.slots[layout] ?? {};
+  box.innerHTML = Object.entries(slots).map(([k, def]) =>
+    `<label>${esc(k)}<input data-slot="${esc(k)}" value="${esc(cur.data.cover[k] ?? '')}" placeholder="${esc(def)}" size="${Math.min(28, Math.max(8, def.length))}" /></label>`).join('')
+    || '<p class="hint">This layout only shows the title and summary.</p>';
 }
 
 function renderThumbs() {
@@ -257,6 +278,7 @@ function wireMain(main) {
   $('#shuffle').addEventListener('click', () => {
     const pool = cur.data.image ? [...META.image, ...META.type] : META.type;
     $('[name="layout"]').value = pool[Math.floor(Math.random() * pool.length)];
+    renderLayouts();
     changed();
   });
   $('#tools').addEventListener('click', (e) => {
@@ -298,7 +320,8 @@ function collect() {
   const main = $('#main');
   const v = (n) => main.querySelector(`[name="${n}"]`);
   const data = { ...cur.data };
-  for (const k of ['title', 'date', 'tag', 'label', 'summary', 'layout', 'palette', 'kicker', 'image_alt']) data[k] = v(k).value.trim();
+  for (const k of ['title', 'date', 'tag', 'label', 'summary', 'layout', 'palette', 'image_alt']) data[k] = v(k).value.trim();
+  data.cover = Object.fromEntries(Object.entries(cur.data.cover).filter(([, x]) => x.trim()));
   data.draft = v('draft').checked;
   if (!data.image) { delete data.image; delete data.image_alt; }
   return { data, body: v('body').value };

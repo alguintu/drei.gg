@@ -18,8 +18,9 @@ const posts = defineCollection({
       // Cover poster. Leave these out and the slug picks them.
       layout: z.enum(ALL_LAYOUTS).optional(),
       palette: z.enum(PALETTES).optional(),
-      // The big word on the cover. Defaults to the tag (SHIPPED, BUILD, RANT, RIP).
-      kicker: z.string().max(14).optional(),
+      // Cover text by slot: kicker, foot, more... Each layout lists its slots in
+      // SLOTS (src/lib/cover.ts); a slot left out uses the layout's default.
+      cover: z.record(z.string(), z.coerce.string()).optional(),
       // Optional photo; layouts with a frame show it.
       image: image().optional(),
       image_alt: z.string().optional(),

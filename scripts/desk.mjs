@@ -8,7 +8,7 @@ import { promisify } from 'node:util';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile, readdir, mkdir, rename, stat } from 'node:fs/promises';
 import { join, dirname, extname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const POSTS = join(ROOT, 'src/content/posts');
@@ -18,24 +18,31 @@ const SITE_PORT = Number(process.env.SITE_PORT || 4321);
 const run = promisify(execFile);
 
 // Front matter keys in the order we write them. Unknown keys are kept after these.
-const KEYS = ['title', 'date', 'tag', 'label', 'summary', 'layout', 'palette', 'kicker', 'image', 'image_alt', 'draft'];
+const KEYS = ['title', 'date', 'tag', 'label', 'summary', 'layout', 'palette', 'cover', 'image', 'image_alt', 'draft'];
 const SLUG = /^[a-z0-9][a-z0-9-]*$/;
 const FILE = /^[A-Za-z0-9][A-Za-z0-9._-]*\.(png|jpe?g|webp|gif|avif|svg)$/i;
 
-// ---- Front matter: the flat key: value subset our posts use ----
+// ---- Front matter: the subset our posts use, flat key: value plus one level of maps (cover:) ----
+
+function value(v) {
+  v = v.trim();
+  if (v === 'true' || v === 'false') return v === 'true';
+  if (/^".*"$/.test(v)) return JSON.parse(v);
+  if (/^'.*'$/.test(v)) return v.slice(1, -1).replace(/''/g, "'");
+  return v;
+}
 
 function parse(text) {
   const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
   if (!m) return { data: {}, body: text };
   const data = {};
+  let map = null;
   for (const line of m[1].split(/\r?\n/)) {
-    const kv = line.match(/^([A-Za-z_][\w-]*):\s*(.*)$/);
+    const kv = line.match(/^(\s*)([A-Za-z_][\w-]*):\s*(.*)$/);
     if (!kv) continue;
-    let v = kv[2].trim();
-    if (v === 'true' || v === 'false') v = v === 'true';
-    else if (/^".*"$/.test(v)) v = JSON.parse(v);
-    else if (/^'.*'$/.test(v)) v = v.slice(1, -1).replace(/''/g, "'");
-    data[kv[1]] = v;
+    if (kv[1] && map) map[kv[2]] = String(value(kv[3]));
+    else if (!kv[1] && kv[3].trim() === '') map = data[kv[2]] = {};
+    else if (!kv[1]) [map, data[kv[2]]] = [null, value(kv[3])];
   }
   return { data, body: m[2].replace(/^\r?\n/, '') };
 }
@@ -51,7 +58,17 @@ function scalar(v) {
 
 function stringify(data, body) {
   const keys = [...KEYS.filter((k) => k in data), ...Object.keys(data).filter((k) => !KEYS.includes(k))];
-  const lines = keys.filter((k) => data[k] !== '' && data[k] !== undefined && data[k] !== null && !(k === 'draft' && data[k] === false)).map((k) => `${k}: ${scalar(data[k])}`);
+  const empty = (v) => v === '' || v === undefined || v === null;
+  const lines = [];
+  for (const k of keys) {
+    const v = data[k];
+    if (empty(v) || (k === 'draft' && v === false)) continue;
+    if (typeof v !== 'object') lines.push(`${k}: ${scalar(v)}`);
+    else {
+      const entries = Object.entries(v).filter(([, x]) => !empty(x) && String(x).trim() !== '');
+      if (entries.length) lines.push(`${k}:`, ...entries.map(([sk, x]) => `  ${sk}: ${scalar(String(x).trim())}`));
+    }
+  }
   return `---\n${lines.join('\n')}\n---\n\n${body.replace(/^\n+/, '')}`;
 }
 
@@ -95,11 +112,16 @@ async function images(id) {
   return (await readdir(dirname(file))).filter((f) => FILE.test(f));
 }
 
-// Layout and palette names come straight from src/lib/cover.ts so the editor never drifts.
+// Layouts, palettes and text slots come straight from src/lib/cover.ts so the editor never
+// drifts. Node strips its types; the file's mtime busts the import cache after an edit.
+async function cover() {
+  const file = join(ROOT, 'src/lib/cover.ts');
+  return import(`${pathToFileURL(file)}?v=${(await stat(file)).mtimeMs}`);
+}
+
 async function meta() {
-  const src = await readFile(join(ROOT, 'src/lib/cover.ts'), 'utf8');
-  const list = (name) => [...(src.match(new RegExp(`export const ${name} = \\[([\\s\\S]*?)\\]`))?.[1] ?? '').matchAll(/'([a-z]+)'/g)].map((m) => m[1]);
-  return { image: list('LAYOUTS'), type: list('TYPE_LAYOUTS'), palettes: list('PALETTES'), tags: ['ship', 'build', 'rant', 'dead'], site: `http://localhost:${SITE_PORT}` };
+  const c = await cover();
+  return { image: [...c.LAYOUTS], type: [...c.TYPE_LAYOUTS], palettes: [...c.PALETTES], slots: c.SLOTS, tags: ['ship', 'build', 'rant', 'dead'], site: `http://localhost:${SITE_PORT}` };
 }
 
 function slugify(title) {
@@ -129,7 +151,10 @@ const routes = {
   'GET /api/post': async (q) => {
     const id = q.get('id');
     const { data, body } = parse(await readFile(fileFor(id), 'utf8'));
-    return { id, data, body, images: await images(id) };
+    // What "auto" resolves to, with and without an image, so the editor can show that layout's slots.
+    const { pickCover } = await cover();
+    const auto = { image: pickCover({ id, hasImage: true }).layout, none: pickCover({ id, hasImage: false }).layout };
+    return { id, data, body, auto, images: await images(id) };
   },
   'PUT /api/post': async (q, req) => {
     const id = q.get('id');
