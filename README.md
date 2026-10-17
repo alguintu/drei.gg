@@ -165,6 +165,15 @@ A post dated in the future is *scheduled*: the desk marks it, it shows in the pr
 
 `npm run test:desk` drives the real desk in Chrome while it's running: a new page, a double-click edit in the preview, adding a block and undoing it, a post block edited by clicking it in the preview, and Ctrl+K. It makes its own page and post and removes them.
 
+Cover snapshots: on every pull request, GitHub Actions screenshots every cover on `/blocks/` (all layouts × palettes, the no-image fallbacks and the in-post blocks, light and dark) for the base branch and the PR, and lists the ones that changed. Changes show as warnings on the PR and in the run summary, with a before/after/diff report in the `cover-snapshots` artifact. It never fails the check, since covers change on purpose. Locally:
+
+```sh
+npm run build && npm run covers -- shoot dist /tmp/before
+# change something
+npm run build && npm run covers -- shoot dist /tmp/after
+npm run covers -- diff /tmp/before /tmp/after /tmp/report   # open /tmp/report/report.html
+```
+
 ## Deploy
 
 Every push to `main` rebuilds and deploys. First-time setup:
