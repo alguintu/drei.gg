@@ -1,0 +1,29 @@
+---
+// Gives every highlighted code block a bar with its language and a copy button.
+---
+
+<script is:inline>
+  (function () {
+    document.querySelectorAll('pre.astro-code').forEach(function (pre) {
+      if (pre.parentElement.classList.contains('code')) return;
+      var box = document.createElement('div');
+      box.className = 'code';
+      var bar = document.createElement('div');
+      bar.className = 'code-bar';
+      var lang = document.createElement('span');
+      lang.textContent = pre.dataset.language && pre.dataset.language !== 'plaintext' ? pre.dataset.language : 'text';
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = 'copy';
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.textContent = 'copied';
+          setTimeout(function () { btn.textContent = 'copy'; }, 1400);
+        });
+      });
+      bar.append(lang, btn);
+      pre.before(box);
+      box.append(bar, pre);
+    });
+  })();
+</script>

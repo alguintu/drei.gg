@@ -1,9 +1,10 @@
 ---
 import { getEntry, render } from 'astro:content';
+import CodeCopy from '../../components/CodeCopy.astro';
 import Base from '../../layouts/Base.astro';
 import PostMeta from '../../components/PostMeta.astro';
 import PostCover from '../../components/PostCover.astro';
-import { getPosts, postUrl, type Post } from '../../lib/posts';
+import { getPosts, postUrl, LABELS, type Post } from '../../lib/posts';
 import Region from '../../blocks/Region.astro';
 
 export async function getStaticPaths() {
@@ -30,7 +31,7 @@ const template = (await getEntry('pages', 'post'))!;
     <div class="wrap">
       <a class="back" href="/#log">← back to the log</a>
       <Region page={template} name="top" />
-      <article data-pagefind-body>
+      <article data-pagefind-body data-pagefind-filter={`tag:${LABELS[post.data.tag]}`}>
         <PostMeta post={post} />
         <h1>{post.data.title}</h1>
         <div class="cover-full"><PostCover post={post} /></div>
@@ -43,4 +44,5 @@ const template = (await getEntry('pages', 'post'))!;
       <Region page={template} name="bottom" />
     </div>
   </main>
+  <CodeCopy />
 </Base>

@@ -2,6 +2,7 @@
 // Pages made in the desk: every page in src/content/pages with the basic
 // template, at /<id>/.
 import { getCollection, type CollectionEntry } from 'astro:content';
+import CodeCopy from '../components/CodeCopy.astro';
 import Base from '../layouts/Base.astro';
 import Region from '../blocks/Region.astro';
 
@@ -19,4 +20,5 @@ const { page } = Astro.props as { page: CollectionEntry<'pages'> };
       <Region page={page} name="main" />
     </div>
   </main>
+  <CodeCopy />
 </Base>

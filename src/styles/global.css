@@ -361,3 +361,17 @@ main.single .wrap { display: block; padding-block: 48px 72px; }
 .project .pitch { font-size: 20px; line-height: 1.45; margin: 0 0 14px; }
 .project .pitch mark { background: var(--marker); color: #15171d; padding: 0 .15em; }
 .project .links { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 600 14px/1.4 var(--mono); margin: 0; }
+
+/* Code blocks get a bar with the language and a copy button (src/components/CodeCopy.astro). */
+.prose .code { max-width: 64ch; margin: 6px 0 16px; border: 1px solid var(--line); }
+.prose .code pre { margin: 0; border: 0; max-width: none; }
+.code-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 10px 6px 16px; border-bottom: 1px solid var(--line); background: var(--paper);
+  font: 600 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--mute);
+}
+.code-bar span::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 8px; background: var(--ribbon); vertical-align: 1px; }
+.code-bar button {
+  font: inherit; color: var(--ink); background: none; border: 1px solid var(--line); padding: 5px 8px; cursor: pointer;
+}
+.code-bar button:hover { background: var(--marker); border-color: var(--marker); color: #15171d; }

@@ -1,0 +1,21 @@
+---
+// Every post on one page, newest first.
+import Base from '../../layouts/Base.astro';
+import PostRows from '../../components/PostRows.astro';
+import TagNav from '../../components/TagNav.astro';
+import { getPosts } from '../../lib/posts';
+import '../../styles/extras.css';
+
+const posts = await getPosts();
+---
+
+<Base title="Archive" description="Every post on drei.gg, newest first.">
+  <main class="single archive">
+    <div class="wrap">
+      <a class="back" href="/">← home</a>
+      <h1>The whole log</h1>
+      <TagNav posts={posts} />
+      <PostRows posts={posts} />
+    </div>
+  </main>
+</Base>
