@@ -90,20 +90,6 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
     )
   }
 
-  {
-    layout === 'overlay' && (
-      <>
-        <Photo {...photo} class="p" />
-        <div class="panel">
-          <p class="k">{kicker}</p>
-          <p class="t">{title}</p>
-          <p class="foot">{foot}</p>
-        </div>
-        <Stamp class="st" />
-        <span class="dotgrid" />
-      </>
-    )
-  }
 
   {
     layout === 'bracket' && (
@@ -207,20 +193,6 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
     )
   }
 
-  {
-    layout === 'mono' && (
-      <>
-        <Photo {...photo} class="p" bw />
-        <div class="stack" aria-hidden="true">
-          <span>{kicker}</span>
-          <span class="o">{kicker}</span>
-          <span>{kicker}</span>
-        </div>
-        <p class="t">{title}</p>
-        <span class="dot" />
-      </>
-    )
-  }
   {/* ---- Type-only layouts: for posts without an image ---- */}
 
   {
@@ -543,6 +515,278 @@ const script = kicker.toLowerCase().replace(/\s+/g, '');
         <p class="foot">{foot}</p>
         <span class="dotgrid" />
         <span class="tick" />
+      </>
+    )
+  }
+  {/* ---- Second batch: Memphis shapes, black-and-yellow blocks, story posters ---- */}
+
+  {
+    layout === 'bubbles' && (
+      <>
+        <span class="c1" />
+        <span class="c2" />
+        <span class="q1" />
+        <span class="q2" />
+        <p class="t">{title}</p>
+        <Photo {...photo} class="p" />
+        <span class="dotgrid g1" />
+        <span class="dotgrid g2" />
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'porthole' && (
+      <>
+        <span class="c1" />
+        <span class="c2" />
+        <span class="q2" />
+        <Photo {...photo} class="p" />
+        <div class="col">
+          <p class="t">{title}</p>
+          {summary && <p class="s">{summary}</p>}
+          <p class="more">read more</p>
+        </div>
+        <span class="dotgrid" />
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'triptych' && (
+      <>
+        <span class="c2" />
+        <span class="c1" />
+        <Photo {...photo} class="p f1" position="left center" />
+        <Photo {...photo} class="p f2" position="center center" />
+        <Photo {...photo} class="p f3" position="right center" />
+        <span class="dline" />
+        <p class="t">{title}</p>
+        <span class="dotgrid" />
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'slab' && (
+      <>
+        <span class="frame" />
+        <span class="cap1" />
+        <span class="cap2" />
+        <div class="colm">
+          <p class="t">{title}</p>
+          {summary && <p class="s">{summary}</p>}
+          <p class="more">read →</p>
+        </div>
+        <Photo {...photo} class="p" />
+      </>
+    )
+  }
+
+  {
+    layout === 'quadrant' && (
+      <>
+        <span class="blk" />
+        <span class="band" />
+        <Photo {...photo} class="p" />
+        <p class="t">{title}</p>
+        <p class="s">{blurb}</p>
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'banner' && (
+      <>
+        <span class="top" />
+        <p class="t">{title}</p>
+        {summary && <p class="s">{summary}</p>}
+        <span class="frame" />
+        <Photo {...photo} class="p" />
+        <p class="more">read it</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'tilt' && (
+      <>
+        <div class="wall" aria-hidden="true">
+          <span>{kicker} {kicker} {kicker}</span>
+          <span>{kicker} {kicker} {kicker}</span>
+          <span>{kicker} {kicker} {kicker}</span>
+          <span>{kicker} {kicker} {kicker}</span>
+        </div>
+        <Photo {...photo} class="p" />
+        <p class="k2">{kicker}</p>
+        <p class="lbl">
+          <span>{title}</span>
+        </p>
+      </>
+    )
+  }
+
+  {
+    layout === 'glow' && (
+      <>
+        <Photo {...photo} class="p" bw />
+        <span class="shade" />
+        <span class="band b1" />
+        <span class="band b2" />
+        <p class="k2">{kicker}</p>
+        <p class="t">{title}</p>
+        <p class="more">{stamp}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'duo' && (
+      <>
+        <p class="pre">drei.gg presents</p>
+        <p class="t">{title}</p>
+        <p class="k">{kicker}</p>
+        <p class="foot">{foot}</p>
+        <Photo {...photo} class="p p1" position="center 30%" />
+        <Photo {...photo} class="p p2" position="center 75%" />
+        <p class="tag tg1">drei</p>
+        <p class="tag tg2">{stamp}</p>
+        <p class="burst">
+          <span>
+            ep.
+            <b>{dd}</b>
+          </span>
+        </p>
+      </>
+    )
+  }
+
+  {
+    layout === 'tips' && (
+      <>
+        <p class="num">
+          <span>{kicker}</span>
+        </p>
+        <p class="t">{title}</p>
+        <svg class="zz" viewBox="0 0 60 10" aria-hidden="true">
+          <path d="M1 8 L6 2 L11 8 L16 2 L21 8 L26 2 L31 8 L36 2 L41 8 L46 2 L51 8 L56 2" fill="none" stroke="currentColor" stroke-width="1.6" />
+        </svg>
+        <p class="s">{blurb}</p>
+        <span class="dline" />
+        <span class="arrow">→</span>
+        <span class="hatchball" />
+        <span class="ring r1" />
+        <span class="ring r2" />
+        <span class="ring r3" />
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'xband' && (
+      <>
+        <span class="lights" />
+        <span class="band b1" />
+        <span class="band b2" />
+        <p class="k2">{kicker}</p>
+        <p class="t">{title}</p>
+        <p class="more">read it</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'marquee' && (
+      <>
+        <span class="bulbs" />
+        <p class="t">{title}</p>
+        <p class="k2">{kicker}</p>
+        <span class="disc" />
+        <Stamp class="st" />
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'orb' && (
+      <>
+        <span class="stripes" />
+        <span class="ball" />
+        <span class="moon" />
+        <div class="in">
+          <p class="t">{title}</p>
+          <p class="k">{kicker}</p>
+        </div>
+        <span class="dotgrid" />
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'glyph' && (
+      <>
+        <span class="half" />
+        <p class="g" aria-hidden="true">
+          {[...kicker][0]}
+        </p>
+        <span class="hatch" />
+        <p class="t">{title}</p>
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'pill' && (
+      <>
+        <span class="bar" />
+        <span class="pillb" />
+        <p class="t">{title}</p>
+        <span class="dotgrid" />
+        <span class="stripes" />
+        <span class="hatch" />
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'poster' && (
+      <>
+        <span class="y" />
+        <span class="panel" />
+        <span class="frame" />
+        <p class="chev" aria-hidden="true">
+          ››››››
+        </p>
+        <p class="k2">{kicker}</p>
+        <p class="t">{title}</p>
+        <span class="field" />
+        <p class="foot">{foot}</p>
+      </>
+    )
+  }
+
+  {
+    layout === 'tower' && (
+      <>
+        <span class="slabb" />
+        <span class="strip" />
+        <span class="line" />
+        <p class="plus" aria-hidden="true">
+          + + + +
+        </p>
+        <span class="hatch" />
+        <p class="k">{kicker}</p>
+        <p class="t">{title}</p>
+        <p class="foot">{foot}</p>
       </>
     )
   }

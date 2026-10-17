@@ -18,12 +18,15 @@ const sample = {
   label: 'v0.0.1',
 };
 const kickers: Record<string, string> = {
-  giveaway: 'SHIPPED', streetwear: 'SHIPPED', everyday: 'BUILD', offset: 'BUILD', overlay: 'RANT', bracket: 'RANT',
-  tiles: 'NEW', caption: 'NEW LOOK', quarter: 'DEAD', spread: 'SHIP', lshape: 'BUILD', mono: 'NEW',
+  giveaway: 'SHIPPED', streetwear: 'SHIPPED', everyday: 'BUILD', offset: 'BUILD', bracket: 'RANT',
+  tiles: 'NEW', caption: 'NEW LOOK', quarter: 'DEAD', spread: 'SHIP', lshape: 'BUILD',
   split: 'NEW', circle: 'BUILD', twin: 'LOG', ushape: 'SHIPPED', bleed: 'RANT', arch: 'BUILD', polaroid: 'AERIS',
   filmstrip: 'BUILD', browser: 'SHIPPED',
   repeat: 'SHIPPED', arc: 'SHIPPED', stripes: 'GG', bignum: '80%', collection: 'BUILD', clearance: 'SHIPPED',
   wild: 'buildanyway', promo: 'V0.1', quote: 'RANT', term: 'BUILD',
+  bubbles: 'NEW', porthole: 'NEW', triptych: 'LOG', slab: 'NEW', quadrant: 'SHIP', banner: 'BUILD', tilt: 'TRENDY',
+  glow: 'SOON', duo: 'LIVE', tips: '1', xband: 'SHIPPED', marquee: 'DEVLOG', orb: 'V0.1', glyph: '?', pill: 'NEW',
+  poster: 'V0.1', tower: 'BUILD',
 };
 ---
 
@@ -86,7 +89,7 @@ const kickers: Record<string, string> = {
         <p class="intro">A post without an image gets a type layout. If you pick an image layout anyway, the image slot becomes a hatched panel with the kicker.</p>
         <div class="swatches">
           {
-            ['giveaway', 'caption', 'mono'].map((layout) => (
+            ['giveaway', 'caption', 'split'].map((layout) => (
               <Cover layout={layout as any} palette="marker" kicker={kickers[layout]} {...sample} size="card" />
             ))
           }

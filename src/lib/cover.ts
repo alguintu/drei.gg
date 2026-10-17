@@ -8,14 +8,12 @@ export const LAYOUTS = [
   'streetwear',
   'everyday',
   'offset',
-  'overlay',
   'bracket',
   'tiles',
   'caption',
   'quarter',
   'spread',
   'lshape',
-  'mono',
   'split',
   'circle',
   'twin',
@@ -25,10 +23,20 @@ export const LAYOUTS = [
   'polaroid',
   'filmstrip',
   'browser',
+  'bubbles',
+  'porthole',
+  'triptych',
+  'slab',
+  'quadrant',
+  'banner',
+  'tilt',
+  'glow',
+  'duo',
 ] as const;
 
 // Type-only covers, for posts without an image (or when you want words, not a picture).
-export const TYPE_LAYOUTS = ['repeat', 'arc', 'stripes', 'bignum', 'collection', 'clearance', 'wild', 'promo', 'quote', 'term'] as const;
+export const TYPE_LAYOUTS = ['repeat', 'arc', 'stripes', 'bignum', 'collection', 'clearance', 'wild', 'promo', 'quote', 'term',
+  'tips', 'xband', 'marquee', 'orb', 'glyph', 'pill', 'poster', 'tower'] as const;
 export const ALL_LAYOUTS = [...LAYOUTS, ...TYPE_LAYOUTS] as const;
 
 // marker: yellow on white. aeris: teal on white. ink: yellow on near-black.

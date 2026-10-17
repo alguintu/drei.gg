@@ -51,11 +51,11 @@ Patch notes go in a `notes` block:
 
 Every post gets a cover. Image layouts make the post's `image` the main element and frame it with color blocks, dot grids, hatching, corner brackets, a stamp, a brush stroke, a polaroid, a filmstrip or a browser window. Type layouts are for posts without an image and work with words alone: the kicker repeated, a giant number, spaced letters over a brush stroke, a script hashtag, a terminal. Red only ever shows up as small ticks and dots.
 
-Image layouts (21): `giveaway`, `streetwear`, `everyday`, `offset`, `overlay`, `bracket`, `tiles`, `caption`, `quarter`, `spread`, `lshape`, `mono`, `split`, `circle`, `twin`, `ushape`, `bleed`, `arch`, `polaroid`, `filmstrip`, `browser`.
+Image layouts (28): `giveaway`, `streetwear`, `everyday`, `offset`, `bracket`, `tiles`, `caption`, `quarter`, `spread`, `lshape`, `split`, `circle`, `twin`, `ushape`, `bleed`, `arch`, `polaroid`, `filmstrip`, `browser`, `bubbles`, `porthole`, `triptych`, `slab`, `quadrant`, `banner`, `tilt`, `glow`, `duo`.
 
-Type layouts (10): `repeat`, `arc`, `stripes`, `bignum`, `collection`, `clearance`, `wild`, `promo`, `quote`, `term`.
+Type layouts (18): `repeat`, `arc`, `stripes`, `bignum`, `collection`, `clearance`, `wild`, `promo`, `quote`, `term`, `tips`, `xband`, `marquee`, `orb`, `glyph`, `pill`, `poster`, `tower`.
 
-Each comes in 3 palettes. Leave `layout` and `palette` out and the post's filename picks them, from the image layouts when the post has an image and from the type layouts when it doesn't, which keeps neighbouring posts from looking alike. For `bignum`, set `kicker` to the number (`kicker: "80%"`). Run `npm run dev` and open `/blocks` to see every combination.
+Each comes in 3 palettes. Leave `layout` and `palette` out and the post's filename picks them, from the image layouts when the post has an image and from the type layouts when it doesn't, which keeps neighbouring posts from looking alike. For `bignum` and `tips`, set `kicker` to the number (`kicker: "80%"`, `kicker: "3"`); `glyph` shows the kicker's first character, so `kicker: "?"` works. Run `npm run dev` and open `/blocks` to see every combination.
 
 Inside a post, fenced blocks turn into designed blocks:
 
