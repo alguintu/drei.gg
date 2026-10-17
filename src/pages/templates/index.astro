@@ -214,6 +214,10 @@ const layouts: Record<string, string> = { basic: 'one column', wide: 'full width
 
   <style>
     .tpl { padding-block: 40px 72px; }
+    /* Not the home page's two-column grid. */
+    main.tpl .wrap { display: block; padding-block: 0; }
+    main.tpl .tpl-head { display: flex; }
+    main.tpl .tpl-preview { display: grid; }
     .tpl-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px 32px; margin-bottom: 28px; }
     .tpl-head h1 { font: 900 clamp(36px, 6vw, 64px)/1 var(--display); font-stretch: 80%; letter-spacing: -.02em; margin: 6px 0 10px; }
     .tpl-head .label { margin: 0; }
@@ -227,10 +231,10 @@ const layouts: Record<string, string> = { basic: 'one column', wide: 'full width
     [role="group"] { display: inline-flex; }
     [role="group"] button + button { border-left: 0; }
 
-    .tpl[data-view="preview"] .tpl-grid, .tpl[data-view="grid"] .tpl-preview { display: none; }
+    main.tpl[data-view="preview"] .tpl-grid, main.tpl[data-view="grid"] .tpl-preview { display: none; }
     .tpl[data-view="grid"] .tpl-list { display: none; }
 
-    .tpl-preview { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 24px; max-width: none; }
+    .tpl-preview { grid-template-columns: 230px minmax(0, 1fr); gap: 24px; max-width: none; }
     .tpl-list { position: sticky; top: 16px; align-self: start; max-height: calc(100vh - 32px); overflow: auto; padding-right: 4px; }
     .tpl-filter { width: 100%; font: 13px/1 var(--mono); padding: 9px 10px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); margin-bottom: 16px; }
     .tpl-group { margin-bottom: 18px; }
@@ -267,7 +271,7 @@ const layouts: Record<string, string> = { basic: 'one column', wide: 'full width
     .tpl-card p { margin: 6px 0 0; color: var(--mute); font-size: 14px; line-height: 1.4; }
 
     @media (max-width: 900px) {
-      .tpl-preview { grid-template-columns: minmax(0, 1fr); }
+      main.tpl .tpl-preview { grid-template-columns: minmax(0, 1fr); }
       .tpl-list { position: static; max-height: 240px; border: 1px solid var(--line); padding: 10px; }
     }
   </style>

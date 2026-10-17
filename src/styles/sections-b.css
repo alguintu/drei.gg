@@ -1,1 +1,141 @@
 /* Section blocks, group b. */
+
+/* Features: a grid of marks, titles and lines */
+.features { margin-block: 40px; }
+.features ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); gap: 36px 28px; }
+.features .cols-2 { --cols: 2; }
+.features .cols-3 { --cols: 3; }
+.features .cols-4 { --cols: 4; }
+.features li { position: relative; border-top: 2px solid var(--ink); padding-top: 20px; min-width: 0; }
+.features .n { position: absolute; top: 10px; right: 0; font: 600 11px/1 var(--mono); letter-spacing: .08em; color: var(--team); }
+.features .mk {
+  display: inline-block; max-width: 100%; overflow-wrap: anywhere; margin-bottom: 18px;
+  font: 900 clamp(44px, 5vw, 64px)/.9 var(--display); font-stretch: 80%; letter-spacing: -.03em;
+  background: linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 92%, transparent 92%); padding: 0 .06em;
+}
+.features h3 { margin: 0 0 8px; font: 800 22px/1.15 var(--display); font-stretch: 80%; text-wrap: balance; }
+.features li p { margin: 0; font-size: 16px; line-height: 1.55; color: var(--mute); }
+.features li p mark { background: var(--marker); color: #15171d; padding: 0 .15em; }
+.features li p em { color: var(--ink); }
+@media (max-width: 900px) { .features .cols-4 { --cols: 2; } }
+@media (max-width: 720px) { .features .cols-3 { --cols: 2; } }
+@media (max-width: 520px) { .features ul { gap: 28px 20px; } .features .cols-2, .features .cols-3 { --cols: 1; } .features .cols-4 .mk { font-size: 40px; } }
+
+/* Pricing: tiers side by side, equal height; the featured one in yellow */
+.pricing { margin-block: 40px; }
+.pricing .tiers { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 20px; align-items: stretch; }
+.pricing .tier {
+  display: flex; flex-direction: column; min-width: 0; padding: 24px 22px 22px;
+  background: var(--panel); border: 2px solid var(--ink); position: relative;
+}
+.pricing .tier.featured { background: var(--marker); color: #15171d; border-color: var(--ink); box-shadow: 6px 6px 0 var(--ink); }
+.pricing h3 { margin: 0 0 18px; font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .12em; }
+.pricing .price { margin: 0 0 12px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.pricing .price b { font: 900 clamp(44px, 5vw, 60px)/.9 var(--display); font-stretch: 80%; letter-spacing: -.03em; overflow-wrap: anywhere; }
+.pricing .price span { font: 13px/1 var(--mono); color: var(--mute); }
+.pricing .pitch { margin: 0 0 20px; font-size: 16px; line-height: 1.45; }
+.pricing ul { list-style: none; margin: 0 0 24px; padding: 16px 0 0; border-top: 1px solid var(--line); display: grid; gap: 9px; font-size: 15px; line-height: 1.4; }
+.pricing li { position: relative; padding-left: 26px; }
+.pricing li::before {
+  content: "✓"; position: absolute; left: 0; top: 1px; width: 16px; height: 16px;
+  display: grid; place-items: center; font: 700 11px/1 var(--mono);
+  border: 1.5px solid var(--team); color: var(--team);
+}
+.pricing .featured .price span { color: #15171d; opacity: .7; }
+.pricing .featured ul { border-top-color: rgb(21 23 29 / .25); }
+.pricing .featured li::before { border-color: #15171d; background: #15171d; color: var(--marker); }
+.pricing .tier .btn { margin-top: auto; align-self: stretch; text-align: center; }
+/* The featured button stays black on yellow in both themes. */
+.pricing .featured .btn { background: #15171d; border-color: #15171d; color: #ffd23f; }
+.pricing .featured .btn:hover { background: #fff; color: #15171d; }
+.pricing .note { margin: 22px 0 0; font: 13px/1.5 var(--mono); color: var(--mute); }
+@media (max-width: 900px) { .pricing .tiers { grid-template-columns: repeat(min(var(--n), 2), minmax(0, 1fr)); } }
+@media (max-width: 600px) { .pricing .tiers { grid-template-columns: minmax(0, 1fr); gap: 18px; } .pricing .tier.featured { box-shadow: 4px 4px 0 var(--ink); margin-right: 4px; } }
+
+/* Wall of quotes: cards in columns */
+.quotes { margin-block: 40px; }
+.quotes .wall { columns: 3 260px; column-gap: 18px; }
+.quotes figure {
+  break-inside: avoid; margin: 0 0 18px; padding: 22px 22px 18px;
+  background: var(--panel); border: 2px solid var(--ink); position: relative;
+}
+.quotes figure::before { content: "“"; display: block; height: 30px; font: 900 64px/1 var(--display); color: var(--ribbon); margin: -4px 0 6px; }
+.quotes figure:nth-child(5n + 2) { background: var(--marker); color: #15171d; box-shadow: 5px 5px 0 var(--ink); }
+.quotes figure:nth-child(5n + 2)::before { color: #15171d; }
+.quotes figure:nth-child(5n + 2) figcaption { border-top-color: rgb(21 23 29 / .25); }
+.quotes figure:nth-child(5n + 2) figcaption span, .quotes figure:nth-child(5n + 2) figcaption a { color: #15171d; }
+.quotes blockquote { margin: 0 0 18px; font-size: 17px; line-height: 1.55; white-space: pre-line; }
+.quotes figure:nth-child(4n + 1) blockquote { font: 800 21px/1.25 var(--display); font-stretch: 85%; }
+.quotes figcaption { display: grid; gap: 4px; padding-top: 14px; border-top: 1px solid var(--line); }
+.quotes figcaption b { font: 800 16px/1.2 var(--display); font-stretch: 80%; }
+.quotes figcaption span, .quotes figcaption a { font: 12px/1.3 var(--mono); color: var(--mute); overflow-wrap: anywhere; }
+.quotes figcaption a { color: var(--team); }
+
+/* People: photo or monogram, name, role */
+.people { margin-block: 40px; }
+.people ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 24px 20px; }
+.people .card { display: grid; gap: 4px; color: var(--ink); text-decoration: none; min-width: 0; }
+.people img, .people .mono {
+  display: block; width: 100%; aspect-ratio: 1; object-fit: cover; margin-bottom: 10px;
+  border: 2px solid var(--ink); background: var(--line);
+  transition: transform .08s, box-shadow .08s;
+}
+.people .mono {
+  display: grid; place-items: center; background: var(--panel);
+  font: 900 clamp(48px, 6vw, 72px)/1 var(--display); font-stretch: 80%; letter-spacing: -.03em;
+}
+.people li:nth-child(3n + 1) .mono { background: var(--marker); color: #15171d; }
+.people li:nth-child(3n + 2) .mono { background: var(--ink); color: var(--paper); }
+.people b { font: 800 20px/1.15 var(--display); font-stretch: 80%; }
+.people small { font: 12px/1.4 var(--mono); color: var(--mute); text-transform: uppercase; letter-spacing: .08em; }
+.people a.card:hover img, .people a.card:hover .mono { transform: translate(-3px, -3px); box-shadow: 5px 5px 0 var(--ink); }
+.people a.card:hover b { text-decoration: underline; text-decoration-color: var(--marker); text-decoration-thickness: 4px; text-underline-offset: 2px; }
+@media (max-width: 520px) { .people ul { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 14px; } .people b { font-size: 17px; } .people small { font-size: 11px; } }
+
+/* Steps: big numbers joined by a rule */
+.steps { margin-block: 40px; }
+.steps ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 32px 0; }
+.steps .n1 { --n: 1; } .steps .n2 { --n: 2; } .steps .n3 { --n: 3; } .steps .n4 { --n: 4; }
+.steps li { min-width: 0; padding-right: 28px; }
+.steps .num { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.steps .num b {
+  font: 900 clamp(56px, 6vw, 80px)/.85 var(--display); font-stretch: 80%; letter-spacing: -.04em;
+  background: linear-gradient(transparent 55%, var(--marker) 55%, var(--marker) 90%, transparent 90%); padding: 0 .04em;
+}
+/* The rule runs on to the next step and ends in an arrowhead. */
+.steps .num i { flex: 1; height: 2px; background: var(--ink); position: relative; margin-right: -28px; }
+.steps .num i::after { content: ""; position: absolute; right: 8px; top: -5px; border: 6px solid transparent; border-left: 8px solid var(--ink); border-right: 0; }
+.steps li:last-child .num i, .steps .n4 li:nth-child(4n) .num i, .steps .n3 li:nth-child(3n) .num i, .steps .n2 li:nth-child(2n) .num i { visibility: hidden; }
+.steps h3 { margin: 0 0 8px; font: 800 22px/1.15 var(--display); font-stretch: 80%; text-wrap: balance; }
+.steps li p { margin: 0; font-size: 16px; line-height: 1.55; color: var(--mute); max-width: 36ch; }
+.steps li p mark { background: var(--marker); color: #15171d; padding: 0 .15em; }
+.steps li p em { color: var(--ink); }
+@media (max-width: 720px) {
+  .steps ol { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .steps li { display: grid; grid-template-columns: 72px minmax(0, 1fr); column-gap: 16px; padding: 0; }
+  .steps .num { grid-row: span 2; flex-direction: column; align-items: flex-start; gap: 8px; margin: 0; }
+  .steps .num b { font-size: 56px; }
+  .steps .num i { flex: 1; width: 2px; height: auto; min-height: 24px; margin: 0 0 0 26px; }
+  .steps .num i::after { display: none; }
+  .steps li .num i { visibility: visible !important; }
+  .steps li:last-child .num i { visibility: hidden !important; }
+  .steps h3 { margin-top: 6px; }
+  .steps li p { padding-bottom: 28px; }
+}
+
+/* Gallery: 4:3 images in a grid */
+.gallery { margin-block: 40px; }
+.gallery ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); gap: 22px 18px; }
+.gallery .cols-2 { --cols: 2; }
+.gallery .cols-3 { --cols: 3; }
+.gallery .cols-4 { --cols: 4; }
+.gallery figure { margin: 0; min-width: 0; }
+.gallery img, .gallery .ph { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border: 2px solid var(--ink); background: var(--line); }
+.gallery a { display: block; transition: transform .08s, box-shadow .08s; }
+.gallery a:hover { transform: translate(-3px, -3px); box-shadow: 5px 5px 0 var(--ink); }
+.gallery figcaption { display: flex; gap: 10px; align-items: baseline; margin-top: 10px; font: 13px/1.45 var(--mono); color: var(--ink); }
+.gallery figcaption .n { color: var(--team); font-weight: 600; font-size: 11px; flex: none; }
+@media (max-width: 900px) { .gallery .cols-4 { --cols: 3; } }
+@media (max-width: 720px) { .gallery .cols-3, .gallery .cols-4 { --cols: 2; } }
+@media (max-width: 520px) { .gallery .cols-2, .gallery .cols-3 { --cols: 1; } .gallery ul { gap: 18px 12px; } }
+

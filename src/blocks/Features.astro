@@ -1,7 +1,8 @@
 ---
-// TODO: features
+// A grid of features: a big mark, a title, a line.
 import type { BlockData } from './schema';
-import { blockAttrs, type Path } from './desk';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+import Text from './Text.astro';
 
 interface Props {
   block: BlockData<'features'>;
@@ -10,4 +11,18 @@ interface Props {
 const { block, path } = Astro.props;
 ---
 
-<section class="features" {...blockAttrs(path)}><p class="label">{block.type}</p></section>
+<section class="features" {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  <ul class={`cols-${block.columns}`}>
+    {
+      block.items.map((item, i) => (
+        <li>
+          <span class="n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <span class="mk" {...slotAttrs(path, `items.${i}.mark`)}>{item.mark}</span>
+          <h3 {...slotAttrs(path, `items.${i}.title`)}>{item.title}</h3>
+          <p><Text path={path} slot={`items.${i}.text`} text={item.text} rich /></p>
+        </li>
+      ))
+    }
+  </ul>
+</section>

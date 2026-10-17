@@ -1,7 +1,7 @@
 ---
-// TODO: pricing
+// Price tiers side by side; the featured one in marker yellow.
 import type { BlockData } from './schema';
-import { blockAttrs, type Path } from './desk';
+import { blockAttrs, slotAttrs, type Path } from './desk';
 
 interface Props {
   block: BlockData<'pricing'>;
@@ -10,4 +10,31 @@ interface Props {
 const { block, path } = Astro.props;
 ---
 
-<section class="pricing" {...blockAttrs(path)}><p class="label">{block.type}</p></section>
+<section class="pricing" {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  <div class="tiers" style={`--n: ${Math.max(block.tiers.length, 1)}`}>
+    {
+      block.tiers.map((t, i) => (
+        <article class={t.featured ? 'tier featured' : 'tier'}>
+          <h3 {...slotAttrs(path, `tiers.${i}.name`)}>{t.name}</h3>
+          <p class="price">
+            <b {...slotAttrs(path, `tiers.${i}.price`)}>{t.price}</b>
+            {t.period && <span {...slotAttrs(path, `tiers.${i}.period`)}>{t.period}</span>}
+          </p>
+          <p class="pitch" {...slotAttrs(path, `tiers.${i}.pitch`)}>{t.pitch}</p>
+          {t.features.length > 0 && (
+            <ul>
+              {t.features.map((f, j) => (
+                <li {...slotAttrs(path, `tiers.${i}.features.${j}`)}>{f}</li>
+              ))}
+            </ul>
+          )}
+          <a class={t.featured ? 'btn' : 'btn ghost'} href={t.cta_href} {...slotAttrs(path, `tiers.${i}.cta_label`)}>
+            {t.cta_label}
+          </a>
+        </article>
+      ))
+    }
+  </div>
+  {block.note && <p class="note" {...slotAttrs(path, 'note')}>{block.note}</p>}
+</section>
