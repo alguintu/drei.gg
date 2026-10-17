@@ -14,7 +14,7 @@ const tags = Object.keys(LABELS) as Post['data']['tag'][];
   <a href="/log/" aria-current={current ? undefined : 'page'}>all <b>{posts.length}</b></a>
   {
     tags.map((t) => (
-      <a href={`/log/tag/${t}/`} aria-current={current === t ? 'page' : undefined}>
+      <a href={`/tag/${t}/`} aria-current={current === t ? 'page' : undefined}>
         {LABELS[t]} <b>{posts.filter((p) => p.data.tag === t).length}</b>
       </a>
     ))

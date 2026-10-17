@@ -19,7 +19,7 @@ const years = [...new Set(posts.map((p) => p.data.date.getUTCFullYear()))];
           .map((p) => (
             <li>
               <time datetime={p.data.date.toISOString().slice(0, 10)}>{formatDate(p.data.date)}</time>
-              <a class="tag" href={`/log/tag/${p.data.tag}/`}>{LABELS[p.data.tag]}</a>
+              <a class="tag" href={`/tag/${p.data.tag}/`}>{LABELS[p.data.tag]}</a>
               <span class="what">
                 <a href={postUrl(p)}>{p.data.title}</a>
                 {p.data.summary && <span class="sum">{p.data.summary}</span>}

@@ -9,7 +9,7 @@ export const GET: APIRoute = async ({ site }) => {
   const urls: [string, Date?][] = [
     ['/', posts[0]?.data.date],
     ['/log/', posts[0]?.data.date],
-    ...Object.keys(LABELS).map((t): [string] => [`/log/tag/${t}/`]),
+    ...Object.keys(LABELS).map((t): [string] => [`/tag/${t}/`]),
     ...posts.map((p): [string, Date] => [postUrl(p), p.data.date]),
     ...pages.map((p): [string] => [`/${p.id}/`]),
   ];
