@@ -25,7 +25,7 @@ const { Content } = await render(post);
 const template = (await getEntry('pages', 'post'))!;
 ---
 
-<Base title={post.data.title} description={post.data.summary}>
+<Base title={post.data.title} description={post.data.summary} image={`/og/${post.id}.jpg`}>
   <main class="single">
     <div class="wrap">
       <a class="back" href="/#log">← back to the log</a>

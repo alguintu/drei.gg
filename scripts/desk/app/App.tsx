@@ -12,6 +12,10 @@ export type EditorHandle = {
   select?: (path: string) => void;
   selectMd?: (line: number) => void;
   apply?: (path: string, value: string) => void;
+  undo?: () => void;
+  redo?: () => void;
+  addBlock?: (type: string) => void;
+  reload?: () => Promise<unknown>;
 };
 export type EditorProps = { onState: (text: string, cls?: string) => void; onSaved: () => void };
 
@@ -34,6 +38,7 @@ export default function App() {
   const [catalog, setCatalog] = useState(false);
   const [path, setPath] = useState('/');
   const [dialog, setDialog] = useState<null | 'new' | 'page' | 'publish'>(null);
+  const [palette, setPalette] = useState(false);
   const editor = useRef<EditorHandle>(null);
   const preview = useRef<PreviewHandle>(null);
   const popup = useRef<Window | null>(null);
@@ -102,9 +107,24 @@ export default function App() {
 
   useEffect(() => {
     const keys = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key === 's') {
         e.preventDefault();
         editor.current?.flush();
+      }
+      if (mod && e.key === 'k') {
+        e.preventDefault();
+        setPalette((p) => !p);
+      }
+      // In a text field, undo is the field's own; elsewhere it's the editor's.
+      const typing = (e.target as HTMLElement).closest?.('input, textarea, select, [contenteditable]');
+      if (mod && !typing && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        e.shiftKey ? editor.current?.redo?.() : editor.current?.undo?.();
+      }
+      if (mod && !typing && e.key === 'y') {
+        e.preventDefault();
+        editor.current?.redo?.();
       }
     };
     addEventListener('keydown', keys);
@@ -116,6 +136,42 @@ export default function App() {
     };
   }, []);
 
+  // Back to the last published (committed) version of what's open.
+  async function discard() {
+    if (!open) return;
+    const what = open.kind === 'post' ? posts.find((p) => p.id === open.id)?.title : open.id === 'frame' ? 'the header and footer' : `the ${open.id} page`;
+    if (!confirm(`Throw away every change to ${what} since it was last published? New images stay.`)) return;
+    await editor.current?.flush();
+    try {
+      await send('/api/discard', 'POST', open);
+      await editor.current?.reload?.();
+      lists();
+      preview.current?.refresh();
+      onState('discarded');
+    } catch (e: any) {
+      onState('discard failed: ' + e.message, 'err');
+    }
+  }
+
+  // The palette's commands: everything to open, plus actions.
+  const commands = [
+    ...pages.map((p) => ({ kind: 'page', label: p.id === 'frame' ? 'Header & footer' : p.title, run: () => go({ kind: 'page', id: p.id }) })),
+    ...posts.map((p) => ({ kind: 'post', label: p.title, run: () => go({ kind: 'post', id: p.id }) })),
+    { kind: 'new', label: 'New post', run: () => setDialog('new') },
+    { kind: 'new', label: 'New page', run: () => setDialog('page') },
+    ...(open?.kind === 'page' && blocks
+      ? Object.entries(blocks.schemas).map(([type, s]) => ({ kind: 'add', label: `Add ${s.title ?? type}`, run: () => editor.current?.addBlock?.(type) }))
+      : []),
+    ...(open?.kind === 'post' ? [{ kind: 'view', label: catalog ? 'Close the catalog' : 'Open the catalog', run: () => setCatalog(!catalog) }] : []),
+    { kind: 'edit', label: 'Undo', run: () => editor.current?.undo?.() },
+    { kind: 'edit', label: 'Redo', run: () => editor.current?.redo?.() },
+    { kind: 'edit', label: 'Discard changes', run: discard },
+    ...['split', 'popup', 'off'].map((m) => ({ kind: 'view', label: `Preview: ${m}`, run: () => setPreviewMode(m) })),
+    { kind: 'view', label: phone ? 'Preview at desktop width' : 'Preview at phone width', run: () => (store.set('w', phone ? 'desk' : 'phone'), setPhone(!phone)) },
+    { kind: 'site', label: 'Retake all social cards', run: () => api('/api/cards', { method: 'POST' }).then(() => onState('cards retaken')) },
+    { kind: 'site', label: 'Publish', run: () => setDialog('publish') },
+  ];
+
   const isCur = (kind: string, id: string) => open?.kind === kind && open.id === id;
 
   return (
@@ -126,6 +182,20 @@ export default function App() {
         </span>
         <span className={`state ${status.cls}`}>{status.text}</span>
         <span className="sp" />
+        <span className="seg">
+          <button title="Undo (Ctrl+Z outside a text field)" disabled={!open} onClick={() => editor.current?.undo?.()}>
+            ↶
+          </button>
+          <button title="Redo (Ctrl+Shift+Z)" disabled={!open} onClick={() => editor.current?.redo?.()}>
+            ↷
+          </button>
+        </span>
+        <button title="Throw away changes since the last publish" disabled={!open} onClick={discard}>
+          discard
+        </button>
+        <button title="Everything, by name (Ctrl+K)" onClick={() => setPalette(true)}>
+          ⌘K
+        </button>
         <span className="seg" title="Preview">
           {['split', 'popup', 'off'].map((m) => (
             <button key={m} className={pv === m ? 'on' : ''} onClick={() => setPreviewMode(m)}>
@@ -224,6 +294,7 @@ export default function App() {
         )}
       </section>
 
+      {palette && <Palette commands={commands} onClose={() => setPalette(false)} />}
       {dialog === 'page' && <NewPage onClose={() => setDialog(null)} onCreate={(id) => (lists(), go({ kind: 'page', id }))} />}
       {dialog === 'new' && meta && <NewPost meta={meta} onClose={() => setDialog(null)} onCreate={(id) => (lists(), go({ kind: 'post', id }))} />}
       {dialog === 'publish' && (
@@ -267,6 +338,47 @@ function Dialog({ title, children, ok, onOk, onClose }: { title: string; childre
         </p>
       </form>
     </dialog>
+  );
+}
+
+// Ctrl+K: type to filter, arrows to move, Enter to run.
+function Palette({ commands, onClose }: { commands: { kind: string; label: string; run: () => unknown }[]; onClose: () => void }) {
+  const [q, setQ] = useState('');
+  const [at, setAt] = useState(0);
+  const words = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const shown = commands.filter((c) => words.every((w) => `${c.kind} ${c.label}`.toLowerCase().includes(w))).slice(0, 40);
+  const run = (i: number) => {
+    const c = shown[i];
+    if (!c) return;
+    onClose();
+    c.run();
+  };
+  return (
+    <div className="palette" onClick={onClose}>
+      <div className="box" onClick={(e) => e.stopPropagation()}>
+        <input
+          autoFocus
+          value={q}
+          placeholder="Open, add, publish…"
+          onChange={(e) => (setQ(e.target.value), setAt(0))}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') onClose();
+            if (e.key === 'ArrowDown') (e.preventDefault(), setAt((a) => Math.min(shown.length - 1, a + 1)));
+            if (e.key === 'ArrowUp') (e.preventDefault(), setAt((a) => Math.max(0, a - 1)));
+            if (e.key === 'Enter') run(at);
+          }}
+        />
+        <ul>
+          {shown.map((c, i) => (
+            <li key={c.kind + c.label} className={i === at ? 'on' : ''} onMouseEnter={() => setAt(i)} onClick={() => run(i)}>
+              <span className="k">{c.kind}</span>
+              {c.label}
+            </li>
+          ))}
+          {!shown.length && <li>Nothing matches.</li>}
+        </ul>
+      </div>
+    </div>
   );
 }
 

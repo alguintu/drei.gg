@@ -1,6 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { api, send, type BlocksMeta, type Meta } from './api';
 import { BlockForm } from './forms';
+import { useHistory } from './history';
 import { IMAGE, POST_BLOCKS, markdown } from '../../../src/lib/post-blocks.mjs';
 import type { EditorHandle, EditorProps } from './App';
 
@@ -55,6 +56,10 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; 
   // The post block open in the form above the body, and the one the caret is in.
   const [blk, setBlk] = useState<Found | null>(null);
   const [here, setHere] = useState<Found | null>(null);
+  const [cardV, setCardV] = useState(() => Date.now());
+  const flushNow = async () => {
+    if (timer.current) await save();
+  };
 
   useEffect(() => {
     let live = true;
@@ -100,11 +105,25 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; 
     }
   }
 
+  const history = useHistory<Post>();
+
   function change(fn: (p: Post) => Post) {
+    if (current.current) history.record(current.current);
     setPost((p) => (p ? fn(p) : p));
     onState('unsaved', 'dirty');
     clearTimeout(timer.current);
     timer.current = window.setTimeout(save, 700);
+  }
+
+  // Undo and redo replace the whole post, then save it.
+  function travel(to: Post | null, word: string) {
+    if (!to) return onState('nothing to ' + word);
+    setBlk(null);
+    current.current = to;
+    setPost(to);
+    onState('unsaved', 'dirty');
+    clearTimeout(timer.current);
+    timer.current = window.setTimeout(save, 300);
   }
   const set = (k: string, v: unknown) => change((p) => ({ ...p, data: { ...p.data, [k]: v } }));
   const setSlot = (k: string, v: string) => change((p) => ({ ...p, data: { ...p.data, cover: { ...p.data.cover, [k]: v } } }));
@@ -170,6 +189,14 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; 
   };
 
   useImperativeHandle(ref, () => ({
+    undo: () => current.current && travel(history.undo(current.current), 'undo'),
+    redo: () => current.current && travel(history.redo(current.current), 'redo'),
+    reload: () =>
+      api<Post>('/api/post?id=' + encodeURIComponent(id)).then((p) => {
+        p.data.cover = { ...(p.data.cover ?? {}) };
+        setBlk(null);
+        setPost(p);
+      }),
     // Lines from the preview are 1-based lines of the body.
     selectMd: (line) => openBlock(blockAt(current.current?.body ?? '', line - 1)),
     flush: async () => {
@@ -272,6 +299,30 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; meta: Meta; 
               <input value={d.cover[k] ?? ''} placeholder={own(def)} size={Math.min(28, Math.max(8, own(def).length))} onChange={(e) => setSlot(k, e.target.value)} />
             </label>
           ))}
+        </div>
+        <div className="row card">
+          <img src={`/og/${post.id}.jpg?v=${cardV}`} alt="" onError={(e) => (e.currentTarget.style.visibility = 'hidden')} onLoad={(e) => (e.currentTarget.style.visibility = '')} />
+          <div>
+            <p className="hint">
+              Social card: the cover as link previews show it (public/og/{post.id}.jpg). Publishing retakes it.
+            </p>
+            <button
+              type="button"
+              onClick={async () => {
+                await flushNow();
+                onState('taking the card…', 'dirty');
+                try {
+                  await api('/api/cards?id=' + post.id, { method: 'POST' });
+                  setCardV(Date.now());
+                  onState('card retaken');
+                } catch (e: any) {
+                  onState('card failed: ' + e.message, 'err');
+                }
+              }}
+            >
+              retake card
+            </button>
+          </div>
         </div>
         <p className="hint">Cover text: blank uses the layout's default, and title and summary default to the post's own. Tokens: {'{date} {dd} {mm} {label} {title} {summary} {tag} {kicker} {script} {initial}'}.</p>
       </fieldset>

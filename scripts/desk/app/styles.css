@@ -129,3 +129,17 @@ fieldset.bpanel .bform { border: 0; padding: 4px 0 0; }
 .imgpick .thumbs { margin: 0 0 6px; }
 .imgpick label.none { text-transform: none; letter-spacing: 0; }
 .bform textarea.md, .bform .md textarea { font: 13px/1.6 var(--mono); }
+
+/* Social card preview in the post's cover box */
+.row.card { align-items: center; flex-wrap: nowrap; }
+.row.card img { width: 160px; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid var(--line); background: var(--line); }
+.row.card .hint { margin: 0 0 6px; }
+
+/* Ctrl+K palette */
+.palette { position: fixed; inset: 0; background: rgb(0 0 0 / .35); display: grid; justify-items: center; align-items: start; padding-top: 12vh; z-index: 50; }
+.palette .box { width: min(560px, 92vw); background: var(--paper); border: 1px solid var(--ink); box-shadow: 0 20px 60px rgb(0 0 0 / .35); }
+.palette input { width: 100%; border: 0; border-bottom: 1px solid var(--line); padding: 14px 16px; font: 16px/1.2 var(--body); outline: none; }
+.palette ul { list-style: none; margin: 0; padding: 6px 0; max-height: 50vh; overflow: auto; }
+.palette li { display: flex; gap: 10px; padding: 8px 16px; cursor: pointer; }
+.palette li.on { background: var(--panel); box-shadow: inset 3px 0 var(--marker); }
+.palette li .k { font: 600 11px/1.6 var(--mono); color: var(--mute); text-transform: uppercase; min-width: 64px; }

@@ -22,6 +22,10 @@ Open http://localhost:4320. The desk is a local editor: post list on the left, a
 
 The sidebar has **Pages** (the home page, and the header & footer every page shares) above **Posts**. A page is a stack of blocks in regions: drag a block to reorder it, move it to another region, remove it, or add one, and edit the open block's slots in its form. The preview is also the editor: hover to see blocks and slots outlined, click one to open it in the form with the field focused, and double-click plain text to edit it in place (Enter saves, Esc cancels). **catalog** turns the preview into a catalog for the open post: every cover layout drawn with the post's own words and image (click one to use it, with a palette toggle), and every block and image frame (click one to insert it at the cursor). The catalog is a dev-only page; it's never built for the live site.
 
+More in the desk: **↶ ↷** undo and redo (Ctrl+Z / Ctrl+Shift+Z outside a text field) across forms, blocks and edits made in the preview; **discard** puts the open post or page back to its last published version; **⌘K** (Ctrl+K) opens a palette to jump to anything, add a block, switch the preview, or publish. **publish** runs a real `astro build` first and refuses to push if the site doesn't build.
+
+Social cards: every post's cover becomes its link-preview image, `public/og/<post>.jpg` (and `site.jpg`, the top of the home page, for everything else). The desk takes them with the Chrome or Chromium on the machine (set `CHROME_PATH` if it's elsewhere): **retake card** in a post, "Retake all social cards" in the palette, and automatically on publish. Pages without a card simply have no `og:image`.
+
 The desk's editor is a small React app in `scripts/desk/app`, built by Vite each time the desk starts. React and the editor's other packages are dev dependencies; the live site ships none of it.
 
 ## Write a post

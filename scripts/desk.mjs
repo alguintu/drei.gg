@@ -18,6 +18,8 @@ const UI = join(ROOT, 'scripts/desk/dist');
 const PAGES = join(ROOT, 'src/content/pages');
 // Images for pages, served as-is at /media/<name>.
 const MEDIA = join(ROOT, 'public/media');
+// Social cards: public/og/<post>.jpg, and site.jpg for everything else.
+const OG = join(ROOT, 'public/og');
 const DESK_PORT = Number(process.env.DESK_PORT || 4320);
 const SITE_PORT = Number(process.env.SITE_PORT || 4321);
 const run = promisify(execFile);
@@ -159,6 +161,36 @@ async function meta() {
   return { image: [...c.LAYOUTS], type: [...c.TYPE_LAYOUTS], palettes: [...c.PALETTES], slots: c.SLOTS, blocks: await blocks(), tags: ['ship', 'build', 'rant', 'dead'], site: `http://localhost:${SITE_PORT}` };
 }
 
+// ---- Social cards ----
+// Screenshots of each post's cover (src/pages/desk/og) and of the home page's top,
+// taken with Chrome or Chromium on this machine through playwright-core.
+const CHROMES = [process.env.CHROME_PATH, '/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'];
+
+async function cards(ids, site = false) {
+  const executablePath = CHROMES.find((p) => p && existsSync(p));
+  if (!executablePath) throw httpError(500, 'no Chrome or Chromium found for social cards; set CHROME_PATH');
+  const { chromium } = await import('playwright-core');
+  const browser = await chromium.launch({ executablePath });
+  const made = [];
+  try {
+    const page = await browser.newPage({ viewport: { width: 1200, height: 675 }, colorScheme: 'dark' });
+    await mkdir(OG, { recursive: true });
+    const shoot = async (url, name) => {
+      await page.goto(`http://127.0.0.1:${SITE_PORT}${url}`, { waitUntil: 'networkidle' });
+      // No dev toolbar, and everything at rest (the wordmark's dot blinks); fonts loaded.
+      await page.addStyleTag({ content: 'astro-dev-toolbar { display: none !important; } *, *::before, *::after { animation: none !important; transition: none !important; }' });
+      await page.evaluate(() => document.fonts.ready);
+      await page.screenshot({ path: join(OG, name), type: 'jpeg', quality: 88 });
+      made.push(`public/og/${name}`);
+    };
+    for (const id of ids) await shoot(`/desk/og/${id}/`, `${id}.jpg`);
+    if (site) await shoot('/', 'site.jpg');
+  } finally {
+    await browser.close();
+  }
+  return made;
+}
+
 function slugify(title) {
   return title.toLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'post';
 }
@@ -244,6 +276,12 @@ const routes = {
     await rm(pageFile(id));
     return { ok: true };
   },
+  // Make social cards now: ?id=<post>, or ?site=1 for the site card, or neither for all.
+  'POST /api/cards': async (q) => {
+    const id = q.get('id');
+    const ids = id ? [id] : q.get('site') ? [] : (await listPosts()).map((p) => p.id);
+    return { made: await cards(ids, !id) };
+  },
   'GET /api/media': async () => (existsSync(MEDIA) ? (await readdir(MEDIA)).filter((f) => FILE.test(f)).map((f) => `/media/${f}`) : []),
   'PUT /api/media': async (q, req) => {
     const name = q.get('name').replace(/\s+/g, '-');
@@ -261,12 +299,39 @@ const routes = {
     await writeFile(pageFile(q.get('id')), JSON.stringify(data, null, 2) + '\n');
     return { ok: true };
   },
-  'GET /api/status': async () => ({ branch: await git('branch', '--show-current'), changes: await git('status', '--short', '--', 'src/content/posts', 'src/content/pages', 'public/media') }),
+  // Back to the last commit: a post's folder or file, or a page's JSON. Files added
+  // since (new uploads) stay; a post or page that was never committed can't go back.
+  'POST /api/discard': async (q, req) => {
+    const { kind, id } = JSON.parse(await body(req));
+    const target = kind === 'page' ? relative(ROOT, pageFile(id)) : fileFor(id).endsWith('index.md') ? join('src/content/posts', id) : join('src/content/posts', `${id}.md`);
+    if (!(await git('ls-files', '--', target))) throw httpError(400, 'never published, so there is nothing to go back to');
+    await git('checkout', 'HEAD', '--', target);
+    return { ok: true };
+  },
+  'GET /api/status': async () => ({ branch: await git('branch', '--show-current'), changes: await git('status', '--short', '--', 'src/content/posts', 'src/content/pages', 'public/media', 'public/og') }),
   'POST /api/publish': async (q, req) => {
     const { id, page, message } = JSON.parse(await body(req));
     // A page goes with any images uploaded for pages.
     const target = page ? [relative(ROOT, pageFile(page)), ...(existsSync(MEDIA) ? ['public/media'] : [])] : id ? (fileFor(id).endsWith('index.md') ? join('src/content/posts', id) : join('src/content/posts', `${id}.md`)) : 'src/content';
     const log = [];
+    // Only publish what builds: a real production build of the site first.
+    try {
+      await run('npx', ['astro', 'build'], { cwd: ROOT, env: { ...process.env, NODE_ENV: 'production' }, maxBuffer: 1 << 24 });
+      log.push('build: ok');
+    } catch (e) {
+      const out = String((e.stdout || '') + (e.stderr || '')).trim().split('\n').slice(-25).join('\n');
+      throw httpError(400, `The site doesn't build, so nothing was published:\n\n${out}`);
+    }
+    // A post's social card is retaken with it; the home page and frame retake the site card.
+    // A missing Chrome shouldn't block publishing, so a failure is only noted.
+    try {
+      const made = id ? await cards([id]) : page === 'home' || page === 'frame' ? await cards([], true) : [];
+      target.push?.(...made);
+      if (made.length && !Array.isArray(target)) log.push(await git('add', '--', ...made));
+      if (made.length) log.push(`social card: ${made.join(', ')}`);
+    } catch (e) {
+      log.push(`social card skipped: ${e.message}`);
+    }
     log.push(await git('add', '-A', '--', ...[target].flat()));
     const staged = await git('diff', '--cached', '--name-only');
     if (!staged) return { log: 'Nothing to publish.' };

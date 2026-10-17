@@ -5,6 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { api, send, type Block, type BlocksMeta, type PageData } from './api';
 import type { EditorHandle, EditorProps } from './App';
 import { BlockForm, blank, type PostRef } from './forms';
+import { useHistory } from './history';
 import { EXAMPLES } from '../../../src/lib/post-blocks.mjs';
 
 // A page made of blocks (src/content/pages/<id>.json). Each region of the
@@ -112,7 +113,10 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; blocks: Bloc
     }
   }
 
+  const history = useHistory<PageData>();
+
   function change(fn: (p: PageData) => PageData, delay = 700) {
+    if (current.current) history.record(current.current);
     setPage((p) => {
       const next = p ? fn(structuredClone(p)) : p;
       current.current = next;
@@ -121,6 +125,30 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; blocks: Bloc
     onState('unsaved', 'dirty');
     clearTimeout(timer.current);
     timer.current = window.setTimeout(save, delay);
+  }
+
+  // Undo and redo replace the whole page, then save it.
+  function travel(to: PageData | null) {
+    if (!to) return onState('nothing there');
+    current.current = to;
+    setPage(to);
+    onState('unsaved', 'dirty');
+    clearTimeout(timer.current);
+    timer.current = window.setTimeout(save, 300);
+  }
+
+  // A block from the palette: into the region of the open block, or the first region.
+  function addBlock(type: string) {
+    const p = current.current;
+    if (!p) return;
+    const region = sel?.region ?? (blocks.templates[p.template] ?? Object.keys(p.regions))[0];
+    const fresh = { ...blank(blocks.schemas[type]), ...((EXAMPLES as any)[type] ?? {}), type };
+    const index = (p.regions[region] ?? []).length;
+    change((q) => {
+      (q.regions[region] ??= []).push(fresh);
+      return q;
+    });
+    setSel({ region, index });
   }
 
   // "home:regions.top.0.senses.1.text" → region top, block 0, field senses.1.text
@@ -132,6 +160,10 @@ export default forwardRef<EditorHandle, EditorProps & { id: string; blocks: Bloc
   }
 
   useImperativeHandle(ref, () => ({
+    undo: () => current.current && travel(history.undo(current.current)),
+    redo: () => current.current && travel(history.redo(current.current)),
+    addBlock,
+    reload: () => api<{ data: PageData }>('/api/page?id=' + id).then((r) => ((current.current = r.data), setPage(r.data))),
     flush: async () => {
       if (timer.current) await save();
     },

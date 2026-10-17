@@ -1,6 +1,8 @@
 ---
 import '../styles/global.css';
 import '../styles/cover.css';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { getEntry } from 'astro:content';
 import Region from '../blocks/Region.astro';
 
@@ -8,6 +10,8 @@ interface Props {
   title?: string;
   description?: string;
   noindex?: boolean;
+  // A social card under public/, e.g. /og/my-post.jpg. Defaults to the site's card.
+  image?: string;
 }
 
 const {
@@ -15,6 +19,9 @@ const {
   description = 'A devlog. We build things and post about them. No funnel, no launch week.',
   noindex = false,
 } = Astro.props;
+// Social cards are made by the desk (public/og); use one only if it's there.
+const card = [Astro.props.image, '/og/site.jpg'].find((p) => p && existsSync(join(process.cwd(), 'public', p)));
+const cardUrl = card && new URL(card, Astro.site);
 const pageTitle = title ? `${title} · drei.gg` : 'drei.gg';
 const canonical = new URL(Astro.url.pathname, Astro.site);
 // The header and footer every page shares: the `frame` page (src/content/pages/frame.json).
@@ -35,6 +42,10 @@ const frame = (await getEntry('pages', 'frame'))!;
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    {cardUrl && <meta property="og:image" content={cardUrl} />}
+    {cardUrl && <meta property="og:image:width" content="1200" />}
+    {cardUrl && <meta property="og:image:height" content="675" />}
+    {cardUrl && <meta name="twitter:card" content="summary_large_image" />}
     <meta name="theme-color" content="#15171d" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
