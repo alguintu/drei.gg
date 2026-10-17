@@ -165,6 +165,26 @@ export const STARTERS: Record<string, Starter> = {
     }),
   },
 
+  manifesto: {
+    title: 'Manifesto',
+    group: 'Essentials',
+    description: 'Big type, numbered convictions and a sign-off.',
+    template: 'basic',
+    regions: () => ({
+      main: [
+        { type: 'shout', lines: ['BUILD', 'THEN', 'POST'] },
+        prose('Every week there’s a new post saying software is over. Maybe. The tools got absurdly good, so the only sane move is to use them and ship more weird things than we ever could before.'),
+        { type: 'features', label: 'We believe', columns: '2', items: [
+          { mark: '01', title: 'Build, then post', text: 'Never the other way around.' },
+          { mark: '02', title: 'Say what we think', text: 'Hedging is a funnel for opinions.' },
+          { mark: '03', title: 'Funerals, not cover-ups', text: 'Dead projects get a post with a ==cause of death==.' },
+          { mark: '04', title: 'Marketing happens elsewhere', text: 'This is a log, not a landing page.' },
+        ] },
+        { type: 'tape', text: 'Good luck. We’re all screwed. Build anyway.' },
+      ],
+    }),
+  },
+
   // ---- Product ----
   project: {
     title: 'Project',
@@ -561,6 +581,25 @@ export const STARTERS: Record<string, Starter> = {
       ],
     }),
   },
+  funeral: {
+    title: 'Funeral',
+    group: 'Writing and docs',
+    description: 'Rule 03 as a page: one dead project’s obituary, its life in numbers, a timeline and the cause of death.',
+    template: 'basic',
+    regions: (name) => ({
+      main: [
+        { type: 'project', name, status: 'dead', pitch: 'Born 2026. Died 2026. It ==tried==.', links: [{ label: 'The code, archived', href: '#' }] },
+        { type: 'stats', label: 'A life in numbers', items: [{ number: '47', label: 'days alive' }, { number: '3', label: 'users, one was us' }, { number: '$12', label: 'spent, mostly the domain' }] },
+        { type: 'timeline', label: 'Its life', items: [
+          { date: 'Day 1', title: 'Born', text: 'Full of promise.' },
+          { date: 'Day 20', title: 'The pivot', text: 'It was never going to work.' },
+          { date: 'Day 47', title: 'Switched off', text: 'Peacefully, at night.' },
+        ] },
+        { type: 'callout', heading: 'Cause of death', body: 'Built the thing before asking who wanted it. Rule 01 exists for a reason.' },
+        { type: 'tape', text: 'gg. It played well.' },
+      ],
+    }),
+  },
   stats: {
     title: 'Open stats',
     group: 'Writing and docs',
@@ -618,6 +657,24 @@ export const STARTERS: Record<string, Starter> = {
         { type: 'countdown', label: 'Next one in', until: '2026-12-01', done: 'It’s on now.' },
         { type: 'listing', label: 'Upcoming', items: [{ meta: '1 Dec 2026', title: 'An event', detail: 'Manila', tag: 'free', href: '#' }] },
         { type: 'listing', label: 'Past', items: [{ meta: '2026', title: 'A past one', detail: 'Online', tag: 'video', href: '#' }] },
+      ],
+    }),
+  },
+  status: {
+    title: 'Status',
+    group: 'Utility',
+    description: 'Is it down? Everything you run, its state, and the incident history.',
+    template: 'basic',
+    regions: () => ({
+      main: [
+        heading('Is it down?', 'status'),
+        { type: 'listing', label: 'Updated 17 Oct 2026, 20:00', items: [
+          { meta: 'site', title: 'drei.gg', detail: 'Static, on DigitalOcean', tag: 'up' },
+          { meta: 'feed', title: 'RSS', tag: 'up' },
+          { meta: 'search', title: 'Search', detail: 'Pagefind index', tag: 'up' },
+          { meta: 'tool', title: 'The desk', detail: 'Local only; it’s on when Drei is', tag: 'maintenance' },
+        ] },
+        { type: 'timeline', label: 'Incidents', items: [{ date: '17 Oct 2026', title: 'Preview blinking on save', text: 'Fixed with a ==double-buffered== preview.' }] },
       ],
     }),
   },

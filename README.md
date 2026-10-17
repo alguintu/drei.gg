@@ -151,13 +151,13 @@ In the desk, click a post block in a post's preview (or put the cursor in one an
 
 ## Page templates
 
-**+ new page** in the desk (and the MCP `new_page` tool) starts a page from one of 35 page templates in `src/blocks/starters.ts`, each with finished sample copy to rewrite:
+**+ new page** in the desk (and the MCP `new_page` tool) starts a page from one of 38 page templates in `src/blocks/starters.ts`, each with finished sample copy to rewrite:
 
-- **Essentials:** plain, about, now, uses, contact, links, colophon
+- **Essentials:** plain, about, now, uses, contact, links, colophon, manifesto
 - **Product:** project, launch, product, pricing, changelog, roadmap, coming soon, press kit
 - **Work and people:** portfolio, case study, work with me, team, wall of love, careers, sponsors, speaking
-- **Writing and docs:** docs, guide, help center, graveyard, open stats, history, reading list
-- **Utility:** events, privacy, terms, thank you, lost and found
+- **Writing and docs:** docs, guide, help center, graveyard, funeral, open stats, history, reading list
+- **Utility:** events, status, privacy, terms, thank you, lost and found
 
 They use four page layouts: `basic` (one column), `wide` (full-bleed sections, for landing pages), `sidebar` (`main` and `aside`) and `docs` (a sticky `nav` column and `main`), all served at `/<id>/`. They're built from these section blocks: masthead, features, pricing, wall of quotes, people, timeline, stats, gallery, image and text, call to action, steps, logo strip, countdown, contact, spec sheet, listing, contents, link stack, roadmap and questions.
 

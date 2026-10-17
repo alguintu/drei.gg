@@ -37,7 +37,9 @@ export default function App() {
   const [open, setOpen] = useState<Open>(null);
   const [status, setStatus] = useState({ text: 'loading', cls: '' });
   const [pv, setPv] = useState(store.get('pv', 'split'));
-  const [phone, setPhone] = useState(store.get('w', 'desk') === 'phone');
+  // Preview width: desk (full), tablet (820px) or phone (390px).
+  const [width, setWidth] = useState<string>(store.get('w', 'desk'));
+  const pickWidth = (w: string) => (store.set('w', w), setWidth(w));
   const [catalog, setCatalog] = useState(false);
   const [path, setPath] = useState('/');
   const [dialog, setDialog] = useState<null | 'new' | 'page' | 'publish' | 'history'>(null);
@@ -172,7 +174,7 @@ export default function App() {
     { kind: 'edit', label: 'Discard changes', run: discard },
     { kind: 'edit', label: 'History', run: () => setDialog('history') },
     ...['split', 'popup', 'off'].map((m) => ({ kind: 'view', label: `Preview: ${m}`, run: () => setPreviewMode(m) })),
-    { kind: 'view', label: phone ? 'Preview at desktop width' : 'Preview at phone width', run: () => (store.set('w', phone ? 'desk' : 'phone'), setPhone(!phone)) },
+    ...(['desk', 'tablet', 'phone'] as const).map((w) => ({ kind: 'view', label: `Preview at ${w === 'desk' ? 'desktop' : w} width`, run: () => pickWidth(w) })),
     { kind: 'site', label: 'Retake all social cards', run: () => api('/api/cards', { method: 'POST' }).then(() => onState('cards retaken')) },
     { kind: 'site', label: 'Publish', run: () => setDialog('publish') },
   ];
@@ -232,6 +234,9 @@ export default function App() {
         <button className="new" onClick={() => setDialog('page')}>
           + new page
         </button>
+        <a className="new" href="/templates/" target="_blank" rel="noopener" title="Every page template, at every size">
+          templates ↗
+        </a>
         <nav>
           {[...pages].sort((a, b) => rank(a) - rank(b)).map((p) => (
             <a key={p.id} className={isCur('page', p.id) ? 'cur' : ''} onClick={() => go({ kind: 'page', id: p.id })}>
@@ -295,12 +300,11 @@ export default function App() {
         <div className="bar">
           <span className="url">{meta ? meta.site + path : ''}</span>
           <span className="seg">
-            <button className={phone ? '' : 'on'} onClick={() => (store.set('w', 'desk'), setPhone(false))}>
-              desktop
-            </button>
-            <button className={phone ? 'on' : ''} onClick={() => (store.set('w', 'phone'), setPhone(true))}>
-              phone
-            </button>
+            {(['desk', 'tablet', 'phone'] as const).map((w) => (
+              <button key={w} className={width === w ? 'on' : ''} onClick={() => pickWidth(w)}>
+                {w === 'desk' ? 'desktop' : w}
+              </button>
+            ))}
           </span>
           <button title="Reload preview" onClick={() => preview.current?.refresh()}>
             ↻
@@ -310,7 +314,7 @@ export default function App() {
           <Preview
             ref={preview}
             path={path}
-            phone={phone}
+            width={width}
             editable={!catalog}
             onSelect={(target) => onPreview(target, (e) => e.select?.(target))}
             onInline={(target, value) => onPreview(target, (e) => e.apply?.(target, value))}
