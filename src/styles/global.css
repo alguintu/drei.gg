@@ -434,3 +434,9 @@ main.page-docs .wrap { grid-template-columns: 220px minmax(0, 1fr); }
   main.page-sidebar .wrap, main.page-docs .wrap { grid-template-columns: minmax(0, 1fr); gap: 32px; }
   .page-nav { position: static; max-height: none; }
 }
+/* Bands that run edge to edge in a wide page drop their side borders and shadow. */
+main.page-wide > .cta, main.page-wide > [data-desk-region] > .cta { box-shadow: none; border-left: 0; border-right: 0; }
+/* Sidebars are narrow: spec rows and contact rows stack. */
+main .page-aside .specs dl > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+main .page-aside .contact li a { grid-template-columns: minmax(0, 1fr) auto; }
+main .page-aside .contact .where { grid-column: 1 / -1; }
