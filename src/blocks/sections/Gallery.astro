@@ -1,0 +1,23 @@
+---
+import type { BlockData } from '../schema';
+import { blockAttrs, slotAttrs, type Path } from '../desk';
+import Head from './Head.astro';
+
+interface Props { block: BlockData<'gallery'>; path?: Path }
+const { block, path } = Astro.props;
+---
+
+<section class={`sec sec-gallery cols-${block.columns}`} {...blockAttrs(path)}>
+  <Head label={block.label} heading={block.heading} path={path} />
+  <div class="grid">
+    {block.items.map((g, i) => {
+      const inner = (
+        <>
+          {g.src ? <img src={g.src} alt={g.alt} loading="lazy" /> : <span class="ph" aria-hidden="true" />}
+          {g.caption && <figcaption {...slotAttrs(path, `items.${i}.caption`)}>{g.caption}</figcaption>}
+        </>
+      );
+      return <figure>{g.href ? <a href={g.href}>{inner}</a> : inner}</figure>;
+    })}
+  </div>
+</section>

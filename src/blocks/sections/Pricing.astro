@@ -1,0 +1,30 @@
+---
+import type { BlockData } from '../schema';
+import { blockAttrs, slotAttrs, type Path } from '../desk';
+import Head from './Head.astro';
+import Text from '../Text.astro';
+
+interface Props { block: BlockData<'pricing'>; path?: Path }
+const { block, path } = Astro.props;
+---
+
+<section class="sec sec-pricing" {...blockAttrs(path)}>
+  <Head label={block.label} heading={block.heading} path={path} />
+  <div class="tiers">
+    {block.tiers.map((t, i) => (
+      <div class:list={['tier', { featured: t.featured }]}>
+        <p class="name" {...slotAttrs(path, `tiers.${i}.name`)}>{t.name}</p>
+        <p class="price">
+          <b {...slotAttrs(path, `tiers.${i}.price`)}>{t.price}</b>
+          {t.period && <span {...slotAttrs(path, `tiers.${i}.period`)}>{t.period}</span>}
+        </p>
+        {t.pitch && <p class="pitch" {...slotAttrs(path, `tiers.${i}.pitch`)}>{t.pitch}</p>}
+        <ul>
+          {t.features.map((f, j) => <li {...slotAttrs(path, `tiers.${i}.features.${j}`)}>{f}</li>)}
+        </ul>
+        {t.cta && <a class="btn" href={t.href || '#'} {...slotAttrs(path, `tiers.${i}.cta`)}>{t.cta}</a>}
+      </div>
+    ))}
+  </div>
+  {block.note && <p class="note"><Text path={path} slot="note" text={block.note} rich /></p>}
+</section>

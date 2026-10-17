@@ -1,0 +1,25 @@
+---
+import type { BlockData } from '../schema';
+import { blockAttrs, slotAttrs, type Path } from '../desk';
+import Head from './Head.astro';
+
+interface Props { block: BlockData<'faq'>; path?: Path }
+const { block, path } = Astro.props;
+---
+
+<section class="sec sec-faq" {...blockAttrs(path)}>
+  <Head label={block.label} heading={block.heading} path={path} />
+  <div class="qs">
+    {block.items.map((q, i) => (
+      <details>
+        <summary>
+          <span class="n">{String(i + 1).padStart(2, '0')}</span>
+          <span {...slotAttrs(path, `items.${i}.q`)}>{q.q}</span>
+        </summary>
+        <div class="a" {...slotAttrs(path, `items.${i}.a`)}>
+          {q.a.split(/\n\s*\n/).map((para) => <p>{para}</p>)}
+        </div>
+      </details>
+    ))}
+  </div>
+</section>

@@ -1,0 +1,25 @@
+---
+import type { BlockData } from '../schema';
+import { blockAttrs, slotAttrs, type Path } from '../desk';
+import Head from './Head.astro';
+
+interface Props { block: BlockData<'roadmap'>; path?: Path }
+const { block, path } = Astro.props;
+---
+
+<section class="sec sec-roadmap" {...blockAttrs(path)}>
+  <Head label={block.label} heading={block.heading} path={path} />
+  <div class="board" style={`--cols: ${Math.max(1, block.columns.length)}`}>
+    {block.columns.map((c, i) => (
+      <div class="col">
+        <p class="cname"><span {...slotAttrs(path, `columns.${i}.name`)}>{c.name}</span> <b>{c.items.length}</b></p>
+        {c.items.map((card, j) => (
+          <div class="card">
+            <p class="t" {...slotAttrs(path, `columns.${i}.items.${j}.title`)}>{card.title}</p>
+            {card.note && <p class="note" {...slotAttrs(path, `columns.${i}.items.${j}.note`)}>{card.note}</p>}
+          </div>
+        ))}
+      </div>
+    ))}
+  </div>
+</section>

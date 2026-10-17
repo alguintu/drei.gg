@@ -1,0 +1,62 @@
+{
+  "name": "Manifesto",
+  "group": "Personal",
+  "description": "Big type, numbered convictions and a sign-off.",
+  "page": {
+    "title": "Manifesto",
+    "template": "basic",
+    "regions": {
+      "main": [
+        {
+          "type": "shout",
+          "lines": [
+            "BUILD",
+            "THEN",
+            "POST"
+          ]
+        },
+        {
+          "type": "prose",
+          "markdown": "Every week there's a new post saying software is over. Maybe. The tools got absurdly good, so the only sane move is to use them and ship more weird things than we ever could before."
+        },
+        {
+          "type": "features",
+          "label": "We believe",
+          "heading": "",
+          "columns": "2",
+          "items": [
+            {
+              "glyph": "01",
+              "title": "Build, then post",
+              "text": "Never the other way around."
+            },
+            {
+              "glyph": "02",
+              "title": "Say what we think",
+              "text": "Hedging is a funnel for opinions."
+            },
+            {
+              "glyph": "03",
+              "title": "Funerals, not cover-ups",
+              "text": "Dead projects get a post with a cause of death."
+            },
+            {
+              "glyph": "04",
+              "title": "Marketing happens elsewhere",
+              "text": "This is a log, not a landing page."
+            }
+          ]
+        },
+        {
+          "type": "divider",
+          "style": "gg",
+          "text": ""
+        },
+        {
+          "type": "tape",
+          "text": "Good luck. We're all screwed. Build anyway."
+        }
+      ]
+    }
+  }
+}

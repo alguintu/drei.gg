@@ -1,0 +1,27 @@
+{
+  "name": "Archive",
+  "group": "Utility",
+  "description": "Every post grouped by year, with tag links and a search box.",
+  "page": {
+    "title": "Archive",
+    "template": "basic",
+    "regions": {
+      "main": [
+        {
+          "type": "heading",
+          "kicker": "The log",
+          "title": "Everything, ever"
+        },
+        {
+          "type": "search",
+          "placeholder": "Search the log"
+        },
+        {
+          "type": "archive",
+          "label": "",
+          "tags": true
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,22 @@
+---
+import type { BlockData } from '../schema';
+import { blockAttrs, slotAttrs, type Path } from '../desk';
+
+interface Props { block: BlockData<'stats'>; path?: Path }
+const { block, path } = Astro.props;
+---
+
+<section class="sec sec-stats" {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  <dl>
+    {block.items.map((s, i) => (
+      <div>
+        <dt {...slotAttrs(path, `items.${i}.label`)}>{s.label}</dt>
+        <dd>
+          <b {...slotAttrs(path, `items.${i}.number`)}>{s.number}</b>
+          {s.note && <span {...slotAttrs(path, `items.${i}.note`)}>{s.note}</span>}
+        </dd>
+      </div>
+    ))}
+  </dl>
+</section>

@@ -1,0 +1,24 @@
+---
+import type { BlockData } from '../schema';
+import { blockAttrs, slotAttrs, type Path } from '../desk';
+import Head from './Head.astro';
+
+interface Props { block: BlockData<'status'>; path?: Path }
+const { block, path } = Astro.props;
+const worst = ['down', 'degraded', 'maintenance', 'up'].find((s) => block.items.some((i) => i.state === s)) ?? 'up';
+const SUMMARY = { up: 'All systems go', degraded: 'Something’s slow', down: 'Something’s down', maintenance: 'Maintenance in progress' } as const;
+---
+
+<section class="sec sec-status" {...blockAttrs(path)}>
+  <Head label={block.label} heading={block.heading} path={path} />
+  <p class={`overall s-${worst}`}><span class="dot" aria-hidden="true"></span>{SUMMARY[worst as keyof typeof SUMMARY]}{block.updated && <span class="upd" {...slotAttrs(path, 'updated')}>{block.updated}</span>}</p>
+  <ul>
+    {block.items.map((it, i) => (
+      <li class={`s-${it.state}`}>
+        <b {...slotAttrs(path, `items.${i}.name`)}>{it.name}</b>
+        {it.note && <span class="note" {...slotAttrs(path, `items.${i}.note`)}>{it.note}</span>}
+        <span class="state">{it.state}</span>
+      </li>
+    ))}
+  </ul>
+</section>

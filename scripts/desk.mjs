@@ -103,6 +103,14 @@ async function pageBlocks() {
   return { schemas, templates: TEMPLATES };
 }
 
+// Page templates, one JSON file each in src/templates.
+async function templates() {
+  const dir = join(ROOT, 'src/templates');
+  const out = [];
+  for (const f of (await readdir(dir)).filter((f) => f.endsWith('.json')).sort()) out.push({ id: f.slice(0, -5), ...JSON.parse(await readFile(join(dir, f), 'utf8')) });
+  return out;
+}
+
 function pageFile(id) {
   if (!SLUG.test(id)) throw httpError(400, 'bad page id');
   return join(PAGES, `${id}.json`);
@@ -233,7 +241,7 @@ const routes = {
     return out;
   },
   'POST /api/pages': async (q, req) => {
-    const { title, kind = 'plain' } = JSON.parse(await body(req));
+    const { title, kind = 'plain', template } = JSON.parse(await body(req));
     if (!title?.trim()) throw httpError(400, 'title required');
     const { RESERVED } = await load('src/blocks/schema.ts');
     let id = slugify(title);
@@ -249,10 +257,14 @@ const routes = {
             { type: 'postlist', label: 'Log', tag: '', count: 20, style: 'rows', project: id },
           ]
         : [{ type: 'heading', kicker: '', title: name }, { type: 'prose', markdown: 'Write here.' }];
-    const data = { title: name, template: 'basic', regions: { main } };
+    // A page template (src/templates) brings its own blocks and sample content, as a draft.
+    const from = template ? (await templates()).find((t) => t.id === template) : null;
+    if (template && !from) throw httpError(400, `no template "${template}"`);
+    const data = from ? { ...structuredClone(from.page), title: name, draft: true } : { title: name, template: 'basic', regions: { main } };
     await writeFile(join(PAGES, `${id}.json`), JSON.stringify(data, null, 2) + '\n');
     return { id };
   },
+  'GET /api/templates': async () => (await templates()).map(({ page, ...t }) => ({ ...t, title: page.title })),
   // Only pages made in the desk can go; the home page, frame and post template stay.
   'DELETE /api/page': async (q) => {
     const id = q.get('id');

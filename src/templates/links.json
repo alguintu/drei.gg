@@ -1,0 +1,55 @@
+{
+  "name": "Links (link-in-bio)",
+  "group": "Studio",
+  "description": "A single column of big links for a bio: everything worth clicking, in order.",
+  "page": {
+    "title": "Links",
+    "template": "basic",
+    "regions": {
+      "main": [
+        {
+          "type": "heading",
+          "kicker": "drei.gg",
+          "title": "Links"
+        },
+        {
+          "type": "links",
+          "label": "",
+          "heading": "",
+          "items": [
+            {
+              "label": "The log",
+              "href": "/log/",
+              "note": "Every post, newest first"
+            },
+            {
+              "label": "Latest ship",
+              "href": "/tag/ship/",
+              "note": "What went out the door"
+            },
+            {
+              "label": "GitHub",
+              "href": "https://github.com/alguintu",
+              "note": "@alguintu"
+            },
+            {
+              "label": "RSS",
+              "href": "/feed.xml",
+              "note": "No newsletter, on purpose"
+            },
+            {
+              "label": "Say hi",
+              "href": "/contact/",
+              "note": "A human reads it"
+            }
+          ]
+        },
+        {
+          "type": "divider",
+          "style": "tape",
+          "text": "No funnel. Just links."
+        }
+      ]
+    }
+  }
+}

@@ -37,7 +37,13 @@ export default function App() {
   const [open, setOpen] = useState<Open>(null);
   const [status, setStatus] = useState({ text: 'loading', cls: '' });
   const [pv, setPv] = useState(store.get('pv', 'split'));
-  const [phone, setPhone] = useState(store.get('w', 'desk') === 'phone');
+  // Preview width: desk (the pane's own), tablet (820px) or phone (390px).
+  const [width, setWidthState] = useState(store.get('w', 'desk'));
+  const setWidth = (w: string) => (store.set('w', w), setWidthState(w));
+  // The template gallery, or one template, shown in the preview instead of what's open.
+  const [gallery, setGallery] = useState<string | null>(null);
+  // A template picked in the gallery, for the new-page dialog to start from.
+  const [startFrom, setStartFrom] = useState('');
   const [catalog, setCatalog] = useState(false);
   const [path, setPath] = useState('/');
   const [dialog, setDialog] = useState<null | 'new' | 'page' | 'publish' | 'history'>(null);
@@ -66,6 +72,7 @@ export default function App() {
 
   useEffect(() => {
     if (!open) return;
+    setGallery(null);
     store.set('open', open.kind === 'page' ? 'page:' + open.id : open.id);
     if (open.kind !== 'post') setCatalog(false);
   }, [open?.kind, open?.id]);
@@ -172,7 +179,8 @@ export default function App() {
     { kind: 'edit', label: 'Discard changes', run: discard },
     { kind: 'edit', label: 'History', run: () => setDialog('history') },
     ...['split', 'popup', 'off'].map((m) => ({ kind: 'view', label: `Preview: ${m}`, run: () => setPreviewMode(m) })),
-    { kind: 'view', label: phone ? 'Preview at desktop width' : 'Preview at phone width', run: () => (store.set('w', phone ? 'desk' : 'phone'), setPhone(!phone)) },
+    ...['desk', 'tablet', 'phone'].map((w) => ({ kind: 'view', label: `Preview at ${w === 'desk' ? 'desktop' : w} width`, run: () => setWidth(w) })),
+    { kind: 'view', label: 'Browse page templates', run: () => setGallery('/desk/templates/') },
     { kind: 'site', label: 'Retake all social cards', run: () => api('/api/cards', { method: 'POST' }).then(() => onState('cards retaken')) },
     { kind: 'site', label: 'Publish', run: () => setDialog('publish') },
   ];
@@ -229,9 +237,14 @@ export default function App() {
 
       <aside>
         <p className="group">Pages</p>
-        <button className="new" onClick={() => setDialog('page')}>
-          + new page
-        </button>
+        <p className="row two">
+          <button className="new" onClick={() => (setStartFrom(''), setDialog('page'))}>
+            + new page
+          </button>
+          <button className={`new${gallery ? ' on' : ''}`} title="Every page template, live in the preview" onClick={() => (setGallery(gallery ? null : '/desk/templates/'), pv === 'off' && setPreviewMode('split'))}>
+            templates
+          </button>
+        </p>
         <nav>
           {[...pages].sort((a, b) => rank(a) - rank(b)).map((p) => (
             <a key={p.id} className={isCur('page', p.id) ? 'cur' : ''} onClick={() => go({ kind: 'page', id: p.id })}>
@@ -293,14 +306,22 @@ export default function App() {
 
       <section className="preview">
         <div className="bar">
-          <span className="url">{meta ? meta.site + path : ''}</span>
+          <span className="url">{meta ? meta.site + (gallery ?? path) : ''}</span>
+          {gallery && (
+            <button title="Back to what's open" onClick={() => setGallery(null)}>
+              × templates
+            </button>
+          )}
           <span className="seg">
-            <button className={phone ? '' : 'on'} onClick={() => (store.set('w', 'desk'), setPhone(false))}>
-              desktop
-            </button>
-            <button className={phone ? 'on' : ''} onClick={() => (store.set('w', 'phone'), setPhone(true))}>
-              phone
-            </button>
+            {[
+              ['desk', 'desktop'],
+              ['tablet', 'tablet'],
+              ['phone', 'phone'],
+            ].map(([w, label]) => (
+              <button key={w} className={width === w ? 'on' : ''} onClick={() => setWidth(w)}>
+                {label}
+              </button>
+            ))}
           </span>
           <button title="Reload preview" onClick={() => preview.current?.refresh()}>
             ↻
@@ -309,15 +330,19 @@ export default function App() {
         {pv === 'split' && (
           <Preview
             ref={preview}
-            path={path}
-            phone={phone}
-            editable={!catalog}
+            path={gallery ?? path}
+            width={width}
+            editable={!catalog && !gallery}
             onSelect={(target) => onPreview(target, (e) => e.select?.(target))}
             onInline={(target, value) => onPreview(target, (e) => e.apply?.(target, value))}
             onCatalog={(msg) => {
               if (msg.tab) store.set('catTab', msg.tab);
               if (msg.insert) editor.current?.insert?.(msg.insert);
               if (msg.pick) editor.current?.pickCover?.(msg.pick);
+              if (msg.template) {
+                setStartFrom(msg.template);
+                setDialog('page');
+              }
             }}
           />
         )}
@@ -335,7 +360,14 @@ export default function App() {
         />
       )}
       {palette && <Palette commands={commands} onClose={() => setPalette(false)} />}
-      {dialog === 'page' && <NewPage onClose={() => setDialog(null)} onCreate={(id) => (lists(), go({ kind: 'page', id }))} />}
+      {dialog === 'page' && (
+        <NewPage
+          start={startFrom}
+          onPreview={(p) => setGallery(p)}
+          onClose={() => setDialog(null)}
+          onCreate={(id) => (setGallery(null), lists(), go({ kind: 'page', id }))}
+        />
+      )}
       {dialog === 'new' && meta && <NewPost meta={meta} onClose={() => setDialog(null)} onCreate={(id) => (lists(), go({ kind: 'post', id }))} />}
       {dialog === 'publish' && (
         <Publish
@@ -461,9 +493,19 @@ function Palette({ commands, onClose }: { commands: { kind: string; label: strin
   );
 }
 
-function NewPage({ onClose, onCreate }: { onClose: () => void; onCreate: (id: string) => void }) {
+function NewPage({ start, onPreview, onClose, onCreate }: { start: string; onPreview: (path: string | null) => void; onClose: () => void; onCreate: (id: string) => void }) {
   const [title, setTitle] = useState('');
-  const [kind, setKind] = useState('plain');
+  // plain, project, or a template id (src/templates).
+  const [kind, setKind] = useState(start || 'plain');
+  const [list, setList] = useState<{ id: string; name: string; group: string; description: string; title: string }[]>([]);
+  useEffect(() => void api('/api/templates').then(setList), []);
+  const tpl = list.find((t) => t.id === kind);
+  // Picking a template shows it in the preview.
+  useEffect(() => {
+    if (tpl) onPreview(`/desk/template/${tpl.id}/`);
+    if (tpl && !title) setTitle(tpl.title);
+  }, [kind, list.length]);
+  const groups = [...new Set(list.map((t) => t.group))];
   return (
     <Dialog
       title="New page"
@@ -471,7 +513,7 @@ function NewPage({ onClose, onCreate }: { onClose: () => void; onCreate: (id: st
       onClose={onClose}
       onOk={async () => {
         if (!title.trim()) return;
-        const { id } = await send('/api/pages', 'POST', { title, kind });
+        const { id } = await send('/api/pages', 'POST', tpl ? { title, template: tpl.id } : { title, kind });
         onClose();
         onCreate(id);
       }}
@@ -482,15 +524,29 @@ function NewPage({ onClose, onCreate }: { onClose: () => void; onCreate: (id: st
           <input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="About" />
         </label>
         <label>
-          kind
+          start from
           <select value={kind} onChange={(e) => setKind(e.target.value)}>
-            <option value="plain">plain page</option>
-            <option value="project">project</option>
+            <option value="plain">a plain page</option>
+            <option value="project">a project</option>
+            {groups.map((g) => (
+              <optgroup key={g} label={`Templates: ${g}`}>
+                {list
+                  .filter((t) => t.group === g)
+                  .map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name}
+                    </option>
+                  ))}
+              </optgroup>
+            ))}
           </select>
         </label>
       </div>
       <p className="hint">
-        Its address comes from the title (About → /about/). A plain page starts with a heading and text; a project starts with its name, status and pitch, text, and a log of the posts you file under it.
+        {tpl
+          ? `${tpl.description} It's in the preview now. It starts as a draft with sample content to replace.`
+          : 'A plain page starts with a heading and text; a project starts with its name, status and pitch, text, and a log of the posts you file under it.'}{' '}
+        The address comes from the title (About → /about/).
       </p>
     </Dialog>
   );

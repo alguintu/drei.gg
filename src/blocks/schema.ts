@@ -161,6 +161,230 @@ export const BLOCKS = {
     })
     .meta({ title: 'Project', description: 'A product’s name, status, pitch and links: the top of a project page.', ...page }),
 
+  // ---- Section blocks: what page templates are made of (src/templates) ----
+
+  features: z
+    .object({
+      type: z.literal('features'),
+      label: text('Label'),
+      heading: text('Heading'),
+      columns: z.enum(['2', '3', '4']).meta({ title: 'Columns' }),
+      items: list('Features', z.object({ glyph: text('Glyph', 'A character or two: +, 01, ⚡, gg.'), title: text('Title'), text: rich('Text') })),
+    })
+    .meta({ title: 'Features', description: 'A grid of short points with a glyph each.', ...page }),
+
+  pricing: z
+    .object({
+      type: z.literal('pricing'),
+      label: text('Label'),
+      heading: text('Heading'),
+      note: rich('Note', 'Under the tiers: taxes, trials, fine print.'),
+      tiers: list(
+        'Tiers',
+        z.object({
+          name: text('Name'),
+          price: text('Price', 'As shown: $0, $9, ₱499, ask.'),
+          period: text('Period', '/mo, /yr, once.'),
+          pitch: text('Pitch'),
+          features: list('Includes', text('Line')),
+          cta: text('Button'),
+          href: text('Button link'),
+          featured: z.boolean().meta({ title: 'Featured', description: 'Drawn in the main color.' }),
+        }),
+      ),
+    })
+    .meta({ title: 'Pricing', description: 'Tiers with prices, what each includes, and a button.', ...page }),
+
+  faq: z
+    .object({
+      type: z.literal('faq'),
+      label: text('Label'),
+      heading: text('Heading'),
+      items: list('Questions', z.object({ q: text('Question'), a: long('Answer') })),
+    })
+    .meta({ title: 'FAQ', description: 'Questions that open to their answers.', ...page }),
+
+  timeline: z
+    .object({
+      type: z.literal('timeline'),
+      label: text('Label'),
+      heading: text('Heading'),
+      items: list(
+        'Entries',
+        z.object({
+          date: text('Date'),
+          version: text('Version'),
+          title: text('Title'),
+          text: long('Text'),
+          kind: z.enum(['ship', 'build', 'rant', 'dead', 'plain']).meta({ title: 'Kind', description: 'Colors the marker like the tags do.' }),
+        }),
+      ),
+    })
+    .meta({ title: 'Timeline', description: 'Dated entries down a line: a changelog, a history, a schedule.', ...page }),
+
+  roadmap: z
+    .object({
+      type: z.literal('roadmap'),
+      label: text('Label'),
+      heading: text('Heading'),
+      columns: list(
+        'Columns',
+        z.object({
+          name: text('Name', 'now, next, later; or shipped, building, someday.'),
+          items: list('Cards', z.object({ title: text('Title'), note: text('Note') })),
+        }),
+      ),
+    })
+    .meta({ title: 'Roadmap', description: 'A board of columns of cards.', ...page }),
+
+  stats: z
+    .object({
+      type: z.literal('stats'),
+      label: text('Label'),
+      items: list('Numbers', z.object({ number: text('Number'), label: text('Label'), note: text('Note') })),
+    })
+    .meta({ title: 'Stats', description: 'A row of big numbers.', ...page }),
+
+  cta: z
+    .object({
+      type: z.literal('cta'),
+      heading: text('Heading'),
+      text: rich('Text'),
+      button: text('Button'),
+      href: text('Button link'),
+      secondary: text('Second link'),
+      secondary_href: text('Second link to'),
+      style: z.enum(['marker', 'ink', 'aeris']).meta({ title: 'Color' }),
+    })
+    .meta({ title: 'Call to action', description: 'A band with a heading, a line and a button.', ...page }),
+
+  quotes: z
+    .object({
+      type: z.literal('quotes'),
+      label: text('Label'),
+      heading: text('Heading'),
+      items: list('Quotes', z.object({ quote: long('Quote'), who: text('Who'), role: text('Role') })),
+    })
+    .meta({ title: 'Quotes', description: 'What people said, in cards.', ...page }),
+
+  people: z
+    .object({
+      type: z.literal('people'),
+      label: text('Label'),
+      heading: text('Heading'),
+      items: list(
+        'People',
+        z.object({
+          name: text('Name'),
+          role: text('Role'),
+          bio: rich('Bio'),
+          href: text('Link'),
+          image: z.string().meta({ title: 'Photo', widget: 'image' }),
+          tag: text('Tag', 'A short chip: human, agent, machine.'),
+        }),
+      ),
+    })
+    .meta({ title: 'People', description: 'Cards for a team, a cast, the credits.', ...page }),
+
+  links: z
+    .object({
+      type: z.literal('links'),
+      label: text('Label'),
+      heading: text('Heading'),
+      items: list('Links', z.object({ label: text('Label'), href: text('Link'), note: text('Note') })),
+    })
+    .meta({ title: 'Link list', description: 'Big stacked links, like a link-in-bio page.', ...page }),
+
+  gallery: z
+    .object({
+      type: z.literal('gallery'),
+      label: text('Label'),
+      heading: text('Heading'),
+      columns: z.enum(['2', '3', '4']).meta({ title: 'Columns' }),
+      items: list('Images', z.object({ src: z.string().meta({ title: 'Image', widget: 'image' }), alt: text('Alt text'), caption: text('Caption'), href: text('Link') })),
+    })
+    .meta({ title: 'Gallery', description: 'A grid of images with captions.', ...page }),
+
+  media: z
+    .object({
+      type: z.literal('media'),
+      label: text('Label'),
+      heading: text('Heading'),
+      text: rich('Text'),
+      image: z.string().meta({ title: 'Image', widget: 'image' }),
+      alt: text('Alt text'),
+      side: z.enum(['right', 'left']).meta({ title: 'Image side' }),
+      button: text('Button'),
+      href: text('Button link'),
+    })
+    .meta({ title: 'Media and text', description: 'An image beside a heading, text and a button.', ...page }),
+
+  archive: z
+    .object({
+      type: z.literal('archive'),
+      label: text('Label'),
+      tags: z.boolean().meta({ title: 'Tag links', description: 'Show the tags, with counts, above the list.' }),
+    })
+    .meta({ title: 'Archive', description: 'Every post, grouped by year.', ...page }),
+
+  table: z
+    .object({
+      type: z.literal('table'),
+      label: text('Label'),
+      heading: text('Heading'),
+      columns: text('Columns', 'Column names, separated by |.'),
+      rows: list('Rows', text('Row', 'Cells, separated by |.')),
+    })
+    .meta({ title: 'Table', description: 'Rows and columns: specs, comparisons, a kit list.', ...page }),
+
+  status: z
+    .object({
+      type: z.literal('status'),
+      label: text('Label'),
+      heading: text('Heading'),
+      updated: text('Updated'),
+      items: list('Systems', z.object({ name: text('Name'), state: z.enum(['up', 'degraded', 'down', 'maintenance']).meta({ title: 'State' }), note: text('Note') })),
+    })
+    .meta({ title: 'Status board', description: 'Systems and whether they’re up.', ...page }),
+
+  countdown: z
+    .object({
+      type: z.literal('countdown'),
+      label: text('Label'),
+      heading: text('Heading'),
+      target: z.string().meta({ title: 'Counting down to', description: 'YYYY-MM-DDTHH:MM, Manila time.' }),
+      done: text('When it hits zero'),
+    })
+    .meta({ title: 'Countdown', description: 'Days, hours, minutes and seconds to a moment.', ...page }),
+
+  contact: z
+    .object({
+      type: z.literal('contact'),
+      label: text('Label'),
+      heading: text('Heading'),
+      text: rich('Text'),
+      email: text('Email'),
+      items: list('Elsewhere', z.object({ label: text('Label'), value: text('Handle'), href: text('Link') })),
+    })
+    .meta({ title: 'Contact', description: 'An email to copy, and where else to find you.', ...page }),
+
+  downloads: z
+    .object({
+      type: z.literal('downloads'),
+      label: text('Label'),
+      heading: text('Heading'),
+      items: list('Files', z.object({ name: text('Name'), href: text('File'), size: text('Size'), note: text('Note') })),
+    })
+    .meta({ title: 'Downloads', description: 'Files to grab: logos, a press kit, releases.', ...page }),
+
+  divider: z
+    .object({
+      type: z.literal('divider'),
+      style: z.enum(['line', 'dots', 'zigzag', 'tape', 'gg']).meta({ title: 'Style' }),
+      text: text('Text', 'For tape: the words on it.'),
+    })
+    .meta({ title: 'Divider', description: 'A break between sections.', ...page }),
+
   search: z
     .object({
       type: z.literal('search'),

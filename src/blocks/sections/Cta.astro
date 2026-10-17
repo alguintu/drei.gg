@@ -1,0 +1,19 @@
+---
+import type { BlockData } from '../schema';
+import { blockAttrs, slotAttrs, type Path } from '../desk';
+import Text from '../Text.astro';
+
+interface Props { block: BlockData<'cta'>; path?: Path }
+const { block, path } = Astro.props;
+---
+
+<section class={`sec sec-cta st-${block.style}`} {...blockAttrs(path)}>
+  <div>
+    <h2 {...slotAttrs(path, 'heading')}>{block.heading}</h2>
+    {block.text && <p><Text path={path} slot="text" text={block.text} rich /></p>}
+  </div>
+  <p class="actions">
+    {block.button && <a class="btn" href={block.href || '#'} {...slotAttrs(path, 'button')}>{block.button}</a>}
+    {block.secondary && <a class="more" href={block.secondary_href || '#'} {...slotAttrs(path, 'secondary')}>{block.secondary} →</a>}
+  </p>
+</section>

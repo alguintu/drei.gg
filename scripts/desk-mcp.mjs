@@ -161,9 +161,23 @@ server.registerTool(
     title: 'New page',
     description:
       'Makes a page at /<slug>/ from a title (About → /about/) and returns its id. kind "plain" starts with a Heading and a Text block; "project" with a Project block (name, status, pitch, links), text, and a Post list of the posts filed under it (posts set `project: <page id>` in their front matter). Link it from the frame\'s header block, or an inventory slot, to put it in front of people.',
-    inputSchema: { title: z.string(), kind: z.enum(['plain', 'project']).default('plain') },
+    inputSchema: {
+      title: z.string(),
+      kind: z.enum(['plain', 'project']).default('plain'),
+      template: z.string().optional().describe('A page template id from list_templates (pricing, about, roadmap...). Starts as a draft with sample content; overrides kind.'),
+    },
   },
-  tool(async ({ title, kind }) => text(await post('/api/pages', { title, kind }))),
+  tool(async ({ title, kind, template }) => text(await post('/api/pages', template ? { title, template } : { title, kind }))),
+);
+
+server.registerTool(
+  'list_templates',
+  {
+    title: 'Page templates',
+    description: 'The page templates new_page can start from: id, name, group and what each is for. Look at one with preview("/desk/template/<id>/").',
+    inputSchema: {},
+  },
+  tool(async () => text(await api('/api/templates'))),
 );
 
 server.registerTool(
