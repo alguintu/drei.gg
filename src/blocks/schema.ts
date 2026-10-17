@@ -150,6 +150,13 @@ export const BLOCKS = {
     })
     .meta({ title: 'Embed', description: 'A video, a GitHub repo, or a link card.', ...page }),
 
+  search: z
+    .object({
+      type: z.literal('search'),
+      placeholder: text('Placeholder'),
+    })
+    .meta({ title: 'Search', description: 'Search every post and page (Pagefind). Press / to jump to it.', ...page }),
+
   heading: z
     .object({
       type: z.literal('heading'),
@@ -225,7 +232,7 @@ export const TEMPLATES = {
 } as const;
 
 // Page ids that would collide with the site's own routes.
-export const RESERVED = ['home', 'frame', 'post', 'log', 'blocks', 'desk', 'feed', '404', 'media', '_astro'];
+export const RESERVED = ['home', 'frame', 'post', 'log', 'blocks', 'desk', 'feed', '404', 'media', '_astro', 'tag', 'og', 'pagefind'];
 
 export const Page = z.object({
   title: z.string(),

@@ -1,0 +1,17 @@
+{
+  "title": "Search",
+  "template": "basic",
+  "regions": {
+    "main": [
+      {
+        "type": "heading",
+        "kicker": "",
+        "title": "Search"
+      },
+      {
+        "type": "search",
+        "placeholder": "Search the log"
+      }
+    ]
+  }
+}

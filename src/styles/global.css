@@ -340,3 +340,13 @@ main.single .wrap { display: block; padding-block: 48px 72px; }
 .embed .linkcard .host { font: 600 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--mute); }
 .embed .linkcard b { font: 800 20px/1.2 var(--display); font-stretch: 80%; overflow-wrap: anywhere; }
 .embed figcaption { font: 13px/1.5 var(--mono); color: var(--mute); margin-top: 8px; }
+
+/* Search block (Pagefind's UI, in the site's colors) */
+.search { margin-block: 24px; max-width: 760px;
+  --pagefind-ui-scale: .9; --pagefind-ui-primary: var(--team); --pagefind-ui-text: var(--ink); --pagefind-ui-background: var(--paper);
+  --pagefind-ui-border: var(--line); --pagefind-ui-tag: var(--panel); --pagefind-ui-border-width: 1px; --pagefind-ui-border-radius: 0;
+  --pagefind-ui-font: var(--body); }
+.search .pagefind-ui__search-input { font-family: var(--mono); }
+.search .pagefind-ui__result-title { font-family: var(--display); font-stretch: 80%; font-weight: 800; }
+.search .pagefind-ui__result-excerpt mark { background: var(--marker); color: #15171d; }
+.search-off { font: 13px/1.5 var(--mono); color: var(--mute); border: 1px dashed var(--line); padding: 12px 14px; }

@@ -15,7 +15,7 @@ const { page } = Astro.props as { page: CollectionEntry<'pages'> };
 
 <Base title={page.data.title}>
   <main class="single page">
-    <div class="wrap">
+    <div class="wrap" data-pagefind-body>
       <Region page={page} name="main" />
     </div>
   </main>

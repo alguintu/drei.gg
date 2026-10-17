@@ -142,6 +142,10 @@ There are two kinds. Page blocks (header, footer, hero, killfeed, post log, inve
 
 In the desk, click a post block in a post's preview (or put the cursor in one and press **edit ✎**) and it opens in a form above the body; the form writes the Markdown back as you type. Styles are in `src/styles/global.css`; colors are tokens at the top (ink, ribbon red, marker yellow, with blue only for links, numbers and tags).
 
+## Search
+
+`npm run build` ends by running [Pagefind](https://pagefind.app) over `dist/`, which indexes every post's article and every page made in the desk into `/pagefind/`; no server. The **Search** block puts a search box anywhere (there's one at `/search/`, linked from the header), and `/` jumps to it. In dev there's no index, so the box says so; `npm run build && npm run preview` to try it.
+
 ## Tests
 
 `npm test` is quick and needs nothing running: every post block survives Markdown and back, front matter round-trips, the pages in the repo match the block schemas, every block makes a form, the theme adds CSS only for real changes, and (after `npm run build`) no desk markup ships. GitHub Actions runs the build and these on every push and pull request.

@@ -16,6 +16,7 @@ import Heading from './Heading.astro';
 import Prose from './Prose.astro';
 import PostList from './PostList.astro';
 import Embed from './Embed.astro';
+import Search from './Search.astro';
 
 export const COMPONENTS: Record<BlockType, any> = {
   header: Header,
@@ -31,6 +32,7 @@ export const COMPONENTS: Record<BlockType, any> = {
   prose: Prose,
   postlist: PostList,
   embed: Embed,
+  search: Search,
   // Post blocks draw the same way they do inside posts.
   callout: PostBlock,
   aeris: PostBlock,

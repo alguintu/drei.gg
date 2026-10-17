@@ -30,7 +30,7 @@ const template = (await getEntry('pages', 'post'))!;
     <div class="wrap">
       <a class="back" href="/#log">← back to the log</a>
       <Region page={template} name="top" />
-      <article>
+      <article data-pagefind-body>
         <PostMeta post={post} />
         <h1>{post.data.title}</h1>
         <div class="cover-full"><PostCover post={post} /></div>

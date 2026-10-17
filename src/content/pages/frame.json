@@ -20,6 +20,10 @@
             "href": "#rules"
           },
           {
+            "label": "search",
+            "href": "/search/"
+          },
+          {
             "label": "rss",
             "href": "/feed.xml"
           }

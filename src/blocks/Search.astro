@@ -1,0 +1,39 @@
+---
+// Search over every post and page, by Pagefind: `npm run build` indexes the
+// built site into /pagefind/, so there's no server. In dev there's no index yet,
+// so the box says so. "/" anywhere on the page jumps to it.
+import type { BlockData } from './schema';
+import { blockAttrs, type Path } from './desk';
+
+interface Props {
+  block: BlockData<'search'>;
+  path?: Path;
+}
+const { block, path } = Astro.props;
+const id = `search-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<div class="search" id={id} data-pagefind-ignore {...blockAttrs(path)} data-placeholder={block.placeholder}>
+  <p class="search-off">Search works on the built site; run <code>npm run build</code> and <code>npm run preview</code> to try it.</p>
+</div>
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+<script is:inline define:vars={{ id }}>
+  (function () {
+    var box = document.getElementById(id);
+    var s = document.createElement('script');
+    s.src = '/pagefind/pagefind-ui.js';
+    s.onload = function () {
+      box.innerHTML = '';
+      new PagefindUI({ element: box, showSubResults: true, showImages: false, translations: { placeholder: box.dataset.placeholder || 'Search' } });
+      addEventListener('keydown', function (e) {
+        var t = e.target;
+        if (e.key !== '/' || t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
+        e.preventDefault();
+        var input = box.querySelector('input');
+        input && input.focus();
+      });
+    };
+    document.head.append(s);
+  })();
+</script>
