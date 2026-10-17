@@ -1,7 +1,7 @@
 ---
-// TODO: logos
+// Names or logos in a row. No logo: the name set in display type.
 import type { BlockData } from './schema';
-import { blockAttrs, type Path } from './desk';
+import { blockAttrs, slotAttrs, type Path } from './desk';
 
 interface Props {
   block: BlockData<'logos'>;
@@ -10,4 +10,14 @@ interface Props {
 const { block, path } = Astro.props;
 ---
 
-<section class="logos" {...blockAttrs(path)}><p class="label">{block.type}</p></section>
+<section class="logos" {...blockAttrs(path)}>
+  {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+  <ul>
+    {
+      block.items.map((l, i) => {
+        const inner = l.src ? <img src={l.src} alt={l.name} loading="lazy" /> : <span {...slotAttrs(path, `items.${i}.name`)}>{l.name}</span>;
+        return <li>{l.href ? <a href={l.href}>{inner}</a> : inner}</li>;
+      })
+    }
+  </ul>
+</section>

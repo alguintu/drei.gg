@@ -1,13 +1,67 @@
 ---
-// TODO: countdown
+// Days, hours, minutes, seconds to a date in Manila time (UTC+8). The date is
+// always printed; the ticking cells need JS and stay hidden without it.
 import type { BlockData } from './schema';
-import { blockAttrs, type Path } from './desk';
+import { blockAttrs, slotAttrs, type Path } from './desk';
 
 interface Props {
   block: BlockData<'countdown'>;
   path?: Path;
 }
 const { block, path } = Astro.props;
+const timed = block.until.includes('T');
+const iso = `${timed ? block.until : `${block.until}T00:00`}:00+08:00`;
+const at = new Date(iso);
+const when = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Asia/Manila',
+  weekday: 'short',
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  ...(timed ? { hour: '2-digit', minute: '2-digit', hour12: false } : {}),
+}).format(at);
+const past = at.getTime() <= Date.now();
+const units = [
+  ['d', 'days'],
+  ['h', 'hours'],
+  ['m', 'min'],
+  ['s', 'sec'],
+];
 ---
 
-<section class="countdown" {...blockAttrs(path)}><p class="label">{block.type}</p></section>
+<section class="countdown" data-until={iso} {...blockAttrs(path)}>
+  <div class="cd-head">
+    {block.label && <p class="label" {...slotAttrs(path, 'label')}>{block.label}</p>}
+    <p class="cd-when"><time datetime={iso}>{when}{timed && ' PHT'}</time></p>
+  </div>
+  <div class="cd-cells" hidden>
+    {
+      units.map(([k, name]) => (
+        <div class={`cd-cell cd-${k}`}>
+          <b data-k={k}>00</b>
+          <span>{name}</span>
+        </div>
+      ))
+    }
+  </div>
+  <p class="cd-done" hidden={!past} {...slotAttrs(path, 'done')}>{block.done}</p>
+</section>
+
+<script>
+  // Tick every countdown on the page once a second.
+  const boxes = [...document.querySelectorAll<HTMLElement>('.countdown[data-until]')];
+  const pad = (n: number) => String(n).padStart(2, '0');
+  function tick() {
+    for (const box of boxes) {
+      const s = Math.max(0, Math.floor((new Date(box.dataset.until!).getTime() - Date.now()) / 1000));
+      const vals: Record<string, string> = { d: pad(Math.floor(s / 86400)), h: pad(Math.floor(s / 3600) % 24), m: pad(Math.floor(s / 60) % 60), s: pad(s % 60) };
+      box.querySelectorAll<HTMLElement>('[data-k]').forEach((el) => (el.textContent = vals[el.dataset.k!]));
+      box.querySelector<HTMLElement>('.cd-cells')!.hidden = s === 0;
+      box.querySelector<HTMLElement>('.cd-done')!.hidden = s > 0;
+    }
+  }
+  if (boxes.length) {
+    tick();
+    setInterval(tick, 1000);
+  }
+</script>

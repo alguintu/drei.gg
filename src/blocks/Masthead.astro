@@ -1,7 +1,8 @@
 ---
-// TODO: masthead
+// A page's big opening: kicker, title, lede, buttons, an optional image.
 import type { BlockData } from './schema';
-import { blockAttrs, type Path } from './desk';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+import Text from './Text.astro';
 
 interface Props {
   block: BlockData<'masthead'>;
@@ -10,4 +11,28 @@ interface Props {
 const { block, path } = Astro.props;
 ---
 
-<section class="masthead" {...blockAttrs(path)}><p class="label">{block.type}</p></section>
+<section class={`masthead mh-${block.size}${block.image ? ' has-img' : ''}`} {...blockAttrs(path)}>
+  <div class="mh-copy">
+    {block.kicker && <p class="label kicker" {...slotAttrs(path, 'kicker')}>{block.kicker}</p>}
+    <h1 class="mh-title"><Text path={path} slot="title" text={block.title} rich /></h1>
+    {block.lede && <p class="lede"><Text path={path} slot="lede" text={block.lede} rich /></p>}
+    {
+      block.buttons.length > 0 && (
+        <p class="btns">
+          {block.buttons.map((b, i) => (
+            <a class={`btn${b.style === 'ghost' ? ' ghost' : ''}`} href={b.href} {...slotAttrs(path, `buttons.${i}.label`)}>
+              {b.label}
+            </a>
+          ))}
+        </p>
+      )
+    }
+  </div>
+  {
+    block.image && (
+      <figure class="mh-img frame">
+        <img src={block.image} alt={block.image_alt ?? ''} loading="lazy" />
+      </figure>
+    )
+  }
+</section>

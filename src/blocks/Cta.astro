@@ -1,7 +1,8 @@
 ---
-// TODO: cta
+// A banner that asks for one thing: yellow, black or plain.
 import type { BlockData } from './schema';
-import { blockAttrs, type Path } from './desk';
+import { blockAttrs, slotAttrs, type Path } from './desk';
+import Text from './Text.astro';
 
 interface Props {
   block: BlockData<'cta'>;
@@ -10,4 +11,21 @@ interface Props {
 const { block, path } = Astro.props;
 ---
 
-<section class="cta" {...blockAttrs(path)}><p class="label">{block.type}</p></section>
+<section class={`cta tone-${block.tone}`} {...blockAttrs(path)}>
+  <div class="cta-copy">
+    {block.kicker && <p class="label kicker" {...slotAttrs(path, 'kicker')}>{block.kicker}</p>}
+    <h2 class="cta-title"><Text path={path} slot="title" text={block.title} rich /></h2>
+    {block.text && <p class="cta-text"><Text path={path} slot="text" text={block.text} rich /></p>}
+  </div>
+  {
+    block.buttons.length > 0 && (
+      <p class="btns">
+        {block.buttons.map((b, i) => (
+          <a class={`btn${b.style === 'ghost' ? ' ghost' : ''}`} href={b.href} {...slotAttrs(path, `buttons.${i}.label`)}>
+            {b.label}
+          </a>
+        ))}
+      </p>
+    )
+  }
+</section>
