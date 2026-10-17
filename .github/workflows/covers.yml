@@ -1,0 +1,53 @@
+# Screenshots every cover on /blocks/ for the PR's base and its head, on the same
+# machine, and lists the ones that changed. A change isn't a failure (covers get
+# redesigned on purpose), so the check stays green and the changes show up as
+# warnings on the PR, in the run summary, and as a before/after/diff report in the
+# cover-snapshots artifact.
+name: covers
+
+on:
+  pull_request:
+
+jobs:
+  snapshots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: head
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: head/.nvmrc
+          cache: npm
+          cache-dependency-path: |
+            head/package-lock.json
+            base/package-lock.json
+      - name: Build the head
+        working-directory: head
+        run: npm ci && npx astro build
+      - name: Build the base
+        id: base
+        continue-on-error: true
+        working-directory: base
+        run: npm ci && npx astro build
+      - name: Shoot and compare
+        working-directory: head
+        run: |
+          node test/covers.mjs shoot dist ../shots/after
+          if [ "${{ steps.base.outcome }}" = success ]; then
+            node test/covers.mjs shoot ../base/dist ../shots/before
+            node test/covers.mjs diff ../shots/before ../shots/after ../shots/report
+            cat ../shots/report/summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "The base branch didn't build, so there is nothing to compare against." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cover-snapshots
+          path: shots/report
+          if-no-files-found: ignore
